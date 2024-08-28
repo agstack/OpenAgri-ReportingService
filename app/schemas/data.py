@@ -13,7 +13,7 @@ class DataUpdate(BaseModel):
 class DataDB(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    # id: int
     data: str
 
 

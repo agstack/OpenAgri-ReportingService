@@ -8,4 +8,4 @@ class Report(Base):
     id = Column(Integer, primary_key=True, unique=True, nullable=False)
     name = Column(String, nullable=False)
     file = Column(String(10485760), nullable=False)
-
+    type = Column(String, nullable=False)

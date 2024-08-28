@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict
 class ReportCreate(BaseModel):
     name: str
     file: str
+    type: str
 
 
 class ReportUpdate(BaseModel):
@@ -20,10 +21,10 @@ class ReportDB(BaseModel):
     name: str
 
 
-class ReportDBByID(ReportDB):
+class ReportDBID(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    file: str
+    id: int
 
 
 class FarmProfile(BaseModel):

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, File, Depends, HTTPException, Response, UploadFile
+import json
+
+from fastapi import APIRouter, File, Depends, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from api import deps
@@ -6,14 +8,14 @@ from models import User
 
 import crud
 
-from schemas import DataCreate, DataID, DataDB
+from schemas import DataCreate, DataID, Message
 
 router = APIRouter()
 
 
-@router.get("/{data_id}", response_model=DataDB)
+@router.get("/{dataset_id}")
 def get_by_id(
-        data_id: int,
+        dataset_id: int,
         current_user: User = Depends(deps.get_current_user),
         db: Session = Depends(deps.get_db)
 ):
@@ -21,15 +23,17 @@ def get_by_id(
     Returns the data, as a formatted json string.
     """
 
-    data_db = crud.data.get(db=db, id=data_id)
+    data_db = crud.data.get(db=db, id=dataset_id)
 
     if not data_db:
         raise HTTPException(
             status_code=400,
-            detail="Data file with ID:{} does not exist.".format(data_id)
+            detail="Data file with ID:{} does not exist.".format(dataset_id)
         )
 
-    return DataDB(**data_db.__dict__)
+    dat = json.loads(data_db.data)
+
+    return dat
 
 
 @router.post("/", response_model=DataID)
@@ -56,27 +60,25 @@ async def upload_data(
     return DataID(**data_db.__dict__)
 
 
-@router.get("/download/{data_id}")
-def download_json(
-        data_id: int,
+@router.delete("/{dataset_id}", response_model=Message)
+def delete_dataset(
+        dataset_id: int,
         current_user: User = Depends(deps.get_current_user),
         db: Session = Depends(deps.get_db)
-):
+) -> Message:
     """
-    Returns the previously uploaded/queried json for download.
+    Delete a dataset by ID.
     """
 
-    data_db = crud.data.get(db=db, id=data_id)
+    dataset_db = crud.data.get(db=db, id=dataset_id)
 
-    if not data_db:
+    if not dataset_db:
         raise HTTPException(
             status_code=400,
-            detail="Data file with ID:{} does not exist.".format(data_id)
+            detail="Dataaset with ID:{} does not exist.".format(dataset_id)
         )
 
-    headers = {
-        "Content-Disposition": "attachment; filename={}".format(data_db.filename)
-    }
+    crud.data.remove(db=db, id=dataset_id)
 
-    return Response(content=data_db.data, media_type="application/octet-stream", headers=headers)
+    return Message(message="Successfully removed dataset with ID:{}.".format(dataset_id))
 
