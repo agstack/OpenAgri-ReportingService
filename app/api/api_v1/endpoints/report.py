@@ -33,7 +33,7 @@ def get_by_id(
             detail="Report with ID:{} does not exist.".format(report_id)
         )
 
-    types = {"work_book": "work-book", "plant_protection": "plant-protection", "irrigation": "irrigations", "fertilisation": "fertilisations", "harvest": "harvests", "global_gap": "GlobalGAP"}
+    types = {"work_book": "work-book", "plant_protection": "plant-protection", "irrigation": "irrigations", "fertilisations": "fertilisations", "harvest": "harvests", "global_gap": "GlobalGAP"}
 
     if report_db.type == "work-book":
         # Create the report (Example code, leftover after initial, albeit wrongly presumed, implementation)
