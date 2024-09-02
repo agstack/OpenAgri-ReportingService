@@ -102,17 +102,17 @@ class PestManagement(BaseModel):
     treatment_description: Optional[str]
 
 
-# class Fertilization(BaseModel):
-#     date: Optional[datetime.date]
-#     product: Optional[str]
-#     quantity: Optional[float]
-#     unit: Optional[str]
-#     treatment_plan: Optional[str]
-#     form_of_treatment: Optional[str]
-#     operation_type: Optional[str]
-#     treatment_description: Optional[str]
-#
-#
+class Fertilization(BaseModel):
+    date: Optional[datetime.date]
+    product: Optional[str]
+    quantity: Optional[float]
+    unit: Optional[str]
+    treatment_plan: Optional[str]
+    form_of_treatment: Optional[str]
+    operation_type: Optional[str]
+    treatment_description: Optional[str]
+
+
 # class GrowthStages(BaseModel):
 #     date: Optional[datetime.date]
 #     product: Optional[str]

@@ -10,6 +10,7 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 import os
 from init.db_init import init_db
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Sleep necessary because the db might not be up before this call, which results in a crash (restart the backend container for it to work properly though)

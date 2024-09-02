@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from fastapi import APIRouter, Depends, Response, HTTPException
 from fpdf import FPDF
@@ -10,7 +11,7 @@ from api import deps
 from models import User
 from schemas import FarmProfile, MachineryAssetsOfFarm, PlotParcelDetail, ReportDB, ReportCreate, Message, ReportDBID
 
-from utils import create_pdf_report, plant_protection, irrigations, fertilisation, harvests
+from utils import plant_protection, irrigations, fertilisation, harvests, work_book
 
 router = APIRouter()
 
@@ -37,42 +38,21 @@ def get_by_id(
 
     if report_db.type == "work-book":
         # Create the report (Example code, leftover after initial, albeit wrongly presumed, implementation)
-        pdf = create_pdf_report(
-            farm=FarmProfile(name="A", father_name="b", vat="c", head_office_details="d", phone=None,
-                             district="f", county="g", municipality="h", community="i", place_name="j",
-                             farm_area="k", plot_ids=[1, 2]),
-            mach=[MachineryAssetsOfFarm(index=1, description="a", serial_number="b",
-                                        date_of_manufacturing=datetime.date.today()),
-                  MachineryAssetsOfFarm(index=2, description="c", serial_number="d",
-                                        date_of_manufacturing=datetime.date.today())],
-            plot=PlotParcelDetail(plot_id=1, reporting_year=2024, cartographic="a", region="b",
-                                  toponym="c", area="200", nitro_area=True, natura_area=None,
-                                  pdo_pgi_area=True, irrigated=True, cultivation_in_levels=False,
-                                  ground_slope=False),
-        )
+        json_file = json.loads(report_db.file)
+        pdf = utils.work_book(utils.parse_farm_profile(json_file), utils.parse_plot_detail(json_file), utils.parse_generic_cultivation_info(json_file))
     elif report_db.type == "plant-protection":
-        pdf = plant_protection()
+        pdf = plant_protection(utils.parse_plant_protection(json.loads(report_db.file)))
     elif report_db.type == "irrigations":
-        pdf = irrigations()
+        pdf = irrigations(utils.parse_irrigation(json.loads(report_db.file)))
     elif report_db.type == "fertilisations":
-        pdf = fertilisation()
+        pdf = fertilisation(utils.parse_fertilization(json.loads(report_db.file)))
     elif report_db.type == "harvests":
+        # This will pass always, because it generates an empty .pdf every time
         pdf = harvests()
     else:
         # Create the report (Example code, leftover after initial, albeit wrongly presumed, implementation)
-        pdf = create_pdf_report(
-            farm=FarmProfile(name="A", father_name="b", vat="c", head_office_details="d", phone=None,
-                             district="f", county="g", municipality="h", community="i", place_name="j",
-                             farm_area="k", plot_ids=[1, 2]),
-            mach=[MachineryAssetsOfFarm(index=1, description="a", serial_number="b",
-                                        date_of_manufacturing=datetime.date.today()),
-                  MachineryAssetsOfFarm(index=2, description="c", serial_number="d",
-                                        date_of_manufacturing=datetime.date.today())],
-            plot=PlotParcelDetail(plot_id=1, reporting_year=2024, cartographic="a", region="b",
-                                  toponym="c", area="200", nitro_area=True, natura_area=None,
-                                  pdo_pgi_area=True, irrigated=True, cultivation_in_levels=False,
-                                  ground_slope=False),
-        )
+        json_file = json.loads(report_db.file)
+        pdf = utils.work_book(utils.parse_farm_profile(json_file), utils.parse_plot_detail(json_file), utils.parse_generic_cultivation_info(json_file))
 
     # Return the report as a response (binary)
     headers = {
@@ -113,7 +93,7 @@ def create_by_data_id(
         )
 
     # Create DB entry
-    report_db = crud.report.create(db=db, obj_in=ReportCreate(name=dataset_db.filename + " report.pdf", file="Temporary Example", type=report_type))
+    report_db = crud.report.create(db=db, obj_in=ReportCreate(name=dataset_db.filename + " report.pdf", file=dataset_db.data, type=report_type))
 
     return ReportDBID(**report_db.__dict__)
 
