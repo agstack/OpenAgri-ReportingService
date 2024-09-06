@@ -22,9 +22,14 @@ def init_admin_user():
 
 
 def init_db():
-    init_admin_user()
-    db.flush()
-    db.close()
+    try:
+        init_admin_user()
+        db.flush()
+        db.close()
+    except Exception as e:
+        print(e)
+        print("User already exists, fine to continue.")
+
     print("init_db done")
 
 

@@ -37,22 +37,44 @@ def get_by_id(
     types = {"work_book": "work-book", "plant_protection": "plant-protection", "irrigation": "irrigations", "fertilisations": "fertilisations", "harvest": "harvests", "global_gap": "GlobalGAP"}
 
     if report_db.type == "work-book":
-        # Create the report (Example code, leftover after initial, albeit wrongly presumed, implementation)
         json_file = json.loads(report_db.file)
-        pdf = utils.work_book(utils.parse_farm_profile(json_file), utils.parse_plot_detail(json_file), utils.parse_generic_cultivation_info(json_file))
+
+        pdf = utils.work_book(
+            farm=utils.parse_farm_profile(json_file),
+            plot=utils.parse_plot_detail(json_file),
+            cult=utils.parse_generic_cultivation_info(json_file),
+            irri=utils.parse_irrigation(json_file),
+            fert=utils.parse_fertilization(json_file),
+            pdmd=utils.parse_plant_protection(json_file)
+        )
+
     elif report_db.type == "plant-protection":
+
         pdf = plant_protection(utils.parse_plant_protection(json.loads(report_db.file)))
+
     elif report_db.type == "irrigations":
+
         pdf = irrigations(utils.parse_irrigation(json.loads(report_db.file)))
+
     elif report_db.type == "fertilisations":
+
         pdf = fertilisation(utils.parse_fertilization(json.loads(report_db.file)))
+
     elif report_db.type == "harvests":
         # This will pass always, because it generates an empty .pdf every time
         pdf = harvests()
     else:
-        # Create the report (Example code, leftover after initial, albeit wrongly presumed, implementation)
+        # Same as work-book for now
         json_file = json.loads(report_db.file)
-        pdf = utils.work_book(utils.parse_farm_profile(json_file), utils.parse_plot_detail(json_file), utils.parse_generic_cultivation_info(json_file))
+
+        pdf = utils.work_book(
+            farm=utils.parse_farm_profile(json_file),
+            plot=utils.parse_plot_detail(json_file),
+            cult=utils.parse_generic_cultivation_info(json_file),
+            irri=utils.parse_irrigation(json_file),
+            fert=utils.parse_fertilization(json_file),
+            pdmd=utils.parse_plant_protection(json_file)
+        )
 
     # Return the report as a response (binary)
     headers = {

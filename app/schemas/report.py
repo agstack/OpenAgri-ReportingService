@@ -62,7 +62,7 @@ class PlotParcelDetail(BaseModel):
     irrigated: Optional[bool]
     cultivation_in_levels: Optional[bool]
     ground_slope: Optional[bool]
-    # photo: Optional[bytes]
+    depiction: Optional[str]
 
 
 class GenericCultivationInformationForParcel(BaseModel):
