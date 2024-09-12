@@ -3,7 +3,7 @@
 # Description
 
 The reporting service generates .pdf reports based on information present in datasets.\
-These datasets are required conform to the OCSM (OpenAgri Common Semantic Model) as well as be JSON-LD compliant.
+These datasets are to required conform to the OCSM (OpenAgri Common Semantic Model) as well as be JSON-LD compliant.
 
 # Requirements
 <ul>
