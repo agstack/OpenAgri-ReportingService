@@ -37,11 +37,11 @@ For more examples, please view the swagger documentation.
 Please contact the maintainer of this repository.
 
 # License
-<a html="https://github.com/openagri-eu/reporting-service/blob/main/LICENSE">European Union Public License 1.2</a>
+[European Union Public License 1.2](https://github.com/openagri-eu/reporting-service/blob/main/LICENSE)
 
 # Other
 If attempting to deploy without docker, then python:3.12 is required.\
-Use a <a href="https://peps.python.org/pep-0405/">venv</a> when doing a direct deployment.
+Use a [venv](https://peps.python.org/pep-0405/) when doing a direct deployment.
 
 
 # Python libraries
