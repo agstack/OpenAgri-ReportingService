@@ -1,8 +1,9 @@
+from pydantic import AnyHttpUrl, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from password_validator import PasswordValidator
+
 from typing import Optional, Any, List
 
-from password_validator import PasswordValidator
-from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import SettingsConfigDict, BaseSettings
 from os import path, environ
 
 

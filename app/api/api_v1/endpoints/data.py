@@ -81,4 +81,3 @@ def delete_dataset(
     crud.data.remove(db=db, id=dataset_id)
 
     return Message(message="Successfully removed dataset with ID:{}.".format(dataset_id))
-

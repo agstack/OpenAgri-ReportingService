@@ -31,8 +31,10 @@ def login_access_token(
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRATION_TIME)
 
-    at = Token(access_token=security.create_access_token(
-            user_db.id, expires_delta=access_token_expires
+    at = Token(
+        access_token=security.create_access_token(
+            user_db.id,
+            expires_delta=access_token_expires
         ),
         token_type="bearer"
     )

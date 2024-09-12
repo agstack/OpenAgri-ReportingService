@@ -1,14 +1,13 @@
-import subprocess
-import time
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from api.api_v1.api import api_router
-from core.config import settings
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-import os
+from contextlib import asynccontextmanager
+
 from init.db_init import init_db
+from core.config import settings
+from api.api_v1.api import api_router
+
+import subprocess
+import time
 
 
 @asynccontextmanager

@@ -54,3 +54,19 @@ def get_me(
     """
 
     return current_user
+
+
+@router.delete("/", response_model=Message)
+def delete_user(
+        current_user: User = Depends(deps.get_current_user),
+        db: Session = Depends(deps.get_db)
+) -> Message:
+    """
+    Delete self from system.
+    """
+
+    user.remove(db=db, id=current_user.id)
+
+    return Message(
+        message="Successfully deleted user."
+    )

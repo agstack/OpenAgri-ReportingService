@@ -1,6 +1,7 @@
-from passlib.context import CryptContext
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from passlib.context import CryptContext
 
 from models import User
 
