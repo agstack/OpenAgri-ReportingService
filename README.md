@@ -52,8 +52,8 @@ This service uses FastAPI as a web framework to serve APIs, alembic for database
 # Example Usage
 In order to create a report, you need data for that report.\
 For this, there are two main APIs that are of significance:\
-1. POST localhost/openagri-dataset/
-2. POST localhost/openagri-report/{report_type}/dataset/{dataset_id}
+1. POST localhost/api/v1/openagri-dataset/
+2. POST localhost/api/v1/openagri-report/{report_type}/dataset/{dataset_id}
 
 The first one is used to upload a dataset to the service.\
 It returns the ID of the dataset.
