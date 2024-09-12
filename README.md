@@ -26,13 +26,9 @@ The application will be served on http://127.0.0.1:80 (I.E. typing localhost/doc
 # Documentation.
 Examples:
 <h3>POST</h1>
-```
 /api/v1/openagri-report/{report_type}/dataset/{dataset_id}
-```
 <h3>GET</h3>
-```
 /api/v1/openagri-dataset/{dataset_id}
-```
 
 \
 For more examples, please view the swagger documentation.
