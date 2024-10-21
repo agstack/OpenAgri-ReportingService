@@ -39,10 +39,82 @@ The application will be served on http://127.0.0.1:80 (I.E. typing localhost/doc
 
 # Documentation
 Examples:
-<h3>POST</h3>
-/api/v1/openagri-report/{report_type}/dataset/{dataset_id}
 <h3>GET</h3>
+```
+/api/v1/openagri-report/{report_id}
+```
+Example response:
+```
+A .pdf file that contains the report
+```
+<h3>POST</h3>
+```
+/api/v1/openagri-report/{report_type}/dataset/{dataset_id}
+```
+Example response:
+```
+{
+    "id": 1
+}
+```
+<h3>DELETE</h3>
+```
+/api/v1/openagri-report/{report_id}
+```
+Example response:
+```
+{
+    "message": "Successfully deleted report with ID:1"
+}
+```
+<h3>GET</h3>
+```
 /api/v1/openagri-dataset/{dataset_id}
+```
+Example response:
+```
+{
+  "@context": [
+    "https://w3id.org/ocsm/main-context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "urn:openagri:pestMgmt:2ba53329-612c-47f3-a7f9-67f5f74f98f0",
+      "@type": "ChemicalControlOperation",
+      "description": "treatment description",
+      "hasAppliedAmount": {
+        "@id": "urn:openagri:pestMgmt:amount:762c62ca-bca2-464e-be18-94caf4596d3a",
+        "@type": "QuantityValue",
+        "numericValue": 1176,
+        "unit": "http://qudt.org/vocab/unit/GM"
+      },
+      .
+      .
+      .
+}
+```
+This response has been reduced in length, but the format should conform to the OCSM, as this format is expected when uploading.
+<h3>POST<h3>
+```
+/api/v1/openagri-dataset/
+```
+Example response:
+```
+{
+    "id": 1
+}
+```
+<h3>DELETE</h3>
+```
+/api/v1/openagri-dataset/{dataset_id}
+```
+Example response:
+```
+{
+    "message": "Successfully removed dataset with ID:1."
+}
+```
+
 
 <h3> Example usage </h3>
 

@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 from password_validator import PasswordValidator
 
 from typing import Optional, Any, List
@@ -8,9 +8,7 @@ from os import path, environ
 
 
 class Settings(BaseSettings):
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
-        "http://localhost:4200"
-    ]
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [ ]
 
     PROJECT_ROOT: str = path.dirname(path.dirname(path.realpath(__file__)))
 
@@ -18,7 +16,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     POSTGRES_HOST: str
-    # POSTGRES_DB_PORT: int
+    POSTGRES_PORT: int
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
@@ -27,15 +25,13 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
 
-        url = "postgresql://{}:{}@/{}?host={}".format(
+        url = "postgresql://{}:{}@{}:{}/{}".format(
             environ.get("POSTGRES_USER"),
             environ.get("POSTGRES_PASSWORD"),
-            environ.get("POSTGRES_DB"),
-            environ.get("POSTGRES_HOST")
+            environ.get("POSTGRES_HOST"),
+            environ.get("POSTGRES_PORT"),
+            environ.get("POSTGRES_DB")
         )
-
-        # url = f'postgresql://{environ.get("POSTGRES_USER"}:{environ.get("POSTGRES_PASSWORD"}' \
-        #       f'@/{environ.get("POSTGRES_DB")}?host={environ.get("POSTGRES_HOST"}'' # the host must be the name of the docker compose service
 
         return url
 
@@ -49,9 +45,7 @@ class Settings(BaseSettings):
         .has().no().spaces() \
 
     ACCESS_TOKEN_EXPIRATION_TIME: int
-    KEY: str = "c2bab29d257f0ffc52d9ac677d4ff6d1d9d5e92e3d3939d3f4cwc"
-
-    # model_config = SettingsConfigDict(case_sensitive=True, env_file="defaults.env")
+    JWT_KEY: str = "c2bab29d257f0ffc52d9ac677d4ff6d1d9d5e92e3d3939d3f4cwc"
 
 
 settings = Settings()

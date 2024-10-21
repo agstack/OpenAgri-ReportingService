@@ -1,30 +1,11 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-
-from init.db_init import init_db
 from core.config import settings
 from api.api_v1.api import api_router
 
-import subprocess
-import time
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Sleep necessary because the db might not be up before this call, which results in a crash (restart the backend container for it to work properly though)
-    # auto migrate the db
-
-    time.sleep(3)
-    subprocess.run(["alembic", "revision", "--autogenerate"], check=True)
-    subprocess.run(["alembic", "upgrade", "head"], check=True)
-    time.sleep(1)
-    init_db()
-
-    yield
 
 app = FastAPI(
-    title="OA-Reporting service", openapi_url="/api/v1/openapi.json", lifespan=lifespan
+    title="Reporting service", openapi_url="/api/v1/openapi.json"
 )
 
 # Set all CORS enabled origins

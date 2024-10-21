@@ -20,7 +20,7 @@ def create_access_token(
             minutes=int(60 * 24 * 8)
         )
     to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(payload=to_encode, key=settings.KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(payload=to_encode, key=settings.JWT_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
@@ -37,14 +37,14 @@ def generate_jwt_token(email: str) -> str:
     expires = datetime.utcnow() + delta
     exp = expires.timestamp()
     encoded_jwt = jwt.encode(
-        payload={"exp": exp, "nbf": datetime.utcnow(), "sub": email}, key=settings.KEY, algorithm=ALGORITHM,
+        payload={"exp": exp, "nbf": datetime.utcnow(), "sub": email}, key=settings.JWT_KEY, algorithm=ALGORITHM,
     )
     return encoded_jwt
 
 
 def verify_jwt_token(token: str) -> Optional[str]:
     try:
-        decoded_token = jwt.decode(token, settings.KEY, algorithms=["HS256"])
+        decoded_token = jwt.decode(token, settings.JWT_KEY, algorithms=["HS256"])
         return decoded_token["sub"]
     except jwt.PyJWTError:
         return None

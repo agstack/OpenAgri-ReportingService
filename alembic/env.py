@@ -20,8 +20,8 @@ import sys
 from os.path import relpath, abspath, join
 from os import getcwd
 sys.path.insert(0, join(abspath(getcwd()), "app"))
-from models import *
-target_metadata = User.metadata
+import models
+target_metadata = models.User.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

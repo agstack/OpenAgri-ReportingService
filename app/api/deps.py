@@ -30,7 +30,7 @@ def get_current_user(
 ) -> User:
     try:
         payload = jwt.decode(
-            token, settings.KEY, algorithms=[security.ALGORITHM]
+            token, settings.JWT_KEY, algorithms=[security.ALGORITHM]
         )
         # token_data = TokenPayload(**payload)
     except (jwt.PyJWTError, ValidationError):
@@ -42,18 +42,4 @@ def get_current_user(
     user_db = user.get(db, id=payload["sub"])
     if not user_db:
         raise HTTPException(status_code=404, detail="User not found")
-    return user_db
-
-
-def get_administrator(
-        db: Session = Depends(get_db),
-        token: str = Depends(reusable_oauth2)
-) -> User:
-    user_db = get_current_user(db=db, token=token)
-
-    if user_db.role.name != "Admin":
-        raise HTTPException(
-            status_code=401, detail="User not authorized"
-        )
-
     return user_db

@@ -3,8 +3,8 @@ from typing import List
 from fastapi import HTTPException
 from fpdf import FPDF
 
-from schemas import FarmProfile, MachineryAssetsOfFarm, PlotParcelDetail, GenericCultivationInformationForParcel, \
-    Harvest, Irrigation, PestManagement, Fertilization
+from schemas import FarmProfile, PlotParcelDetail, GenericCultivationInformationForParcel, Irrigation, PestManagement, \
+    Fertilization
 
 import datetime
 

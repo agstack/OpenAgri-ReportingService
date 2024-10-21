@@ -1,17 +1,13 @@
-import datetime
 import json
 
 from fastapi import APIRouter, Depends, Response, HTTPException
-from fpdf import FPDF
 from sqlalchemy.orm import Session
 
 import crud
 import utils
 from api import deps
 from models import User
-from schemas import FarmProfile, MachineryAssetsOfFarm, PlotParcelDetail, ReportDB, ReportCreate, Message, ReportDBID
-
-from utils import plant_protection, irrigations, fertilisation, harvests, work_book
+from schemas import ReportCreate, Message, ReportDBID
 
 router = APIRouter()
 
@@ -34,8 +30,6 @@ def get_by_id(
             detail="Report with ID:{} does not exist.".format(report_id)
         )
 
-    types = {"work_book": "work-book", "plant_protection": "plant-protection", "irrigation": "irrigations", "fertilisations": "fertilisations", "harvest": "harvests", "global_gap": "GlobalGAP"}
-
     if report_db.type == "work-book":
         json_file = json.loads(report_db.file)
 
@@ -50,19 +44,19 @@ def get_by_id(
 
     elif report_db.type == "plant-protection":
 
-        pdf = plant_protection(utils.parse_plant_protection(json.loads(report_db.file)))
+        pdf = utils.plant_protection(utils.parse_plant_protection(json.loads(report_db.file)))
 
     elif report_db.type == "irrigations":
 
-        pdf = irrigations(utils.parse_irrigation(json.loads(report_db.file)))
+        pdf = utils.irrigations(utils.parse_irrigation(json.loads(report_db.file)))
 
     elif report_db.type == "fertilisations":
 
-        pdf = fertilisation(utils.parse_fertilization(json.loads(report_db.file)))
+        pdf = utils.fertilisation(utils.parse_fertilization(json.loads(report_db.file)))
 
     elif report_db.type == "harvests":
         # This will pass always, because it generates an empty .pdf every time
-        pdf = harvests()
+        pdf = utils.harvests()
     else:
         # Same as work-book for now
         json_file = json.loads(report_db.file)
@@ -93,7 +87,6 @@ def create_by_data_id(
 ) -> ReportDBID:
     """
     Generate a report based off of a previously uploaded/queried data file.
-    [Currently returns an example PDF file regardless of input json]
     Types: [work-book, plant-protection, irrigations, fertilisations, harvests, GlobalGAP]
     """
 

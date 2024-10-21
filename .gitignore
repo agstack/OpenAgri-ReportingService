@@ -1,7 +1,6 @@
 .venv
 .idea
 .alembic
-.env_local
+.env.example
 __pycache__
-#alembic.ini
-#/alembic
+.env
