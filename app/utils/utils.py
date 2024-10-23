@@ -384,9 +384,11 @@ def harvests():
 
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    add_fonts(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Harvests")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -409,9 +411,11 @@ def fertilisation(ferts: List[Fertilization]):
 
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    add_fonts(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Fertilization")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -455,9 +459,11 @@ def irrigations(irgs: List[Irrigation]):
 
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    add_fonts(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Irrigation")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -493,9 +499,11 @@ def plant_protection(ppp: List[PestManagement]):
 
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    add_fonts(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Plant Protection")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -547,10 +555,11 @@ def work_book(
     # 1
 
     pdf.add_page()
+    add_fonts(pdf)
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "1. Farm profile")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -577,9 +586,9 @@ def work_book(
 
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "2. Machinery / Assets of Farm")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -601,9 +610,9 @@ def work_book(
     if len(plot) == 0:
         pdf.add_page()
 
-        pdf.set_font("helvetica", "B", 10)
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 10, "3. Plot/parcel details")
-        pdf.set_font("helvetica", "", 8)
+        pdf.set_font("FreeSerif", "", 8)
 
         EX.ln(pdf)
 
@@ -620,9 +629,9 @@ def work_book(
             if first_page:
                 pdf.add_page()
 
-                pdf.set_font("helvetica", "B", 10)
+                pdf.set_font("FreeSerif", "B", 10)
                 pdf.cell(40, 10, "3. Plot/parcel details")
-                pdf.set_font("helvetica", "", 8)
+                pdf.set_font("FreeSerif", "", 8)
 
                 EX.ln(pdf)
 
@@ -674,9 +683,9 @@ def work_book(
     # 4.
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "4. Generic cultivation information for parcel")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -709,9 +718,9 @@ def work_book(
     # 5.
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "5. Harvests")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -729,9 +738,9 @@ def work_book(
     # 6.
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "6. Irrigations")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -760,9 +769,9 @@ def work_book(
     # 7.
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "7. Pest management")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -798,9 +807,9 @@ def work_book(
     # 8.
     pdf.add_page()
 
-    pdf.set_font("helvetica", "B", 10)
+    pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "8. Fertilisation")
-    pdf.set_font("helvetica", "", 8)
+    pdf.set_font("FreeSerif", "", 8)
 
     EX.ln(pdf)
 
@@ -834,6 +843,11 @@ def work_book(
                 row.cell(None)
 
     return pdf
+
+
+def add_fonts(pdf):
+    pdf.add_font('FreeSerif', '', 'app/utils/FreeSerif.ttf', uni=True)
+    pdf.add_font('FreeSerif', 'B', 'app/utils/FreeSerifBold.ttf', uni=True)
 
 
 class EX(FPDF):
