@@ -45,7 +45,7 @@ class Settings(BaseSettings):
         .has().no().spaces() \
 
     ACCESS_TOKEN_EXPIRATION_TIME: int
-    JWT_KEY: str = "c2bab29d257f0ffc52d9ac677d4ff6d1d9d5e92e3d3939d3f4cwc"
+    JWT_KEY: str
 
 
 settings = Settings()
