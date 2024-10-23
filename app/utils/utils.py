@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from fastapi import HTTPException
@@ -846,8 +847,10 @@ def work_book(
 
 
 def add_fonts(pdf):
-    pdf.add_font('FreeSerif', '', 'app/utils/FreeSerif.ttf', uni=True)
-    pdf.add_font('FreeSerif', 'B', 'app/utils/FreeSerifBold.ttf', uni=True)
+    fonts_folder_path = os.path.join("app", "utils", "fonts")
+
+    pdf.add_font('FreeSerif', '', os.path.join(fonts_folder_path, "FreeSerif.ttf"), uni=True)
+    pdf.add_font('FreeSerif', 'B', os.path.join(fonts_folder_path, "FreeSerifBold.ttf"), uni=True)
 
 
 class EX(FPDF):
