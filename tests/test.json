@@ -1,0 +1,427 @@
+{
+    "@context": [
+        "https://w3id.org/ocsm/main-context.jsonld"
+    ],
+    "@graph": [
+        {
+            "@id": "urn:openagri:irrigation:09fbb296-9197-48ac-a478-64db444fb7d5",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-23 08:45:00",
+            "endedAt": "2023-07-23 22:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:adc36a62-8472-49ad-995e-7eb7a7990f6b",
+                "@type": "QuantityValue",
+                "numericValue": "420",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:5b1d52d5-1925-447e-a641-c39087b02f51",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:a837fccc-2cf1-4ade-95d1-ae7bb3ff14da"
+        },
+        {
+            "@id": "urn:openagri:irrigation:129cd242-38a0-475a-add1-f56a162c5db8",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-30 07:45:00",
+            "endedAt": "2023-07-30 21:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:1a814ace-6047-4ccd-aa0a-510ca09650b4",
+                "@type": "QuantityValue",
+                "numericValue": "420",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:44c5b56b-cb56-4a57-9f10-91c3a9011053",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:19a8b9d2-4c27-40a0-b306-b1debdcbc2a4"
+        },
+        {
+            "@id": "urn:openagri:irrigation:b6c795b1-827a-45dd-aab6-1096b74390e9",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-06 08:00:00",
+            "endedAt": "2023-08-06 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:ce6f5f8c-8d15-4139-b996-dfe9bc37b408",
+                "@type": "QuantityValue",
+                "numericValue": "220",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:ba75fc4a-2c36-4189-9307-f5ca11a859f9",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:d2f97082-e8c5-44a8-8c96-4ef3bc9590ea"
+        },
+        {
+            "@id": "urn:openagri:irrigation:f05e4ba7-77ca-42fb-bf43-ba692173f480",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-10 11:30:00",
+            "endedAt": "2023-08-10 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:005933d8-ba4f-4a40-873b-cf6d2f543679",
+                "@type": "QuantityValue",
+                "numericValue": "110",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:79f7d4be-d349-4ce5-a602-2c0fac9dfa1d",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:4c80ed50-acee-4f77-8931-df38a8054886"
+        },
+        {
+            "@id": "urn:openagri:irrigation:a3815639-d31e-475a-82d4-6d3b32faa081",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-16 09:00:00",
+            "endedAt": "2023-08-16 17:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:7bb9b725-072e-4da3-841b-8243b5c278a2",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:735a38b1-53af-429f-b1d6-ca7f3699e0dd",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:c4fe866c-e5ee-402b-b49b-cd3ffe1988c6"
+        },
+        {
+            "@id": "urn:openagri:irrigation:bb3bc6d0-fc20-4c9c-babf-eb66a4c71cc2",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-30 06:00:00",
+            "endedAt": "2023-08-30 14:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:620bd072-4ab1-4b68-8e7e-882ac241a8c0",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:a8bac8b1-5d4c-4fe2-ad73-0b890663d9c5",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:9f4b8817-a323-494f-a0e5-4559ffb124cc"
+        },
+        {
+            "@id": "urn:openagri:irrigation:52436f69-5335-4d3b-8849-2fdbdc35a933",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-09-13 09:00:00",
+            "endedAt": "2023-09-13 17:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:8b1f9516-9a69-41d5-918f-882d4ae9181a",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:1957f60a-1d47-41e9-8ada-3f131d5fb6c1",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:30835cad-1765-4e5e-a7f1-a440fbc75d64"
+        },
+        {
+            "@id": "urn:openagri:irrigation:28b67288-8b1b-42c6-9499-3efaab998da7",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-09-20 10:00:00",
+            "endedAt": "2023-09-20 18:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:c28afd1f-8d08-4084-9437-a1dee629732f",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:244f1127-5339-40d4-8020-633b4b1632ff",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:0e4b6222-5ac1-41d9-a930-44c9d07ec999"
+        },
+        {
+            "@id": "urn:openagri:irrigation:bd2be7af-9b91-4d14-b241-9ece8914bb95",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-20 08:45:00",
+            "endedAt": "2023-07-20 22:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:4f4507d3-f6ac-4dab-82c9-570bc2703854",
+                "@type": "QuantityValue",
+                "numericValue": "400",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:15716fa8-0823-400c-b844-ea5ef4357d0d",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:daffcdb6-b8ef-44ff-95ca-1de5d059c0dd"
+        },
+        {
+            "@id": "urn:openagri:irrigation:5a5d3e36-69f1-413a-a5c7-232201296f68",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-29 07:45:00",
+            "endedAt": "2023-07-29 21:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:2b2d4088-a42d-4969-89f1-9daccdfd179f",
+                "@type": "QuantityValue",
+                "numericValue": "400",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:a77233fd-1acb-4cc6-913e-1dc220adecf5",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:cb502444-0269-4bea-b445-f3df61dbe757"
+        },
+        {
+            "@id": "urn:openagri:irrigation:81572d37-ad02-4aae-8636-fa55604d6898",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-08 08:00:00",
+            "endedAt": "2023-08-08 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:b58972c6-998c-4d79-8643-60715ae52ae8",
+                "@type": "QuantityValue",
+                "numericValue": "230",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:d177aeec-b0c7-45df-81ae-9c1e7f8f110d",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:f40b1ee3-6823-4be2-9532-1a30e764214d"
+        },
+        {
+            "@id": "urn:openagri:fertilization:a25838d4-368b-4837-8493-b097c9c36103",
+            "@type": "FertilizationOperation",
+            "description": "Basal Fertlization",
+            "hasTimestamp": "2023-02-26",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:55622351-05d6-4b53-9332-fb5ec425a82c",
+                "@type": "Fertilizer",
+                "hasCommercialName": "ENTEC 20-8-10(+2Mgo+3S)"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:bcb2d573-759e-4a46-8dc2-6d7f3b1df62e",
+                "@type": "QuantityValue",
+                "numericValue": "4",
+                "unit": "https://w3id.org/ocsm/KiloGM-PER-PLANT"
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:4f6cd33f-6378-481e-bf5a-131b153eb8e7",
+                "@type": "TreatmentPlan",
+                "description": "The fertilisation type and dose derived after the soil analysis with id: 0123"
+            },
+            "hasApplicationMethod": "Dispration",
+            "operationType": "Dispration",
+            "isOperatedOn": "urn:openagri:parcel:dc75092d-55d5-44bd-ab42-36f3a84ca934"
+        },
+        {
+            "@id": "urn:openagri:fertilization:e4f693c4-6131-4251-8b41-049f9525fc9a",
+            "@type": "FertilizationOperation",
+            "description": "\u03ac\u03bb\u03bb\u03b7 \u03bc\u03ad\u03b8\u03bf\u03b4\u03bf\u03c2",
+            "hasTimestamp": "2023-06-14",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:1b5c19c5-b791-4974-bcda-595ff5fe961a",
+                "@type": "Fertilizer",
+                "hasCommercialName": "AMINO 16"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:a63e1e81-1750-4ac0-acce-ffc91573f2c6",
+                "@type": "QuantityValue",
+                "numericValue": "1.000",
+                "unit": null
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:9bd9b6fe-3db9-4b2a-b401-169040ec348e",
+                "@type": "TreatmentPlan",
+                "description": null
+            },
+            "hasApplicationMethod": "liquid foliar fertilizer",
+            "operationType": "liquid foliar fertilizer",
+            "isOperatedOn": "urn:openagri:parcel:16d23dde-5ab7-49fa-8b31-b644973eaac2"
+        },
+        {
+            "@id": "urn:openagri:fertilization:868f6b61-43f5-473f-a703-dd5f85cf23c4",
+            "@type": "FertilizationOperation",
+            "description": "Basal Fertlization",
+            "hasTimestamp": "2023-02-29",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:8e7331b1-b29b-40ce-9fe3-9e6526a37096",
+                "@type": "Fertilizer",
+                "hasCommercialName": "ENTEC 20-8-10(+2Mgo+3S)"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:99f82f0b-5845-4d10-aa53-474908dcdb5e",
+                "@type": "QuantityValue",
+                "numericValue": "5",
+                "unit": "https://w3id.org/ocsm/KiloGM-PER-PLANT"
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:fa8e384d-08ee-4eae-baa6-3e681fa4a306",
+                "@type": "TreatmentPlan",
+                "description": "The fertilisation type and dose derived after the soil analysis with id: 0123"
+            },
+            "hasApplicationMethod": "Dispration",
+            "operationType": "Dispration",
+            "isOperatedOn": "urn:openagri:parcel:7e8ccc89-3ec8-41b6-aa1d-6aeb2f42902a"
+        },
+        {
+            "@id": "urn:openagri:fertilization:1508e901-31d2-4600-9957-6dba8081a933",
+            "@type": "FertilizationOperation",
+            "description": "\u03ac\u03bb\u03bb\u03b7 \u03bc\u03ad\u03b8\u03bf\u03b4\u03bf\u03c2",
+            "hasTimestamp": "2023-06-24",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:a716473c-84e9-44d0-9b31-564458666d78",
+                "@type": "Fertilizer",
+                "hasCommercialName": "AMINO 16"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:f94377dc-cbfc-4127-8176-2830d92ded28",
+                "@type": "QuantityValue",
+                "numericValue": "1.5",
+                "unit": null
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:7f3a3313-93b5-4595-9670-e7946a46a759",
+                "@type": "TreatmentPlan",
+                "description": null
+            },
+            "hasApplicationMethod": "liquid foliar fertilizer",
+            "operationType": "liquid foliar fertilizer",
+            "isOperatedOn": "urn:openagri:parcel:9106b63a-7c4a-4c74-b400-8778417d304a"
+        },
+        {
+            "@id": "urn:openagri:farm:49ab0468-562c-40d2-aae3-8f2a8789a1a1",
+            "@type": "Farm",
+            "name": "The OpenAgri prototype Farm",
+            "description": "A farm in Attica Greece with two parcels cultivating table olives",
+            "hasAdministrator": "Marinos Antypas",
+            "contactPerson": {
+                "@id": "urn:openagri:farm:contact:31dbb9d8-37f9-44f7-afd7-16fa23cc605a",
+                "@type": "Person",
+                "firstname": "Marinos Antypas",
+                "lastname": "Marinos Antypas"
+            },
+            "telephone": "+30-08101907",
+            "vatID": "xyz-abc-1234",
+            "address": {
+                "@id": "urn:openagri:farm:address:6e33b75c-c127-4db5-8946-7ead430a80a0",
+                "@type": "Address",
+                "adminUnitL1": "Greece",
+                "adminUnitL2": "Attica",
+                "addressArea": "no address",
+                "municipality": "Oropos",
+                "community": "",
+                "locatorName": "Killeler"
+            },
+            "area": 200000,
+            "hasAgriParcel": [
+                {
+                    "@id": "urn:openagri:parcel:ef5f4c21-397d-4653-88b5-731091201bd6",
+                    "@type": "Vineyard",
+                    "identifier": 123001,
+                    "description": "Olive grove A",
+                    "category": "orchard",
+                    "validFrom": "2023-01-01T00:00:00",
+                    "validTo": "2023-12-31T23:59:59",
+                    "inRegion": "Attica/Greece",
+                    "hasToponym": "Oropos",
+                    "area": 30000.0,
+                    "isNitroAarea": 1,
+                    "isNatura2000Area": 0,
+                    "isPDOPGIArea": 0,
+                    "isIrrigated": 1,
+                    "isCultivatedInLevels": 0,
+                    "isGroundSlope": 1,
+                    "depiction": "http://example.org/satelite_image/picture1.jpg",
+                    "hasGeometry": {
+                        "@id": "urn:openagri:parcel:geo:8d28f2fd-39fa-4c5b-bcb2-1b847fb50230",
+                        "@type": "Polygon",
+                        "asWKT": "POLYGON(((23.7291120943909 38.311867323636875,23.72834175131419 38.309300443635294, 23.729491989607823 38.309118274505494, 23.7302095694605 38.311676880822006, 23.7291120943909, 38.311867323636875)))"
+                    },
+                    "location": {
+                        "@id": "urn:openagri:parcel:point:7fa28a21-6115-4e5e-9361-ccdf6b3d47d6",
+                        "@type": "Point",
+                        "lat": 38.309300443635294,
+                        "long": 23.72834175131419
+                    },
+                    "usesIrrigationSystem": {
+                        "@id": "urn:openagri:parcel:irrigation:30d97604-b122-4fbe-ad50-134d84019542",
+                        "@type": "IrrigationSystem",
+                        "name": "micro sprinkler"
+                    },
+                    "hasIrrigationFlow": 0.12
+                },
+                {
+                    "@id": "urn:openagri:parcel:f5d25a05-19e3-4c2d-b046-784e01a5a807",
+                    "@type": "Vineyard",
+                    "identifier": 123002,
+                    "description": "Olive grove B",
+                    "category": "orchard",
+                    "validFrom": "2023-01-01T00:00:00",
+                    "validTo": "2023-12-31T23:59:59",
+                    "inRegion": "Attica/Greece",
+                    "hasToponym": "Oropos",
+                    "area": 63000.0,
+                    "isNitroAarea": 1,
+                    "isNatura2000Area": 0,
+                    "isPDOPGIArea": 0,
+                    "isIrrigated": 1,
+                    "isCultivatedInLevels": 0,
+                    "isGroundSlope": 1,
+                    "depiction": "http://example.org/satelite_image/picture1.jpg",
+                    "hasGeometry": {
+                        "@id": "urn:openagri:parcel:geo:858b0db7-dcba-4788-ae51-09091c4c9f8f",
+                        "@type": "Polygon",
+                        "asWKT": "POLYGON(((23.733335084908617 38.31118631434748,   23.732465315464964 38.308413730027695,  23.732465315464964 38.308413730027695,  23.734346191887084 38.3079359817161, 23.735042007441933 38.30957396282503, 23.735476892164286 38.31025644403522,  23.735966137476566 38.31077683164247, 23.733335084908617 38.31118631434748)))"
+                    },
+                    "location": {
+                        "@id": "urn:openagri:parcel:point:6af9fcfe-33fe-4b8f-a6e4-8ec430128582",
+                        "@type": "Point",
+                        "lat": 38.308413730027695,
+                        "long": 23.732465315464964
+                    },
+                    "usesIrrigationSystem": {
+                        "@id": "urn:openagri:parcel:irrigation:84f96e61-4b48-4b3f-81f1-aca0187eb8ac",
+                        "@type": "IrrigationSystem",
+                        "name": "micro sprinkler"
+                    },
+                    "hasIrrigationFlow": 0.12
+                }
+            ]
+        }
+    ]
+}
