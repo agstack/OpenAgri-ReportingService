@@ -43,36 +43,43 @@ Examples:
 ```
 /api/v1/openagri-report/{report_id}
 ```
+
 Example response:
 ```
 A .pdf file that contains the report
 ```
+
 <h3>POST</h3>
 ```
 /api/v1/openagri-report/{report_type}/dataset/{dataset_id}
 ```
+
 Example response:
-```
+```json
 {
     "id": 1
 }
 ```
+
 <h3>DELETE</h3>
 ```
 /api/v1/openagri-report/{report_id}
 ```
+
 Example response:
-```
+```json
 {
     "message": "Successfully deleted report with ID:1"
 }
 ```
+
 <h3>GET</h3>
 ```
 /api/v1/openagri-dataset/{dataset_id}
 ```
+
 Example response:
-```
+```json
 {
   "@context": [
     "https://w3id.org/ocsm/main-context.jsonld"
@@ -93,28 +100,31 @@ Example response:
       .
 }
 ```
+
 This response has been reduced in length, but the format should conform to the OCSM, as this format is expected when uploading.
 <h3>POST<h3>
 ```
 /api/v1/openagri-dataset/
 ```
+
 Example response:
-```
+```json
 {
     "id": 1
 }
 ```
+
 <h3>DELETE</h3>
 ```
 /api/v1/openagri-dataset/{dataset_id}
 ```
+
 Example response:
-```
+```json
 {
     "message": "Successfully removed dataset with ID:1."
 }
 ```
-
 
 <h3> Example usage </h3>
 
