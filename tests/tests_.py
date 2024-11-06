@@ -1,9 +1,5 @@
 import pytest
-
-from app.main import app
-from fastapi.testclient import TestClient
-
-client = TestClient(app)
+import requests
 
 
 @pytest.fixture()
@@ -24,8 +20,8 @@ def user_login():
 
 @pytest.mark.order(1)
 def test_access_token():
-    response = client.post(
-        url="api/v1/login/access-token/",
+    response = requests.post(
+        url="http://localhost/api/v1/login/access-token/",
         data={"username": "stefan.drobic@vizlore.com", "password": "Windows8"},
     )
 
@@ -34,8 +30,8 @@ def test_access_token():
 
 @pytest.mark.order(2)
 def test_delete_user_not_logged():
-    response = client.delete(
-        url="api/v1/user/"
+    response = requests.delete(
+        url="http://localhost/api/v1/user/"
     )
 
     assert response.status_code == 401
@@ -44,8 +40,8 @@ def test_delete_user_not_logged():
 @pytest.mark.order(3)
 def test_user_flow(user_payload, user_login):
     # Register
-    response = client.post(
-        url="api/v1/user/register/",
+    response = requests.post(
+        url="http://localhost/api/v1/user/register/",
         json=user_payload,
     )
 
@@ -53,8 +49,8 @@ def test_user_flow(user_payload, user_login):
     assert response.json()["message"] == "You have successfully registered!"
 
     # Login
-    response = client.post(
-        url="api/v1/login/access-token/",
+    response = requests.post(
+        url="http://localhost/api/v1/login/access-token/",
         data=user_login
     )
 
@@ -65,8 +61,8 @@ def test_user_flow(user_payload, user_login):
     access_token = response.json()["access_token"]
 
     # Remove
-    response = client.delete(
-        url="api/v1/user/",
+    response = requests.delete(
+        url="http://localhost/api/v1/user/",
         headers={
             "authorization": "bearer {}".format(access_token)
         }
@@ -79,8 +75,8 @@ def test_user_flow(user_payload, user_login):
 @pytest.mark.order(4)
 def test_data_flow(user_payload, user_login):
     # Register
-    response = client.post(
-        url="api/v1/user/register/",
+    response = requests.post(
+        url="http://localhost/api/v1/user/register/",
         json=user_payload,
     )
 
@@ -88,8 +84,8 @@ def test_data_flow(user_payload, user_login):
     assert response.json()["message"] == "You have successfully registered!"
 
     # Login
-    response = client.post(
-        url="api/v1/login/access-token/",
+    response = requests.post(
+        url="http://localhost/api/v1/login/access-token/",
         data=user_login
     )
 
@@ -102,8 +98,8 @@ def test_data_flow(user_payload, user_login):
     # Upload Data
     file = open("test.json", "rb")
 
-    response = client.post(
-        url="api/v1/openagri-dataset/",
+    response = requests.post(
+        url="http://localhost/api/v1/openagri-dataset/",
         headers={
             "authorization": "bearer {}".format(access_token)
         },
@@ -119,8 +115,8 @@ def test_data_flow(user_payload, user_login):
     data_id = response.json()["id"]
 
     # Get Data
-    response = client.get(
-        url="api/v1/openagri-dataset/{}".format(data_id),
+    response = requests.get(
+        url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
         headers={
             "authorization": "bearer {}".format(access_token)
         }
@@ -129,8 +125,8 @@ def test_data_flow(user_payload, user_login):
     assert response.status_code == 200
 
     # Remove Data
-    response = client.delete(
-        url="api/v1/openagri-dataset/{}".format(data_id),
+    response = requests.delete(
+        url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
         headers={
             "authorization": "bearer {}".format(access_token)
         }
@@ -141,8 +137,8 @@ def test_data_flow(user_payload, user_login):
     assert response.json()["message"] == "Successfully removed dataset with ID:{}.".format(data_id)
 
     # Delete User
-    response = client.delete(
-        url="api/v1/user/",
+    response = requests.delete(
+        url="http://localhost/api/v1/user/",
         headers={
             "authorization": "bearer {}".format(access_token)
         }
@@ -155,8 +151,8 @@ def test_data_flow(user_payload, user_login):
 @pytest.mark.order(5)
 def test_report_flow(user_payload, user_login):
     # Register
-    response = client.post(
-        url="api/v1/user/register/",
+    response = requests.post(
+        url="http://localhost/api/v1/user/register/",
         json=user_payload,
     )
 
@@ -164,8 +160,8 @@ def test_report_flow(user_payload, user_login):
     assert response.json()["message"] == "You have successfully registered!"
 
     # Login
-    response = client.post(
-        url="api/v1/login/access-token/",
+    response = requests.post(
+        url="http://localhost/api/v1/login/access-token/",
         data=user_login
     )
 
@@ -178,8 +174,8 @@ def test_report_flow(user_payload, user_login):
     # Upload Data
     file = open("test.json", "rb")
 
-    response = client.post(
-        url="api/v1/openagri-dataset/",
+    response = requests.post(
+        url="http://localhost/api/v1/openagri-dataset/",
         headers={
             "authorization": "bearer {}".format(access_token)
         },
@@ -198,8 +194,8 @@ def test_report_flow(user_payload, user_login):
     report_types = ["work-book", "plant-protection", "irrigations", "fertilisations", "harvests", "GlobalGAP"]
     report_ids = []
     for rt in report_types:
-        response = client.post(
-            url="api/v1/openagri-report/{report_type}/dataset/{dataset_id}".format(report_type=rt, dataset_id=data_id),
+        response = requests.post(
+            url="http://localhost/api/v1/openagri-report/{report_type}/dataset/{dataset_id}".format(report_type=rt, dataset_id=data_id),
             headers={
                 "authorization": "bearer {}".format(access_token)
             }
@@ -212,8 +208,8 @@ def test_report_flow(user_payload, user_login):
 
     # Get Report
     for ri in report_ids:
-        response = client.get(
-            url="api/v1/openagri-report/{}".format(ri),
+        response = requests.get(
+            url="http://localhost/api/v1/openagri-report/{}".format(ri),
             headers={
                 "authorization": "bearer {}".format(access_token)
             }
@@ -225,8 +221,8 @@ def test_report_flow(user_payload, user_login):
 
     # Delete Report
     for ri in report_ids:
-        response = client.delete(
-            url="api/v1/openagri-report/{}".format(ri),
+        response = requests.delete(
+            url="http://localhost/api/v1/openagri-report/{}".format(ri),
             headers={
                 "authorization": "bearer {}".format(access_token)
             }
@@ -237,8 +233,8 @@ def test_report_flow(user_payload, user_login):
         assert response.json()["message"] == "Successfully deleted report with ID:{}.".format(ri)
 
     # Remove Data
-    response = client.delete(
-        url="api/v1/openagri-dataset/{}".format(data_id),
+    response = requests.delete(
+        url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
         headers={
             "authorization": "bearer {}".format(access_token)
         }
@@ -249,8 +245,8 @@ def test_report_flow(user_payload, user_login):
     assert response.json()["message"] == "Successfully removed dataset with ID:{}.".format(data_id)
 
     # Delete User
-    response = client.delete(
-        url="api/v1/user/",
+    response = requests.delete(
+        url="http://localhost/api/v1/user/",
         headers={
             "authorization": "bearer {}".format(access_token)
         }
