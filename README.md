@@ -186,6 +186,11 @@ The type can be any one of:\
 
 For more examples, please view the swagger documentation.
 
+# Testing
+Tests can be run on the same machine where it is deployed.\
+They can be run by moving into the  ```/tests/``` dir and running ```pytest tests_.py``` \
+This will run the tests on the machine and return response values for either passing or failing to run.
+
 # Contribution
 Please contact the maintainer of this repository.
 
