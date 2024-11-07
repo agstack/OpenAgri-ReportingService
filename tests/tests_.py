@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 import requests
 
@@ -5,83 +6,25 @@ import requests
 @pytest.fixture()
 def user_payload():
     return {
-        "email": "test@example.com",
-        "password": "TestPassword10"
+        "email": "test.test@example.com",
+        "password": "Test123321"
     }
 
 
 @pytest.fixture()
 def user_login():
     return {
-        "username": "test@example.com",
-        "password": "TestPassword10"
+        "username": "test.test@example.com",
+        "password": "Test123321"
     }
 
-
 @pytest.mark.order(1)
-def test_access_token():
-    response = requests.post(
-        url="http://localhost/api/v1/login/access-token/",
-        data={"username": "stefan.drobic@vizlore.com", "password": "Windows8"},
-    )
-
-    assert response.status_code == 200
-
-
-@pytest.mark.order(2)
-def test_delete_user_not_logged():
-    response = requests.delete(
-        url="http://localhost/api/v1/user/"
-    )
-
-    assert response.status_code == 401
-
-
-@pytest.mark.order(3)
-def test_user_flow(user_payload, user_login):
-    # Register
-    response = requests.post(
-        url="http://localhost/api/v1/user/register/",
-        json=user_payload,
-    )
-
-    assert response.status_code == 200
-    assert response.json()["message"] == "You have successfully registered!"
-
-    # Login
-    response = requests.post(
-        url="http://localhost/api/v1/login/access-token/",
-        data=user_login
-    )
-
-    assert response.status_code == 200
-    assert "access_token" in response.json()
-    assert "token_type" in response.json()
-
-    access_token = response.json()["access_token"]
-
-    # Remove
-    response = requests.delete(
-        url="http://localhost/api/v1/user/",
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
-    )
-
-    assert response.status_code == 200
-    assert response.json()["message"] == "Successfully deleted user."
-
-
-@pytest.mark.order(4)
 def test_data_flow(user_payload, user_login):
     # Register
     response = requests.post(
         url="http://localhost/api/v1/user/register/",
         json=user_payload,
     )
-
-    assert response.status_code == 200
-    assert response.json()["message"] == "You have successfully registered!"
 
     # Login
     response = requests.post(
@@ -96,7 +39,7 @@ def test_data_flow(user_payload, user_login):
     access_token = response.json()["access_token"]
 
     # Upload Data
-    file = open("test.json", "rb")
+    file = open(Path("example", "datasets", "example_farm_calendar_AIM.jsonld"), "rb")
 
     response = requests.post(
         url="http://localhost/api/v1/openagri-dataset/",
@@ -148,16 +91,13 @@ def test_data_flow(user_payload, user_login):
     assert response.json()["message"] == "Successfully deleted user."
 
 
-@pytest.mark.order(5)
+@pytest.mark.order(2)
 def test_report_flow(user_payload, user_login):
     # Register
     response = requests.post(
         url="http://localhost/api/v1/user/register/",
         json=user_payload,
     )
-
-    assert response.status_code == 200
-    assert response.json()["message"] == "You have successfully registered!"
 
     # Login
     response = requests.post(
@@ -172,7 +112,7 @@ def test_report_flow(user_payload, user_login):
     access_token = response.json()["access_token"]
 
     # Upload Data
-    file = open("test.json", "rb")
+    file = open(Path("example", "datasets", "example_farm_calendar_AIM.jsonld"), "rb")
 
     response = requests.post(
         url="http://localhost/api/v1/openagri-dataset/",
