@@ -81,24 +81,55 @@ Example response:
 Example response:
 ```json
 {
-  "@context": [
-    "https://w3id.org/ocsm/main-context.jsonld"
-  ],
-  "@graph": [
-    {
-      "@id": "urn:openagri:pestMgmt:2ba53329-612c-47f3-a7f9-67f5f74f98f0",
-      "@type": "ChemicalControlOperation",
-      "description": "treatment description",
-      "hasAppliedAmount": {
-        "@id": "urn:openagri:pestMgmt:amount:762c62ca-bca2-464e-be18-94caf4596d3a",
-        "@type": "QuantityValue",
-        "numericValue": 1176,
-        "unit": "http://qudt.org/vocab/unit/GM"
-      },
-      .
-      .
-      .
+    "@context": [
+        "https://w3id.org/ocsm/main-context.jsonld"
+    ],
+    "@graph": [
+        {
+            "@id": "urn:openagri:pestMgmt:2ba53329-612c-47f3-a7f9-67f5f74f98f0",
+            "@type": "ChemicalControlOperation",
+            "description": "treatment description",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:762c62ca-bca2-464e-be18-94caf4596d3a",
+                "@type": "QuantityValue",
+                "numericValue": 1176.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2022-02-07",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:72d9fb43-53f8-4ec8-a33c-fa931360259a",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:pesticide:4db60ed3-a98a-4bf1-9e61-5be81391af4e",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Bordeaux mixtureα",
+                "hasCommercialName": "BORDELESA 20 WP"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:51527cd3-f607-458d-9872-9996a7f2fff3",
+            "@type": "ChemicalControlOperation",
+            "description": "treatment description",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:cb3f3364-5c9c-4cf2-ad26-c93b836f6a5d",
+                "@type": "QuantityValue",
+                "numericValue": 588.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2022-03-16",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:72d9fb43-53f8-4ec8-a33c-fa931360259a",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:pesticide:f7957436-1391-4ee6-abf9-b461ffce2c5f",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Copper hydroxide",
+                "hasCommercialName": "KOCIDE 2000 35 WG"
+            }
+        }
+    ]
 }
+
 ```
 
 This response has been reduced in length, but the format should conform to the OCSM, as this format is expected when uploading.
