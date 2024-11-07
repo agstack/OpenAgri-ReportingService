@@ -187,9 +187,25 @@ The type can be any one of:\
 For more examples, please view the swagger documentation.
 
 # Testing
-Tests can be run on the same machine where it is deployed.\
+The reporting service offers two ways to test it out, using the suite of tests written in pytest, or using converter \
+scripts that are present [here](https://github.com/openagri-eu/OCSM/tree/main/converters).
+
+<h2>Pytest</h2>
+Pytest can be run on the same machine the service has been deployed to.\
 They can be run by moving into the  ```/tests/``` dir and running ```pytest tests_.py``` \
-This will run the tests on the machine and return response values for either passing or failing to run.
+This will run the tests and return success values for each api in the terminal.
+
+<h3>These tests will NOT result in generated .pdf files.</h3>
+
+<h2>Script</h2>
+There is also the ```far_calendar_to_jsonld.py``` script, that can be run from the ```/tests/``` dir as well, with the following command: \
+```python farm_calendar_to_jsonld.py ./example/datasets/example_farm_calendar.json```. \
+This command will then prompt the user for input. \
+Any generated reports via this script will be placed inside the /tests/example/reports/ dir. \
+The example raw dataset is transformed into the ```example_farm_calendar_AIM.jsonld``` file, that is OCSM compliant. \
+This file is then used for generating reports, that can be seen in the ```/reports/``` dir.
+
+<h3>These tests WILL result in generated .pdf files.</h3>
 
 # Contribution
 Please contact the maintainer of this repository.
