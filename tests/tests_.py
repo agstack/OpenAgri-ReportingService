@@ -18,6 +18,7 @@ def user_login():
         "password": "Test123321"
     }
 
+
 @pytest.mark.order(1)
 def test_data_flow(user_payload, user_login):
     # Register
