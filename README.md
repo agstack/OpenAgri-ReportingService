@@ -30,6 +30,7 @@ This service uses FastAPI as a web framework to serve APIs, alembic for database
 <h3> Deploying via docker </h3>
 
 After installing <code> docker </code> you can run the following commands to run the application:
+
 ```
 docker compose build
 docker compose up
@@ -40,21 +41,25 @@ The application will be served on http://127.0.0.1:80 (I.E. typing localhost/doc
 # Documentation
 Examples:
 <h3>GET</h3>
+
 ```
 /api/v1/openagri-report/{report_id}
 ```
 
 Example response:
+
 ```
 A .pdf file that contains the report
 ```
 
 <h3>POST</h3>
+
 ```
 /api/v1/openagri-report/{report_type}/dataset/{dataset_id}
 ```
 
 Example response:
+
 ```json
 {
     "id": 1
@@ -62,11 +67,13 @@ Example response:
 ```
 
 <h3>DELETE</h3>
+
 ```
 /api/v1/openagri-report/{report_id}
 ```
 
 Example response:
+
 ```json
 {
     "message": "Successfully deleted report with ID:1"
@@ -74,11 +81,13 @@ Example response:
 ```
 
 <h3>GET</h3>
+
 ```
 /api/v1/openagri-dataset/{dataset_id}
 ```
 
 Example response:
+
 ```json
 {
     "@context": [
@@ -138,6 +147,7 @@ Example response:
 ```
 
 Example response:
+
 ```json
 {
     "id": 1
@@ -145,11 +155,13 @@ Example response:
 ```
 
 <h3>DELETE</h3>
+
 ```
 /api/v1/openagri-dataset/{dataset_id}
 ```
 
 Example response:
+
 ```json
 {
     "message": "Successfully removed dataset with ID:1."
