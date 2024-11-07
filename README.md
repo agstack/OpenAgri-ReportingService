@@ -129,11 +129,10 @@ Example response:
         }
     ]
 }
-
 ```
 
-This response has been reduced in length, but the format should conform to the OCSM, as this format is expected when uploading.
-<h3>POST<h3>
+<h3>POST</h3>
+
 ```
 /api/v1/openagri-dataset/
 ```
