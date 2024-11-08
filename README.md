@@ -191,7 +191,7 @@ The reporting service offers two ways to test it out, using the suite of tests w
 scripts that are present [here](https://github.com/openagri-eu/OCSM/tree/main/converters).
 
 <h2>Pytest</h2>
-Pytest can be run on the same machine the service has been deployed to.\
+Pytest can be run on the same machine the service has been deployed to. \
 They can be run by moving into the tests dir and running:
 
 ```
@@ -203,7 +203,7 @@ This will run the tests and return success values for each api in the terminal.
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
 <h2>Script</h2>
-There is also the farm_calendar_to_jsonld.py script, that can be run from the <strong>tests</strong> dir as well, with the following command:
+There is also the farm_calendar_to_jsonld.py script, that can be run from the tests dir as well, with the following command:
 
 ```
 python farm_calendar_to_jsonld.py ./example/datasets/example_farm_calendar.json
