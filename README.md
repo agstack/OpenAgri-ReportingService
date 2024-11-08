@@ -191,7 +191,7 @@ The reporting service offers two ways to test it out, using the suite of tests w
 scripts that are present [here](https://github.com/openagri-eu/OCSM/tree/main/converters).
 
 <h2>Pytest</h2>
-Pytest can be run on the same machine the service has been deployed to, they can be run by moving into the tests dir and running:
+Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
 
 ```
 pytest tests_.py 
