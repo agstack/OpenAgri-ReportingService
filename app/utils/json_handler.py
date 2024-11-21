@@ -10,6 +10,7 @@ class ReportHandler:
     Report Handler will be used for generating PDF reports
 
     """
+
     def __init__(self, *, report_db: Report):
         """
         :param report_db: Report model data

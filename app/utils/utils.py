@@ -3,7 +3,6 @@ from typing import List
 
 from fastapi import HTTPException
 from fpdf import FPDF
-from fpdf.table import Table
 
 from schemas import (
     FarmProfile,
@@ -1248,8 +1247,11 @@ def livestock(lst: List[Livestock]):
 
     return pdf
 
+
 def add_fonts(pdf):
-    fonts_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+    fonts_folder_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "fonts"
+    )
 
     pdf.add_font(
         "FreeSerif", "", os.path.join(fonts_folder_path, "FreeSerif.ttf"), uni=True
@@ -1257,6 +1259,7 @@ def add_fonts(pdf):
     pdf.add_font(
         "FreeSerif", "B", os.path.join(fonts_folder_path, "FreeSerifBold.ttf"), uni=True
     )
+
 
 class EX(FPDF):
     def header(self):

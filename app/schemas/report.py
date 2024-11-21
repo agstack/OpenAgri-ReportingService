@@ -114,7 +114,7 @@ class Fertilization(BaseModel):
 
 
 class Livestock(BaseModel):
-    id:  str | int
+    id: str | int
     name: Optional[str]
     type: Optional[str]
     category: Optional[str]
