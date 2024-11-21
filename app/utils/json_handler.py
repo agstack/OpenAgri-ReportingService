@@ -51,5 +51,4 @@ class ReportHandler:
             handler = self.handlers.get(self.file_type, "work-book")
             return handler(json_file)
         except Exception as e:
-            print(e, "her")
             return None
