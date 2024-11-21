@@ -5,18 +5,12 @@ import requests
 
 @pytest.fixture()
 def user_payload():
-    return {
-        "email": "test.test@example.com",
-        "password": "Test123321"
-    }
+    return {"email": "test.test@example.com", "password": "Test123321"}
 
 
 @pytest.fixture()
 def user_login():
-    return {
-        "username": "test.test@example.com",
-        "password": "Test123321"
-    }
+    return {"username": "test.test@example.com", "password": "Test123321"}
 
 
 @pytest.mark.order(1)
@@ -29,8 +23,7 @@ def test_data_flow(user_payload, user_login):
 
     # Login
     response = requests.post(
-        url="http://localhost/api/v1/login/access-token/",
-        data=user_login
+        url="http://localhost/api/v1/login/access-token/", data=user_login
     )
 
     assert response.status_code == 200
@@ -44,13 +37,8 @@ def test_data_flow(user_payload, user_login):
 
     response = requests.post(
         url="http://localhost/api/v1/openagri-dataset/",
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        },
-        files={
-            "data": file
-        }
-
+        headers={"authorization": "bearer {}".format(access_token)},
+        files={"data": file},
     )
 
     assert response.status_code == 200
@@ -61,9 +49,7 @@ def test_data_flow(user_payload, user_login):
     # Get Data
     response = requests.get(
         url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
+        headers={"authorization": "bearer {}".format(access_token)},
     )
 
     assert response.status_code == 200
@@ -71,21 +57,19 @@ def test_data_flow(user_payload, user_login):
     # Remove Data
     response = requests.delete(
         url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
+        headers={"authorization": "bearer {}".format(access_token)},
     )
 
     assert response.status_code == 200
     assert "message" in response.json()
-    assert response.json()["message"] == "Successfully removed dataset with ID:{}.".format(data_id)
+    assert response.json()[
+        "message"
+    ] == "Successfully removed dataset with ID:{}.".format(data_id)
 
     # Delete User
     response = requests.delete(
         url="http://localhost/api/v1/user/",
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
+        headers={"authorization": "bearer {}".format(access_token)},
     )
 
     assert response.status_code == 200
@@ -102,8 +86,7 @@ def test_report_flow(user_payload, user_login):
 
     # Login
     response = requests.post(
-        url="http://localhost/api/v1/login/access-token/",
-        data=user_login
+        url="http://localhost/api/v1/login/access-token/", data=user_login
     )
 
     assert response.status_code == 200
@@ -117,13 +100,8 @@ def test_report_flow(user_payload, user_login):
 
     response = requests.post(
         url="http://localhost/api/v1/openagri-dataset/",
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        },
-        files={
-            "data": file
-        }
-
+        headers={"authorization": "bearer {}".format(access_token)},
+        files={"data": file},
     )
 
     assert response.status_code == 200
@@ -132,14 +110,21 @@ def test_report_flow(user_payload, user_login):
     data_id = response.json()["id"]
 
     # Create Report
-    report_types = ["work-book", "plant-protection", "irrigations", "fertilisations", "harvests", "GlobalGAP"]
+    report_types = [
+        "work-book",
+        "plant-protection",
+        "irrigations",
+        "fertilisations",
+        "harvests",
+        "GlobalGAP",
+    ]
     report_ids = []
     for rt in report_types:
         response = requests.post(
-            url="http://localhost/api/v1/openagri-report/{report_type}/dataset/{dataset_id}".format(report_type=rt, dataset_id=data_id),
-            headers={
-                "authorization": "bearer {}".format(access_token)
-            }
+            url="http://localhost/api/v1/openagri-report/{report_type}/dataset/{dataset_id}".format(
+                report_type=rt, dataset_id=data_id
+            ),
+            headers={"authorization": "bearer {}".format(access_token)},
         )
 
         assert response.status_code == 200
@@ -151,9 +136,7 @@ def test_report_flow(user_payload, user_login):
     for ri in report_ids:
         response = requests.get(
             url="http://localhost/api/v1/openagri-report/{}".format(ri),
-            headers={
-                "authorization": "bearer {}".format(access_token)
-            }
+            headers={"authorization": "bearer {}".format(access_token)},
         )
 
         assert response.status_code == 200
@@ -164,40 +147,32 @@ def test_report_flow(user_payload, user_login):
     for ri in report_ids:
         response = requests.delete(
             url="http://localhost/api/v1/openagri-report/{}".format(ri),
-            headers={
-                "authorization": "bearer {}".format(access_token)
-            }
+            headers={"authorization": "bearer {}".format(access_token)},
         )
 
         assert response.status_code == 200
         assert "message" in response.json()
-        assert response.json()["message"] == "Successfully deleted report with ID:{}.".format(ri)
+        assert response.json()[
+            "message"
+        ] == "Successfully deleted report with ID:{}.".format(ri)
 
     # Remove Data
     response = requests.delete(
         url="http://localhost/api/v1/openagri-dataset/{}".format(data_id),
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
+        headers={"authorization": "bearer {}".format(access_token)},
     )
 
     assert response.status_code == 200
     assert "message" in response.json()
-    assert response.json()["message"] == "Successfully removed dataset with ID:{}.".format(data_id)
+    assert response.json()[
+        "message"
+    ] == "Successfully removed dataset with ID:{}.".format(data_id)
 
     # Delete User
     response = requests.delete(
         url="http://localhost/api/v1/user/",
-        headers={
-            "authorization": "bearer {}".format(access_token)
-        }
+        headers={"authorization": "bearer {}".format(access_token)},
     )
 
     assert response.status_code == 200
     assert response.json()["message"] == "Successfully deleted user."
-
-
-
-
-
-

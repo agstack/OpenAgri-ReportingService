@@ -4,6 +4,7 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import DeclarativeBase
 
+
 class Base(DeclarativeBase):
     id: Any
     __name__: str
@@ -15,5 +16,4 @@ class Base(DeclarativeBase):
 
     def _asdict(self):
         """Convert extract record to dict."""
-        return {c.key: getattr(self, c.key)
-                for c in inspect(self).mapper.column_attrs}
+        return {c.key: getattr(self, c.key) for c in inspect(self).mapper.column_attrs}

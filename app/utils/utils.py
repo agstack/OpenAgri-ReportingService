@@ -3,9 +3,17 @@ from typing import List
 
 from fastapi import HTTPException
 from fpdf import FPDF
+from fpdf.table import Table
 
-from schemas import FarmProfile, PlotParcelDetail, GenericCultivationInformationForParcel, Irrigation, PestManagement, \
-    Fertilization
+from schemas import (
+    FarmProfile,
+    PlotParcelDetail,
+    GenericCultivationInformationForParcel,
+    Irrigation,
+    PestManagement,
+    Fertilization,
+    Livestock,
+)
 
 import datetime
 
@@ -13,8 +21,7 @@ import datetime
 def parse_plant_protection(json: dict) -> List[PestManagement]:
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -30,25 +37,50 @@ def parse_plant_protection(json: dict) -> List[PestManagement]:
 
         active_substance, product = "", ""
         if "usesPesticide" in node:
-            active_substance = node["usesPesticide"]["hasActiveSubstance"] if "hasActiveSubstance" in node["usesPesticide"] else ""
-            product = node["usesPesticide"]["hasCommercialName"] if "hasCommercialName" in node["usesPesticide"] else ""
+            active_substance = (
+                node["usesPesticide"]["hasActiveSubstance"]
+                if "hasActiveSubstance" in node["usesPesticide"]
+                else ""
+            )
+            product = (
+                node["usesPesticide"]["hasCommercialName"]
+                if "hasCommercialName" in node["usesPesticide"]
+                else ""
+            )
 
         dose, unit = "", ""
         if "hasAppliedAmount" in node:
-            dose = node["hasAppliedAmount"]["numericValue"] if "numericValue" in node["hasAppliedAmount"] else ""
-            unit = node["hasAppliedAmount"]["unit"].split("/")[-1] if "unit" in node["hasAppliedAmount"] and node["hasAppliedAmount"]["unit"] is not None else ""
+            dose = (
+                node["hasAppliedAmount"]["numericValue"]
+                if "numericValue" in node["hasAppliedAmount"]
+                else ""
+            )
+            unit = (
+                node["hasAppliedAmount"]["unit"].split("/")[-1]
+                if "unit" in node["hasAppliedAmount"]
+                and node["hasAppliedAmount"]["unit"] is not None
+                else ""
+            )
 
         date = None
         try:
-            date = datetime.datetime.strptime(node["hasTimestamp"], "%Y-%m-%d") if node["hasTimestamp"] is not None else None
+            date = (
+                datetime.datetime.strptime(node["hasTimestamp"], "%Y-%m-%d")
+                if node["hasTimestamp"] is not None
+                else None
+            )
         except ValueError:
             print("Does this date exist: " + node["hasTimestamp"])
 
-        enemy_target = node["isTargetedTowards"] if node["isTargetedTowards"] is not None else ""
+        enemy_target = (
+            node["isTargetedTowards"] if node["isTargetedTowards"] is not None else ""
+        )
 
         area = node["hasTreatedArea"] if node["hasTreatedArea"] is not None else ""
 
-        treatment_description = node["description"] if node["description"] is not None else ""
+        treatment_description = (
+            node["description"] if node["description"] is not None else ""
+        )
 
         ppp.append(
             PestManagement(
@@ -59,7 +91,7 @@ def parse_plant_protection(json: dict) -> List[PestManagement]:
                 dose=dose,
                 unit=unit,
                 area=area,
-                treatment_description=treatment_description
+                treatment_description=treatment_description,
             )
         )
 
@@ -69,8 +101,7 @@ def parse_plant_protection(json: dict) -> List[PestManagement]:
 def parse_irrigation(json: dict) -> List[Irrigation]:
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -86,23 +117,44 @@ def parse_irrigation(json: dict) -> List[Irrigation]:
 
         started_date, ended_date = None, None
         try:
-            started_date = datetime.datetime.strptime(node["startedAt"], "%Y-%m-%d %H:%M:%S") if "startedAt" in node else None
+            started_date = (
+                datetime.datetime.strptime(node["startedAt"], "%Y-%m-%d %H:%M:%S")
+                if "startedAt" in node
+                else None
+            )
         except ValueError:
             print("Does this date exist: " + node["startedAt"])
         try:
-            ended_date = datetime.datetime.strptime(node["endedAt"], "%Y-%m-%d %H:%M:%S") if "endedAt" in node else None
+            ended_date = (
+                datetime.datetime.strptime(node["endedAt"], "%Y-%m-%d %H:%M:%S")
+                if "endedAt" in node
+                else None
+            )
         except ValueError:
             print("Does this date exist: " + node["endedAt"])
 
         dose = ""
         unit = ""
         if "hasAppliedAmount" in node:
-            dose = node["hasAppliedAmount"]["numericValue"] if "numericValue" in node["hasAppliedAmount"] else ""
-            unit = node["hasAppliedAmount"]["unit"].split("/")[-1] if "unit" in node["hasAppliedAmount"] and node["hasAppliedAmount"]["unit"] is not None else ""
+            dose = (
+                node["hasAppliedAmount"]["numericValue"]
+                if "numericValue" in node["hasAppliedAmount"]
+                else ""
+            )
+            unit = (
+                node["hasAppliedAmount"]["unit"].split("/")[-1]
+                if "unit" in node["hasAppliedAmount"]
+                and node["hasAppliedAmount"]["unit"] is not None
+                else ""
+            )
 
         watering_system = ""
         if "usesIrrigationSystem" in node:
-            watering_system = node["usesIrrigationSystem"]["hasIrrigationType"] if "hasIrrigationType" in node["usesIrrigationSystem"] else ""
+            watering_system = (
+                node["usesIrrigationSystem"]["hasIrrigationType"]
+                if "hasIrrigationType" in node["usesIrrigationSystem"]
+                else ""
+            )
 
         irri.append(
             Irrigation(
@@ -110,7 +162,7 @@ def parse_irrigation(json: dict) -> List[Irrigation]:
                 ended_date=ended_date,
                 dose=dose,
                 unit=unit,
-                watering_system=watering_system
+                watering_system=watering_system,
             )
         )
 
@@ -121,8 +173,7 @@ def parse_fertilization(json: dict) -> List[Fertilization]:
 
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -138,30 +189,55 @@ def parse_fertilization(json: dict) -> List[Fertilization]:
 
         product = ""
         if "usesFertilizer" in node:
-            product = node["usesFertilizer"]["hasCommercialName"] if "hasCommercialName" in node["usesFertilizer"] else ""
+            product = (
+                node["usesFertilizer"]["hasCommercialName"]
+                if "hasCommercialName" in node["usesFertilizer"]
+                else ""
+            )
 
         quantity, unit = "", ""
         if "hasAppliedAmount" in node:
-            quantity = node["hasAppliedAmount"]["numericValue"] if "numericValue" in node["hasAppliedAmount"] else ""
-            unit = node["hasAppliedAmount"]["unit"].split("/")[-1] if "unit" in node["hasAppliedAmount"] and node["hasAppliedAmount"]["unit"] is not None else ""
+            quantity = (
+                node["hasAppliedAmount"]["numericValue"]
+                if "numericValue" in node["hasAppliedAmount"]
+                else ""
+            )
+            unit = (
+                node["hasAppliedAmount"]["unit"].split("/")[-1]
+                if "unit" in node["hasAppliedAmount"]
+                and node["hasAppliedAmount"]["unit"] is not None
+                else ""
+            )
 
         form_of_treatment = None
         if "plan" in node:
             # TODO check with nikos if description is right info for this
-            form_of_treatment = node["plan"]["description"] if "description" in node["plan"] else ""
+            form_of_treatment = (
+                node["plan"]["description"] if "description" in node["plan"] else ""
+            )
 
         date = None
         try:
-            date = datetime.datetime.strptime(node["hasTimestamp"], "%Y-%m-%d").date() if "hasTimestamp" in node else None
+            date = (
+                datetime.datetime.strptime(node["hasTimestamp"], "%Y-%m-%d").date()
+                if "hasTimestamp" in node
+                else None
+            )
         except ValueError:
             print("Does this date exist: " + node["hasTimestamp"])
 
-        #TODO ask nikos
+        # TODO ask nikos
         treatment_plan = ""
 
-        operation_type = node["operationType"] if node["operationType"] is not None else ""
+        operation_type = (
+            node["operationType"] if node["operationType"] is not None else ""
+        )
 
-        treatment_description = node["hasApplicationMethod"] if node["hasApplicationMethod"] is not None else ""
+        treatment_description = (
+            node["hasApplicationMethod"]
+            if node["hasApplicationMethod"] is not None
+            else ""
+        )
 
         ferts.append(
             Fertilization(
@@ -172,7 +248,7 @@ def parse_fertilization(json: dict) -> List[Fertilization]:
                 treatment_plan=treatment_plan,
                 form_of_treatment=form_of_treatment,
                 operation_type=operation_type,
-                treatment_description=treatment_description
+                treatment_description=treatment_description,
             )
         )
 
@@ -182,8 +258,7 @@ def parse_fertilization(json: dict) -> List[Fertilization]:
 def parse_plot_detail(json: dict) -> List[PlotParcelDetail]:
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -204,7 +279,11 @@ def parse_plot_detail(json: dict) -> List[PlotParcelDetail]:
 
             plot_id = parcel["identifier"] if "identifier" in parcel else ""
 
-            reporting_year = int(parcel["validFrom"].split("-")[0]) if "validFrom" in parcel and parcel["validFrom"] is not None else None
+            reporting_year = (
+                int(parcel["validFrom"].split("-")[0])
+                if "validFrom" in parcel and parcel["validFrom"] is not None
+                else None
+            )
 
             # TODO ask nikos
             cartographic = ""
@@ -215,17 +294,43 @@ def parse_plot_detail(json: dict) -> List[PlotParcelDetail]:
 
             area = str(parcel["area"]) if "area" in parcel else ""
 
-            nitro_area = bool(parcel["isNitroAarea"]) if "isNitroAarea" in parcel and parcel["isNitroAarea"] is not None else None
+            nitro_area = (
+                bool(parcel["isNitroAarea"])
+                if "isNitroAarea" in parcel and parcel["isNitroAarea"] is not None
+                else None
+            )
 
-            natura_area = bool(parcel["isNatura2000Area"]) if "isNatura2000Area" in parcel and parcel["isNatura2000Area"] is not None else None
+            natura_area = (
+                bool(parcel["isNatura2000Area"])
+                if "isNatura2000Area" in parcel
+                and parcel["isNatura2000Area"] is not None
+                else None
+            )
 
-            pdo_pgi_area = bool(parcel["isPDOPGIArea"]) if "isPDOPGIArea" in parcel and parcel["isPDOPGIArea"] is not None else None
+            pdo_pgi_area = (
+                bool(parcel["isPDOPGIArea"])
+                if "isPDOPGIArea" in parcel and parcel["isPDOPGIArea"] is not None
+                else None
+            )
 
-            irrigated = bool(parcel["isIrrigated"]) if "isIrrigated" in parcel and parcel["isIrrigated"] is not None else None
+            irrigated = (
+                bool(parcel["isIrrigated"])
+                if "isIrrigated" in parcel and parcel["isIrrigated"] is not None
+                else None
+            )
 
-            cultivation_in_levels = bool(parcel["isCultivatedInLevels"]) if "isCultivatedInLevels" in parcel and parcel["isCultivatedInLevels"] is not None else None
+            cultivation_in_levels = (
+                bool(parcel["isCultivatedInLevels"])
+                if "isCultivatedInLevels" in parcel
+                and parcel["isCultivatedInLevels"] is not None
+                else None
+            )
 
-            ground_slope = bool(parcel["isGroundSlope"]) if "isGroundSlope" in parcel and parcel["isGroundSlope"] is not None else None
+            ground_slope = (
+                bool(parcel["isGroundSlope"])
+                if "isGroundSlope" in parcel and parcel["isGroundSlope"] is not None
+                else None
+            )
 
             depiction = parcel["depiction"] if "depiction" in parcel else None
 
@@ -243,18 +348,19 @@ def parse_plot_detail(json: dict) -> List[PlotParcelDetail]:
                     irrigated=irrigated,
                     cultivation_in_levels=cultivation_in_levels,
                     ground_slope=ground_slope,
-                    depiction=depiction
+                    depiction=depiction,
                 )
             )
 
     return details
 
 
-def parse_generic_cultivation_info(json: dict) -> List[GenericCultivationInformationForParcel]:
+def parse_generic_cultivation_info(
+    json: dict,
+) -> List[GenericCultivationInformationForParcel]:
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -275,13 +381,29 @@ def parse_generic_cultivation_info(json: dict) -> List[GenericCultivationInforma
 
             variety, production_direction, cultivation_type = "", "", ""
             if "hasAgriCrop" in parcel:
-                cultivation_type = parcel["hasAgriCrop"]["name"] if "name" in parcel["hasAgriCrop"] else ""
+                cultivation_type = (
+                    parcel["hasAgriCrop"]["name"]
+                    if "name" in parcel["hasAgriCrop"]
+                    else ""
+                )
 
                 if "cropSpecies" in parcel["hasAgriCrop"]:
-                    variety = parcel["hasAgriCrop"]["cropSpecies"]["name"] if "name" in parcel["hasAgriCrop"]["cropSpecies"] else ""
-                    production_direction = parcel["hasAgriCrop"]["isMeantFor"] if "isMeantFor" in parcel["hasAgriCrop"] else ""
+                    variety = (
+                        parcel["hasAgriCrop"]["cropSpecies"]["name"]
+                        if "name" in parcel["hasAgriCrop"]["cropSpecies"]
+                        else ""
+                    )
+                    production_direction = (
+                        parcel["hasAgriCrop"]["isMeantFor"]
+                        if "isMeantFor" in parcel["hasAgriCrop"]
+                        else ""
+                    )
 
-            irrigated = bool(parcel["isIrrigated"]) if "isIrrigated" in parcel and parcel["isIrrigated"] is not None else None
+            irrigated = (
+                bool(parcel["isIrrigated"])
+                if "isIrrigated" in parcel and parcel["isIrrigated"] is not None
+                else None
+            )
 
             # TODO ask nikos
             greenhouse = None
@@ -305,7 +427,7 @@ def parse_generic_cultivation_info(json: dict) -> List[GenericCultivationInforma
                     planting_system=planting_system,
                     planting_distances_of_lines=planting_distances_of_lines,
                     planting_distance_between_lines=planting_distance_between_lines,
-                    number_of_productive_trees=number_of_productive_trees
+                    number_of_productive_trees=number_of_productive_trees,
                 )
             )
 
@@ -315,8 +437,7 @@ def parse_generic_cultivation_info(json: dict) -> List[GenericCultivationInforma
 def parse_farm_profile(json: dict) -> FarmProfile:
     if "@graph" not in json:
         raise HTTPException(
-            status_code=400,
-            detail="Received json does not comply to expected format."
+            status_code=400, detail="Received json does not comply to expected format."
         )
 
     graph = json["@graph"]
@@ -330,8 +451,17 @@ def parse_farm_profile(json: dict) -> FarmProfile:
 
         name = ""
         if "contactPerson" in node:
-            name = node["contactPerson"]["firstname"] if "firstname" in node["contactPerson"] else ""
-            name += node["contactPerson"]["lastname"] if "lastname" in node["contactPerson"] and node["contactPerson"]["lastname"] is not None else ""
+            name = (
+                node["contactPerson"]["firstname"]
+                if "firstname" in node["contactPerson"]
+                else ""
+            )
+            name += (
+                node["contactPerson"]["lastname"]
+                if "lastname" in node["contactPerson"]
+                and node["contactPerson"]["lastname"] is not None
+                else ""
+            )
 
         # TODO: ask nikos
         father_name = ""
@@ -345,13 +475,33 @@ def parse_farm_profile(json: dict) -> FarmProfile:
 
         district, county, municipality, community, place_name = "", "", "", "", ""
         if "address" in node:
-            district = node["address"]["addressArea"] if "addressArea" in node["address"] else ""
-            county = node["address"]["adminUnitL2"] if "adminUnitL2" in node["address"] else ""
-            municipality = node["address"]["municipality"] if "municipality" in node["address"] else ""
-            community = node["address"]["community"] if "community" in node["address"] else ""
-            place_name = node["address"]["locatorName"] if "locatorName" in node["address"] else ""
+            district = (
+                node["address"]["addressArea"]
+                if "addressArea" in node["address"]
+                else ""
+            )
+            county = (
+                node["address"]["adminUnitL2"]
+                if "adminUnitL2" in node["address"]
+                else ""
+            )
+            municipality = (
+                node["address"]["municipality"]
+                if "municipality" in node["address"]
+                else ""
+            )
+            community = (
+                node["address"]["community"] if "community" in node["address"] else ""
+            )
+            place_name = (
+                node["address"]["locatorName"]
+                if "locatorName" in node["address"]
+                else ""
+            )
 
-        farm_area = str(node["area"]) if "area" in node and node["area"] is not None else ""
+        farm_area = (
+            str(node["area"]) if "area" in node and node["area"] is not None else ""
+        )
 
         plot_ids = []
         if "hasAgriParcel" in node:
@@ -374,8 +524,86 @@ def parse_farm_profile(json: dict) -> FarmProfile:
             community=community,
             place_name=place_name,
             farm_area=farm_area,
-            plot_ids=plot_ids
+            plot_ids=plot_ids,
         )
+
+
+def parse_livestock(json: dict) -> List[Livestock]:
+    # TODO to be updated when we know correct json-ld format
+    if "@graph" not in json:
+        raise HTTPException(
+            status_code=400, detail="Received json does not comply to expected format."
+        )
+
+    graph = json["@graph"]
+    livestock_list = []
+
+    for node in graph:
+        if "@type" in node:
+            if node["@type"] != "Livestock":
+                continue
+        else:
+            continue
+
+        id = node.get("@id", None)
+        name = node.get("name", None)
+        type = node.get("type", None)
+        category = node.get("category", None)
+        breed = node.get("breed", None)
+        color = node.get("color", None)
+        gender = node.get("gender", None)
+
+        birth_date = None
+        if "birthDate" in node:
+            try:
+                birth_date = datetime.datetime.strptime(
+                    node["birthDate"], "%Y-%m-%d"
+                ).date()
+            except ValueError:
+                print("Invalid birth date format:", node["birthDate"])
+
+        is_dam_owned = node.get("isDamOwned", None)
+        sire_id = node.get("sireID", None)
+        is_sire_owned = node.get("isSireOwned", None)
+        loss_cause = node.get("lossCause", None)
+
+        loss_date = None
+        if "lossDate" in node:
+            try:
+                loss_date = datetime.datetime.strptime(
+                    node["lossDate"], "%Y-%m-%d"
+                ).date()
+            except ValueError:
+                print("Invalid loss date format:", node["lossDate"])
+
+        sold_through = node.get("soldThrough", None)
+        sale_amount = node.get("saleAmount", None)
+        sale_weight = node.get("saleWeight", None)
+        is_owned = node.get("isOwned", None)
+
+        livestock_list.append(
+            Livestock(
+                id=id,
+                name=name,
+                type=type,
+                category=category,
+                breed=breed,
+                color=color,
+                gender=gender,
+                birth_date=birth_date,
+                is_dam_owned=is_dam_owned,
+                sire_id=sire_id,
+                is_sire_owned=is_sire_owned,
+                loss_cause=loss_cause,
+                loss_date=loss_date,
+                sold_through=sold_through,
+                sale_amount=sale_amount,
+                sale_weight=sale_weight,
+                is_owned=is_owned,
+            )
+        )
+
+    return livestock_list
 
 
 def harvests():
@@ -420,8 +648,16 @@ def fertilisation(ferts: List[Fertilization]):
 
     EX.ln(pdf)
 
-    keys = ["Date", "Product", "Quantity", "Unit", "Treatment Plan", "Form of Treatment", "Operation Type",
-            "Treatment Description"]
+    keys = [
+        "Date",
+        "Product",
+        "Quantity",
+        "Unit",
+        "Treatment Plan",
+        "Form of Treatment",
+        "Operation Type",
+        "Treatment Description",
+    ]
     with pdf.table() as table:
         if len(ferts) != 0:
             row = table.row()
@@ -508,7 +744,16 @@ def plant_protection(ppp: List[PestManagement]):
 
     EX.ln(pdf)
 
-    keys = ["Date", "Enemy/Target", "Active Substance", "Product", "Dose", "Unit", "Area", "Treatment Description"]
+    keys = [
+        "Date",
+        "Enemy/Target",
+        "Active Substance",
+        "Product",
+        "Dose",
+        "Unit",
+        "Area",
+        "Treatment Description",
+    ]
     with pdf.table() as table:
         if len(ppp) != 0:
             row = table.row()
@@ -541,12 +786,12 @@ def plant_protection(ppp: List[PestManagement]):
 
 
 def work_book(
-        farm: FarmProfile,
-        plot: List[PlotParcelDetail],
-        cult: List[GenericCultivationInformationForParcel],
-        irri: List[Irrigation],
-        fert: List[Fertilization],
-        pdmd: List[PestManagement]
+    farm: FarmProfile,
+    plot: List[PlotParcelDetail],
+    cult: List[GenericCultivationInformationForParcel],
+    irri: List[Irrigation],
+    fert: List[Fertilization],
+    pdmd: List[PestManagement],
 ):
 
     pdf = EX()
@@ -564,7 +809,20 @@ def work_book(
 
     EX.ln(pdf)
 
-    keys = ["First name or surname", "Father's name", "VAT", "Head office details", "Phone", "District", "County", "Municipality", "Community", "Place name", "Farm area", "Plot IDs"]
+    keys = [
+        "First name or surname",
+        "Father's name",
+        "VAT",
+        "Head office details",
+        "Phone",
+        "District",
+        "County",
+        "Municipality",
+        "Community",
+        "Place name",
+        "Farm area",
+        "Plot IDs",
+    ]
 
     with pdf.table() as table:
         if farm is not None:
@@ -617,8 +875,20 @@ def work_book(
 
         EX.ln(pdf)
 
-        keys = ["Plot ID:", "Reporting Year:", "Cartographic:", "Region:", "Toponym:", "Area:", "Nitro area:",
-                "Natura2000 area:", "PDO/PGI area:", "Irrigated:", "Cultivation in Levels:", "Ground slope:"]
+        keys = [
+            "Plot ID:",
+            "Reporting Year:",
+            "Cartographic:",
+            "Region:",
+            "Toponym:",
+            "Area:",
+            "Nitro area:",
+            "Natura2000 area:",
+            "PDO/PGI area:",
+            "Irrigated:",
+            "Cultivation in Levels:",
+            "Ground slope:",
+        ]
         with pdf.table() as table:
             for key in keys:
                 row = table.row()
@@ -640,11 +910,24 @@ def work_book(
             else:
                 pdf.add_page()
 
-                pdf.cell(40,10,"")
+                pdf.cell(40, 10, "")
 
                 EX.ln(pdf)
 
-            keys = ["Plot ID:", "Reporting Year:", "Cartographic:", "Region:", "Toponym:", "Area:", "Nitro area:", "Natura2000 area:", "PDO/PGI area:", "Irrigated:", "Cultivation in Levels:", "Ground slope:"]
+            keys = [
+                "Plot ID:",
+                "Reporting Year:",
+                "Cartographic:",
+                "Region:",
+                "Toponym:",
+                "Area:",
+                "Nitro area:",
+                "Natura2000 area:",
+                "PDO/PGI area:",
+                "Irrigated:",
+                "Cultivation in Levels:",
+                "Ground slope:",
+            ]
             with pdf.table() as table:
                 for key, value in zip(keys, list(pt.model_dump().values())):
                     row = table.row()
@@ -661,23 +944,32 @@ def work_book(
                     pdf.image(name=pt.depiction, w=80, keep_aspect_ratio=True)
                 else:
                     if first == 1:
-                        pdf.image(name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123001.jpeg",
-                                  w=80, keep_aspect_ratio=True)
+                        pdf.image(
+                            name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123001.jpeg",
+                            w=80,
+                            keep_aspect_ratio=True,
+                        )
                         first = 2
                     else:
                         pdf.image(
                             name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123002.jpeg",
-                            w=80, keep_aspect_ratio=True)
+                            w=80,
+                            keep_aspect_ratio=True,
+                        )
             else:
                 if first == 1:
-                    pdf.image(name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123001.jpeg",
-                              w=80, keep_aspect_ratio=True)
+                    pdf.image(
+                        name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123001.jpeg",
+                        w=80,
+                        keep_aspect_ratio=True,
+                    )
                     first = 2
                 else:
                     pdf.image(
                         name="https://raw.githubusercontent.com/openagri-eu/OCSM/main/examples/parcel123002.jpeg",
-                        w=80, keep_aspect_ratio=True)
-
+                        w=80,
+                        keep_aspect_ratio=True,
+                    )
 
     EX.ln(pdf)
 
@@ -690,9 +982,17 @@ def work_book(
 
     EX.ln(pdf)
 
-    keys = ["Cultivation type", "Variety", "Irrigated", "Greenhouse", "Production direction", "Planting System:",
-            "Planting distances of lines (m):", "Planting distances between lines (m):",
-            "Number of productive trees:"]
+    keys = [
+        "Cultivation type",
+        "Variety",
+        "Irrigated",
+        "Greenhouse",
+        "Production direction",
+        "Planting System:",
+        "Planting distances of lines (m):",
+        "Planting distances between lines (m):",
+        "Number of productive trees:",
+    ]
 
     if len(cult) == 0:
         with pdf.table() as table:
@@ -776,7 +1076,16 @@ def work_book(
 
     EX.ln(pdf)
 
-    keys = ["Date", "Enemy/Target", "Active Substance", "Product", "Dose", "Unit", "Area", "Treatment Description"]
+    keys = [
+        "Date",
+        "Enemy/Target",
+        "Active Substance",
+        "Product",
+        "Dose",
+        "Unit",
+        "Area",
+        "Treatment Description",
+    ]
     with pdf.table() as table:
         if len(pdmd) != 0:
             row = table.row()
@@ -814,7 +1123,16 @@ def work_book(
 
     EX.ln(pdf)
 
-    keys = ["Date", "Product", "Quantity", "Unit", "Treatment Plan", "Form of Treatment", "Operation Type", "Treatment Description"]
+    keys = [
+        "Date",
+        "Product",
+        "Quantity",
+        "Unit",
+        "Treatment Plan",
+        "Form of Treatment",
+        "Operation Type",
+        "Treatment Description",
+    ]
     with pdf.table() as table:
         if len(fert) != 0:
             row = table.row()
@@ -846,14 +1164,105 @@ def work_book(
     return pdf
 
 
+def livestock(lst: List[Livestock]):
+    pdf = EX()
+
+    pdf.set_title("OpenAgri Reporting Template")
+
+    pdf.add_page()
+
+    add_fonts(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(40, 10, "Livestock")
+
+    EX.ln(pdf)
+
+    keys_table_1 = [
+        "ID",
+        "Name",
+        "Type",
+        "Category",
+        "Breed",
+        "Color",
+        "Gender",
+    ]
+
+    keys_table_2 = [
+        "BirthDate",
+        "Is Dam Owned?",
+        "Sire ID",
+        "Is Sire Owned?",
+        "Loss Cause",
+        "Loss Date",
+        "Sold Through",
+        "Sale Amount",
+        "Sale Weight",
+        "Is Owned?",
+    ]
+
+    pdf.set_font("FreeSerif", "B", 8)
+    pdf.cell(40, 10, "Table 1: Basic Information")
+    pdf.ln(10)
+
+    with pdf.table() as table:
+        row = table.row()
+        for key in keys_table_1:
+            row.cell(key, align="C")
+
+        for lv in lst:
+            pdf.set_font("FreeSerif", "", 8)
+            row = table.row()
+            row.cell(str(lv.id), align="C")
+            row.cell(lv.name, align="C")
+            row.cell(lv.type, align="C")
+            row.cell(lv.category, align="C")
+            row.cell(lv.breed, align="C")
+            row.cell(lv.color, align="C")
+            row.cell(lv.gender, align="C")
+
+    EX.ln(pdf)
+
+    pdf.set_font("FreeSerif", "B", 8)
+    pdf.cell(40, 10, "Table 2: Additional Information")
+    pdf.ln(10)
+
+    with pdf.table() as table:
+        row = table.row()
+        for key in keys_table_2:
+            row.cell(key, align="C")
+
+        for lv in lst:
+            pdf.set_font("FreeSerif", "", 8)
+            row = table.row()
+            row.cell(str(lv.birth_date) if lv.birth_date else "N/A", align="C")
+            row.cell("Yes" if lv.is_dam_owned else "No", align="C")
+            row.cell(str(lv.sire_id) if lv.sire_id else "N/A", align="C")
+            row.cell("Yes" if lv.is_sire_owned else "No", align="C")
+            row.cell(lv.loss_cause if lv.loss_cause else "N/A", align="C")
+            row.cell(str(lv.loss_date) if lv.loss_date else "N/A", align="C")
+            row.cell(lv.sold_through if lv.sold_through else "N/A", align="C")
+            row.cell(str(lv.sale_amount) if lv.sale_amount else "N/A", align="C")
+            row.cell(str(lv.sale_weight) if lv.sale_weight else "N/A", align="C")
+            row.cell("Yes" if lv.is_owned else "No", align="C")
+
+    return pdf
+
 def add_fonts(pdf):
-    fonts_folder_path = os.path.join("app", "utils", "fonts")
+    fonts_folder_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
 
-    pdf.add_font('FreeSerif', '', os.path.join(fonts_folder_path, "FreeSerif.ttf"), uni=True)
-    pdf.add_font('FreeSerif', 'B', os.path.join(fonts_folder_path, "FreeSerifBold.ttf"), uni=True)
-
+    pdf.add_font(
+        "FreeSerif", "", os.path.join(fonts_folder_path, "FreeSerif.ttf"), uni=True
+    )
+    pdf.add_font(
+        "FreeSerif", "B", os.path.join(fonts_folder_path, "FreeSerifBold.ttf"), uni=True
+    )
 
 class EX(FPDF):
     def header(self):
-        self.image("https://horizon-openagri.eu/wp-content/uploads/2023/12/Logo-Open-Agri-blue-1024x338.png", w=40.0, keep_aspect_ratio=True, x=160)
-
+        self.image(
+            "https://horizon-openagri.eu/wp-content/uploads/2023/12/Logo-Open-Agri-blue-1024x338.png",
+            w=40.0,
+            keep_aspect_ratio=True,
+            x=160,
+        )

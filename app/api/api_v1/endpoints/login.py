@@ -16,8 +16,8 @@ router = APIRouter()
 
 @router.post("/access-token/", response_model=Token)
 def login_access_token(
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        db: Session = Depends(deps.get_db)
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Session = Depends(deps.get_db),
 ) -> Token:
     """
     OAuth2 compatible token login, get an access token for future requests
@@ -33,10 +33,9 @@ def login_access_token(
 
     at = Token(
         access_token=security.create_access_token(
-            user_db.id,
-            expires_delta=access_token_expires
+            user_db.id, expires_delta=access_token_expires
         ),
-        token_type="bearer"
+        token_type="bearer",
     )
 
     return at
