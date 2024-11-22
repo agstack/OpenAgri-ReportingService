@@ -49,6 +49,7 @@ class ReportHandler:
             if self.file_type != "harvests":
                 json_file = json.loads(self.report_db_file)
             handler = self.handlers.get(self.file_type, "work-book")
-            return handler(json_file)
+            return_value = handler(json_file) if self.file_type != "harvests" else handler()
+            return return_value
         except Exception as e:
             return None
