@@ -16,7 +16,7 @@ class ReportHandler:
         :param report_db: Report model data
 
         """
-        self.report_db_file = report_db.file
+        self.report_db = report_db
         self.file_type = report_db.type
 
         self.handlers = {
@@ -47,7 +47,7 @@ class ReportHandler:
         try:
             json_file = None
             if self.file_type != "harvests":
-                json_file = json.loads(self.report_db_file)
+                json_file = json.loads(self.report_db.file)
             handler = self.handlers.get(self.file_type, "work-book")
             return_value = handler(json_file) if self.file_type != "harvests" else handler()
             return return_value
