@@ -4,9 +4,7 @@ from core.config import settings
 from api.api_v1.api import api_router
 
 
-app = FastAPI(
-    title="Reporting service", openapi_url="/api/v1/openapi.json"
-)
+app = FastAPI(title="Reporting service", openapi_url="/api/v1/openapi.json")
 
 # Set all CORS enabled origins
 if settings.BACKEND_CORS_ORIGINS:

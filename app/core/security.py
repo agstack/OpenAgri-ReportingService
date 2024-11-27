@@ -10,17 +10,16 @@ pwd_context = CryptContext(schemes=["argon2"])
 
 
 def create_access_token(
-        subject: Union[str, Any],
-        expires_delta: timedelta = None
+    subject: Union[str, Any], expires_delta: timedelta = None
 ) -> str:
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(
-            minutes=int(60 * 24 * 8)
-        )
+        expire = datetime.utcnow() + timedelta(minutes=int(60 * 24 * 8))
     to_encode = {"exp": expire, "sub": str(subject)}
-    encoded_jwt = jwt.encode(payload=to_encode, key=settings.JWT_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(
+        payload=to_encode, key=settings.JWT_KEY, algorithm=ALGORITHM
+    )
     return encoded_jwt
 
 
@@ -33,11 +32,13 @@ def get_password_hash(password: str) -> str:
 
 
 def generate_jwt_token(email: str) -> str:
-    delta = timedelta(hours=24*7)
+    delta = timedelta(hours=24 * 7)
     expires = datetime.utcnow() + delta
     exp = expires.timestamp()
     encoded_jwt = jwt.encode(
-        payload={"exp": exp, "nbf": datetime.utcnow(), "sub": email}, key=settings.JWT_KEY, algorithm=ALGORITHM,
+        payload={"exp": exp, "nbf": datetime.utcnow(), "sub": email},
+        key=settings.JWT_KEY,
+        algorithm=ALGORITHM,
     )
     return encoded_jwt
 

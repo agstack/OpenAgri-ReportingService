@@ -1,8 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserCreate(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 
@@ -15,4 +15,3 @@ class UserMe(BaseModel):
 
     class Config:
         from_attributes = True
-

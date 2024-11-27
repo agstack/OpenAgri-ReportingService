@@ -113,6 +113,26 @@ class Fertilization(BaseModel):
     treatment_description: Optional[str]
 
 
+class Livestock(BaseModel):
+    id: str | int
+    name: Optional[str]
+    type: Optional[str]
+    category: Optional[str]
+    breed: Optional[str]
+    color: Optional[str]
+    gender: Optional[str]
+    birth_date: Optional[datetime.date]
+    is_dam_owned: Optional[bool]
+    sire_id: Optional[str]
+    is_sire_owned: Optional[bool]
+    loss_cause: Optional[str]
+    loss_date: Optional[datetime.date]
+    sold_through: Optional[str]
+    sale_amount: Optional[float]
+    sale_weight: Optional[float]
+    is_owned: Optional[bool]
+
+
 # class GrowthStages(BaseModel):
 #     date: Optional[datetime.date]
 #     product: Optional[str]

@@ -8,7 +8,7 @@ from os import path, environ
 
 
 class Settings(BaseSettings):
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [ ]
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
     PROJECT_ROOT: str = path.dirname(path.dirname(path.realpath(__file__)))
 
@@ -30,20 +30,15 @@ class Settings(BaseSettings):
             environ.get("POSTGRES_PASSWORD"),
             environ.get("POSTGRES_HOST"),
             environ.get("POSTGRES_PORT"),
-            environ.get("POSTGRES_DB")
+            environ.get("POSTGRES_DB"),
         )
 
         return url
 
     PASSWORD_SCHEMA_OBJ: PasswordValidator = PasswordValidator()
-    PASSWORD_SCHEMA_OBJ \
-        .min(8) \
-        .max(100) \
-        .has().uppercase() \
-        .has().lowercase() \
-        .has().digits() \
-        .has().no().spaces() \
-
+    PASSWORD_SCHEMA_OBJ.min(8).max(
+        100
+    ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
     ACCESS_TOKEN_EXPIRATION_TIME: int
     JWT_KEY: str
 
