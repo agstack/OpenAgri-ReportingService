@@ -17,7 +17,7 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 import sys
-from os.path import relpath, abspath, join
+from os.path import abspath, join
 from os import getcwd
 
 sys.path.insert(0, join(abspath(getcwd()), "app"))
