@@ -1,0 +1,784 @@
+{
+    "@context": [
+        "https://w3id.org/ocsm/main-context.jsonld"
+    ],
+    "@graph": [
+        {
+            "@id": "urn:openagri:farm:7cf8904d-ea79-4525-80dc-9e3ea1003bb6",
+            "@type": "Farm",
+            "name": "The OpenAgri prototype Farm",
+            "description": "A farm in Attica Greece with two parcels cultivating table olives",
+            "hasAdministrator": "Marinos Antypas",
+            "contactPerson": {
+                "@id": "urn:openagri:contact:e08db963-a229-4fc0-90fb-74191035f34b",
+                "@type": "Person",
+                "firstname": "Marinos Antypas",
+                "lastname": "Marinos Antypas"
+            },
+            "telephone": "+30-08101907",
+            "vatID": "xyz-abc-1234",
+            "address": {
+                "@id": "urn:openagri:address:8bbb50f2-9ea1-4b7f-a7c5-de56f10fc591",
+                "@type": "Address",
+                "adminUnitL1": "Greece",
+                "adminUnitL2": "Attica",
+                "addressArea": "no address",
+                "municipality": "Oropos",
+                "community": "",
+                "locatorName": "Killeler"
+            },
+            "area": 200000,
+            "hasAgriParcel": [
+                {
+                    "@id": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+                    "@type": "Vineyard",
+                    "identifier": 123001,
+                    "description": "Olive grove A",
+                    "category": "orchard",
+                    "validFrom": "2023-01-01T00:00:00",
+                    "validTo": "2023-12-31T23:59:59",
+                    "inRegion": "Attica/Greece",
+                    "hasToponym": "Oropos",
+                    "area": 30000.0,
+                    "isNitroAarea": 1,
+                    "isNatura2000Area": 0,
+                    "isPDOPGIArea": 0,
+                    "isIrrigated": 1,
+                    "isCultivatedInLevels": 0,
+                    "isGroundSlope": 1,
+                    "depiction": "http://example.org/satelite_image/picture1.jpg",
+                    "hasGeometry": {
+                        "@id": "urn:openagri:parcel:geo:dbd48d39-757a-4f68-a586-a5439a0c0cb1",
+                        "@type": "Polygon",
+                        "asWKT": "POLYGON(((23.7291120943909 38.311867323636875,23.72834175131419 38.309300443635294, 23.729491989607823 38.309118274505494, 23.7302095694605 38.311676880822006, 23.7291120943909, 38.311867323636875)))"
+                    },
+                    "location": {
+                        "@id": "urn:openagri:parcel:point:527021d1-2209-43d4-9706-1a95a6a13596",
+                        "@type": "Point",
+                        "lat": 38.309300443635294,
+                        "long": 23.72834175131419
+                    },
+                    "usesIrrigationSystem": {
+                        "@id": "urn:openagri:parcel:irrigation:4d0b6e62-dd39-4989-9c4f-ad8b59163046",
+                        "@type": "IrrigationSystem",
+                        "name": "micro sprinkler"
+                    },
+                    "hasIrrigationFlow": 0.12
+                },
+                {
+                    "@id": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b",
+                    "@type": "Vineyard",
+                    "identifier": 123002,
+                    "description": "Olive grove B",
+                    "category": "orchard",
+                    "validFrom": "2023-01-01T00:00:00",
+                    "validTo": "2023-12-31T23:59:59",
+                    "inRegion": "Attica/Greece",
+                    "hasToponym": "Oropos",
+                    "area": 63000.0,
+                    "isNitroAarea": 1,
+                    "isNatura2000Area": 0,
+                    "isPDOPGIArea": 0,
+                    "isIrrigated": 1,
+                    "isCultivatedInLevels": 0,
+                    "isGroundSlope": 1,
+                    "depiction": "http://example.org/satelite_image/picture1.jpg",
+                    "hasGeometry": {
+                        "@id": "urn:openagri:parcel:geo:40cfeb40-1808-4869-ac4c-efbac35c216b",
+                        "@type": "Polygon",
+                        "asWKT": "POLYGON(((23.733335084908617 38.31118631434748,   23.732465315464964 38.308413730027695,  23.732465315464964 38.308413730027695,  23.734346191887084 38.3079359817161, 23.735042007441933 38.30957396282503, 23.735476892164286 38.31025644403522,  23.735966137476566 38.31077683164247, 23.733335084908617 38.31118631434748)))"
+                    },
+                    "location": {
+                        "@id": "urn:openagri:parcel:point:0ec8da1c-b0ca-4c43-9957-7b2218e4ea89",
+                        "@type": "Point",
+                        "lat": 38.308413730027695,
+                        "long": 23.732465315464964
+                    },
+                    "usesIrrigationSystem": {
+                        "@id": "urn:openagri:parcel:irrigation:e6a79d40-1b2c-48ac-9d22-baf603aa7978",
+                        "@type": "IrrigationSystem",
+                        "name": "micro sprinkler"
+                    },
+                    "hasIrrigationFlow": 0.12
+                }
+            ]
+        },
+        {
+            "@id": "urn:openagri:irrigation:2f60fdbe-5ab6-44e1-8ab3-1841aea70082",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-23 08:45:00",
+            "endedAt": "2023-07-23 22:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:f980b477-2fc0-40ca-a275-563c34e1e100",
+                "@type": "QuantityValue",
+                "numericValue": "420",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:ad6a5e0f-7fba-496d-a359-d6fec2ed0666",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:478ada25-785e-4832-98a1-bc6b56f6bf91",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-30 07:45:00",
+            "endedAt": "2023-07-30 21:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:65ffb777-896c-42cb-9e0c-b5b643dee2ab",
+                "@type": "QuantityValue",
+                "numericValue": "420",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:f5e8d723-bd9d-46a4-a335-a4d12a27b12d",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:ece46378-fdcb-4248-8c19-efeb9267ec3b",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-06 08:00:00",
+            "endedAt": "2023-08-06 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:28555497-a3bd-453b-8423-00dddb7fe663",
+                "@type": "QuantityValue",
+                "numericValue": "220",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:191fa89f-c899-4e96-8f34-d4fa449358b3",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:2a66af3c-42b1-4a04-8cf3-e60754c93050",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-10 11:30:00",
+            "endedAt": "2023-08-10 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:417f3ef8-8c0f-4d77-b01a-a300837bbf50",
+                "@type": "QuantityValue",
+                "numericValue": "110",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:7c944e3d-868d-4ee6-ba4a-079ff6de64c7",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:d02434ad-6756-45ed-8f86-61814da3f11e",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-16 09:00:00",
+            "endedAt": "2023-08-16 17:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:c2e5fc0a-0b1a-4369-90c3-510f93d049a0",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:76271c15-16ca-4626-81d7-420badcec5aa",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:a9f2f4b8-5778-42aa-8957-13efb0e35b1c",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-30 06:00:00",
+            "endedAt": "2023-08-30 14:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:d3c05dfc-cdd3-4758-b7af-6694f98b7d1f",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:92db1c41-9bc1-4990-8485-8022a517b9ef",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:47e554a6-3097-4633-a6db-b2f13ef58219",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-09-13 09:00:00",
+            "endedAt": "2023-09-13 17:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:a88e6a10-b6db-4d10-8905-4a55bfeec4c2",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:eb449335-2707-4d88-9dcc-75f8e64b9494",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:8704d883-ebca-4422-95c5-ce03326f737c",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-09-20 10:00:00",
+            "endedAt": "2023-09-20 18:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:8703b90e-ed4c-4637-8dc3-c7d4700d937a",
+                "@type": "QuantityValue",
+                "numericValue": "25",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:26d0b5ae-27fe-4ffd-90f9-742edf079eeb",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:irrigation:74171751-043f-4190-8e51-d641a7afab2c",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-20 08:45:00",
+            "endedAt": "2023-07-20 22:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:9b5ae551-968b-48d9-9334-dd818209a616",
+                "@type": "QuantityValue",
+                "numericValue": "400",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:e042e5e8-d0f4-4eef-8243-46ff953fde05",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b"
+        },
+        {
+            "@id": "urn:openagri:irrigation:20623da6-96ac-4d65-8f48-3b6205168ee5",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-07-29 07:45:00",
+            "endedAt": "2023-07-29 21:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:24735c4d-1ba4-4d74-af09-f9479279a278",
+                "@type": "QuantityValue",
+                "numericValue": "400",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:af782d3a-79a3-437b-bfd5-6d7e889f9f7f",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b"
+        },
+        {
+            "@id": "urn:openagri:irrigation:21295385-ae00-46b0-b966-93e61df03238",
+            "@type": "IrrigationOperation",
+            "description": "irrigation description",
+            "startedAt": "2023-08-08 08:00:00",
+            "endedAt": "2023-08-08 15:00:00",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:irrigation:amount:4b49c23c-02a7-49bf-b3b2-14cfeb1a8957",
+                "@type": "QuantityValue",
+                "numericValue": "230",
+                "unit": "http://qudt.org/vocab/unit/M3"
+            },
+            "usesIrrigationSystem": {
+                "@id": "urn:openagri:irrigation:system:46bd10bf-7bc8-4e8f-8fd3-d889f4632e7c",
+                "@type": "IrrigationSystem",
+                "name": "Micro sprinklers",
+                "hasIrrigationType": "Micro sprinklers"
+            },
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b"
+        },
+        {
+            "@id": "urn:openagri:fertilization:518af5ed-d98e-446d-9886-cf4042872371",
+            "@type": "FertilizationOperation",
+            "description": "Basal Fertlization",
+            "hasTimestamp": "2023-02-26",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:368ad769-743a-4e4d-90d5-65b32f1be188",
+                "@type": "Fertilizer",
+                "hasCommercialName": "ENTEC 20-8-10(+2Mgo+3S)"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:c6ab5a99-4b13-4142-afc6-43fec337b8ea",
+                "@type": "QuantityValue",
+                "numericValue": "4",
+                "unit": "https://w3id.org/ocsm/KiloGM-PER-PLANT"
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:a0c5e6f8-17e9-416d-a3b7-19d49e0d3513",
+                "@type": "TreatmentPlan",
+                "description": "The fertilisation type and dose derived after the soil analysis with id: 0123"
+            },
+            "hasApplicationMethod": "Dispration",
+            "operationType": "Dispration",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:fertilization:597c4e1d-4454-48dd-8746-8ee7e427ac63",
+            "@type": "FertilizationOperation",
+            "description": "\u03ac\u03bb\u03bb\u03b7 \u03bc\u03ad\u03b8\u03bf\u03b4\u03bf\u03c2",
+            "hasTimestamp": "2023-06-14",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:0c9c6c75-f0ab-47ba-b322-d494f8b4c7c8",
+                "@type": "Fertilizer",
+                "hasCommercialName": "AMINO 16"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:83b29f77-db38-4e13-bf26-dfa07ab82845",
+                "@type": "QuantityValue",
+                "numericValue": "1.000",
+                "unit": null
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:2104336b-c0bd-493d-9e67-611f3c69cfd1",
+                "@type": "TreatmentPlan",
+                "description": null
+            },
+            "hasApplicationMethod": "liquid foliar fertilizer",
+            "operationType": "liquid foliar fertilizer",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8"
+        },
+        {
+            "@id": "urn:openagri:fertilization:bc6f256e-44ed-466d-bec9-8f85645f590c",
+            "@type": "FertilizationOperation",
+            "description": "Basal Fertlization",
+            "hasTimestamp": "2023-02-29",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:3490f6ea-7142-4204-82a0-732be5831c80",
+                "@type": "Fertilizer",
+                "hasCommercialName": "ENTEC 20-8-10(+2Mgo+3S)"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:0a0b98ad-cf21-4f13-a9bd-c17b0c38442f",
+                "@type": "QuantityValue",
+                "numericValue": "5",
+                "unit": "https://w3id.org/ocsm/KiloGM-PER-PLANT"
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:68f9beaa-c2ed-4ca6-b06a-1ee89c330a09",
+                "@type": "TreatmentPlan",
+                "description": "The fertilisation type and dose derived after the soil analysis with id: 0123"
+            },
+            "hasApplicationMethod": "Dispration",
+            "operationType": "Dispration",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b"
+        },
+        {
+            "@id": "urn:openagri:fertilization:1a0b9349-c481-4df5-8ee3-2d914f057e55",
+            "@type": "FertilizationOperation",
+            "description": "\u03ac\u03bb\u03bb\u03b7 \u03bc\u03ad\u03b8\u03bf\u03b4\u03bf\u03c2",
+            "hasTimestamp": "2023-06-24",
+            "usesFertilizer": {
+                "@id": "urn:openagri:fertilization:product:522a11ed-4576-40dd-868c-1908fd865981",
+                "@type": "Fertilizer",
+                "hasCommercialName": "AMINO 16"
+            },
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:fertilization:amount:b8f266b3-2954-49de-9ca0-135a27bc6133",
+                "@type": "QuantityValue",
+                "numericValue": "1.5",
+                "unit": null
+            },
+            "plan": {
+                "@id": "urn:openagri:fertilization:plan:77d9586c-52c5-4713-aea7-fe2356567260",
+                "@type": "TreatmentPlan",
+                "description": null
+            },
+            "hasApplicationMethod": "liquid foliar fertilizer",
+            "operationType": "liquid foliar fertilizer",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b"
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:f64807aa-9f40-4fd7-bc0f-0d0a1f0447ac",
+            "@type": "ChemicalControlOperation",
+            "description": "This was a preventive application. No prior symptoms detected.",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:cf06cdf2-8278-4930-a658-a2e8b7003cea",
+                "@type": "QuantityValue",
+                "numericValue": 1176.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-02-07",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:7712037e-080e-450b-a183-5f3332c1df61",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Bordeaux mixture",
+                "hasCommercialName": "BORDELESA 20 WP"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:b6587e36-4c56-4792-8e51-49ad6d89ed81",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:86c49598-2ac3-417f-8c7f-6a8345bf36f0",
+                "@type": "QuantityValue",
+                "numericValue": 588.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-03-16",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:da1e1aa0-5897-4958-9aa7-625fb0887b82",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Copper hydroxide",
+                "hasCommercialName": "KOCIDE 2000 35 WG"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:6b2f300a-04fd-41fa-90e4-104b6f56e727",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:9333cadb-1dbc-4f81-b39e-c55de918f43e",
+                "@type": "QuantityValue",
+                "numericValue": 470.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-04-08",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:c19b71d7-af3a-4414-9db1-9240e436662f",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Pyraclostrobin",
+                "hasCommercialName": "COMET 20 EC"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:976e5503-29d8-4e9f-8406-9f5bbcbbcaca",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:125dc2ea-d141-48a2-bc03-d02f8f2f3474",
+                "@type": "QuantityValue",
+                "numericValue": 200.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-04-08",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:378a6a9c-172c-473f-8a99-49d080a291dd",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Mancozeb",
+                "hasCommercialName": "TRIMANOC 75 WG"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:9e55c84f-ac55-484e-baa3-05c399d4378d",
+            "@type": "ChemicalControlOperation",
+            "description": "\u03ba\u03b1\u03b9 KSAR",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:212859a0-836c-40f3-b2a3-94a16ffb03de",
+                "@type": "QuantityValue",
+                "numericValue": 150.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-04-28",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:60898b5e-1864-4592-ab8b-eb2d8b76399d",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Dodine",
+                "hasCommercialName": "SYLLIT 544 SC"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:26c857e5-7a58-4c4a-945b-5334e2cbb2b1",
+            "@type": "ChemicalControlOperation",
+            "description": "ACTELIC \u039a\u0391\u0399 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:e7920a5b-cd2e-432c-8d67-ed118d529a4d",
+                "@type": "QuantityValue",
+                "numericValue": 100.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-05-11",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:35a09de4-4070-46b1-abd1-ef21c32b160e",
+                "@type": "Pesticide",
+                "hasActiveSubstance": null,
+                "hasCommercialName": "LAINCOIL"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:eaa22a03-8f35-432b-a5a9-ba7872be22bd",
+            "@type": "ChemicalControlOperation",
+            "description": "\u03ba\u03b1\u03b9 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391.",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:2b944db3-1791-47ac-8e1f-1db9f1d7b4d4",
+                "@type": "QuantityValue",
+                "numericValue": 30.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-05-19",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Basin or black olive scab",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:5cba8324-f69b-49a7-9417-5a455bacfcc0",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Pyriproxyfen",
+                "hasCommercialName": "ADMIRAL 10 EC"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:a25b524d-ed5f-4e94-985d-0ad10b282dba",
+            "@type": "ChemicalControlOperation",
+            "description": "\u03ba\u03b1\u03b9 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391.",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:0d17ff27-4dc9-48d2-b8ab-311ad544a066",
+                "@type": "QuantityValue",
+                "numericValue": 100.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-05-19",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Prays Oleae",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:2c7de4d2-553d-4aa6-ae3b-2702b9680e3f",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Deltamethrin",
+                "hasCommercialName": "DECIS 2,5 EC"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:ba4d20e7-0ec9-4db8-aaf7-53014efb411d",
+            "@type": "ChemicalControlOperation",
+            "description": "\u039f \u03c0\u03b1\u03c1\u03b1\u03b3\u03c9\u03b3\u03cc\u03c2 \u03c8\u03ad\u03ba\u03b1\u03c3\u03b5 \u03bc\u03b5 \u03c4\u03bf \u03c3\u03ba\u03b5\u03cd\u03b1\u03c3\u03bc\u03b1 Actellic 50 EC (\u03b4\u03c1\u03b1\u03c3\u03c4\u03b9\u03ba\u03ae \u03bf\u03c5\u03c3\u03af\u03b1 50% pirimiphos-methyl)",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:d97410c6-5935-48a2-bc3c-577978a9c6f3",
+                "@type": "QuantityValue",
+                "numericValue": 100.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-06-01",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:b86a0e3d-5eaa-4f13-af5a-5cd2e4ba3e26",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Pirimiphos-methyl",
+                "hasCommercialName": null
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:5cec09ec-1eca-42a4-80e5-f85d50204405",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:163e0d35-70c4-4ea5-85b2-0dd5c6b9d5c3",
+                "@type": "QuantityValue",
+                "numericValue": 20.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-06-14",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Prays Oleae",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:7ec472ba-7661-4c33-b00b-f150d81f5b22",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "lambda-cyhalothrin",
+                "hasCommercialName": "KARATE with Zeon technology 10 CS"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:d9cfb9dc-df25-458b-ada6-05b3e1869ff3",
+            "@type": "ChemicalControlOperation",
+            "description": "Intervention by advice. It also acts against gliosporium",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:a220e809-0854-43a8-b9ba-f132f7499093",
+                "@type": "QuantityValue",
+                "numericValue": 320.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-08-29",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:dce7fdce-2a98-48d9-8a31-582264a49012",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Copper hydroxide",
+                "hasCommercialName": "JADE 40 WG"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:ea0d3b38-8ab2-4ba9-b0db-c53ddfb8ad7d",
+            "@type": "ChemicalControlOperation",
+            "description": "Intervention by advice. It also acts against gliosporium",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:24df62fe-1828-4eca-9b28-cc1c515391eb",
+                "@type": "QuantityValue",
+                "numericValue": 250.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-11-18",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:ff1e4cc2-09c5-4016-97d0-6be146ae5740",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Copper hydroxide",
+                "hasCommercialName": "CUPROS 50 WP"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:915011a5-16e2-473b-bfcb-8c47504df348",
+            "@type": "ChemicalControlOperation",
+            "description": "Intervention by advice. It also acts against gliosporium",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:43574d04-9b7b-4b1e-bb5c-10eea4377252",
+                "@type": "QuantityValue",
+                "numericValue": 500.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-12-13",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:304c77b2-ef63-43fa-823f-4c16344240a8",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:3759e176-8d1c-4986-8b37-866e9db3701c",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Bordeaux mixture",
+                "hasCommercialName": "AQQUOS 20 WP"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:3adb298e-2bb1-40c1-bbc7-7918c03f6680",
+            "@type": "ChemicalControlOperation",
+            "description": "This was a preventive application. No prior symptoms detected.",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:f1928481-355c-4995-a78b-6ba2c7819e43",
+                "@type": "QuantityValue",
+                "numericValue": 1100.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-02-08",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:e246bdbc-303a-4799-9c27-2caf4606ee45",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Bordeaux mixture",
+                "hasCommercialName": "BORDELESA 20 WP"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:a77b14d4-11bb-4595-be09-39048c999b88",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:4805ff6e-11c7-48eb-8e1c-33c024858096",
+                "@type": "QuantityValue",
+                "numericValue": 550.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-03-26",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:26dd1a32-baea-4977-9239-775cb1b822e4",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Copper hydroxide",
+                "hasCommercialName": "KOCIDE 2000 35 WG"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:74111a1f-95e5-4896-9c70-c5dfde55bb2b",
+            "@type": "ChemicalControlOperation",
+            "description": null,
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:a244b695-f07a-4ecd-96e7-a67f88263a1c",
+                "@type": "QuantityValue",
+                "numericValue": 490.0,
+                "unit": "http://qudt.org/vocab/unit/ML"
+            },
+            "hasTimestamp": "2023-04-12",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:4a9c4c21-b7ce-405d-9c83-475962a76454",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Pyraclostrobin",
+                "hasCommercialName": "COMET 20 EC"
+            }
+        },
+        {
+            "@id": "urn:openagri:pestMgmt:c311841a-617d-4f37-9cae-72561e5ea8d6",
+            "@type": "ChemicalControlOperation",
+            "description": "Intervention by advice. It also acts against gliosporium",
+            "hasAppliedAmount": {
+                "@id": "urn:openagri:pestMgmt:amount:964bf1b2-2de7-4ca7-9b7d-a3d4b0faeb05",
+                "@type": "QuantityValue",
+                "numericValue": 510.0,
+                "unit": "http://qudt.org/vocab/unit/GM"
+            },
+            "hasTimestamp": "2023-12-15",
+            "hasTreatedArea": "null",
+            "isOperatedOn": "urn:openagri:parcel:0c616c95-1fd8-45dd-962b-229886db782b",
+            "isTargetedTowards": "Powdery mildew",
+            "usesPesticide": {
+                "@id": "urn:openagri:pestMgmt:system:1c8d39f1-76e7-4165-8e7a-7f8883e2db26",
+                "@type": "Pesticide",
+                "hasActiveSubstance": "Bordeaux mixture",
+                "hasCommercialName": "AQQUOS 20 WP"
+            }
+        }
+    ]
+}
