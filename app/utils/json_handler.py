@@ -107,6 +107,5 @@ class ReportHandler:
                 )
 
                 return return_value
-        except Exception as e:
-            print(e)
+        except Exception:
             return None
