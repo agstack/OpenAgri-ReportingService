@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     SERVICE_NAME: str
     SERVICE_PORT: int
     USING_GATEKEEPER: bool
+    GATEKEEPER_BASE_URL: str
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
