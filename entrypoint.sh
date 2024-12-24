@@ -71,6 +71,6 @@ echo "Finished db migrations"
 # Start the FastAPI app with uvicorn
 echo "Starting Uvicorn server"
 
-exec uvicorn --host 0.0.0.0 --port $1 --app-dir=app 'main:app'
+exec uvicorn --host 0.0.0.0 --port "$1" --app-dir=app 'main:app'
 
 echo "Started Uvicorn server"
