@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ReportCreate(BaseModel):
@@ -131,6 +131,22 @@ class Livestock(BaseModel):
     sale_amount: Optional[float]
     sale_weight: Optional[float]
     is_owned: Optional[bool]
+
+
+class WeatherObservation(BaseModel):
+    timestamp: Optional[str] = Field(
+        None, description="The timestamp of the weather observation in ISO 8601 format."
+    )
+    wind_speed: Optional[float] = Field(
+        None, description="Observed wind speed in meters per second."
+    )
+    air_pressure: Optional[float] = Field(
+        None, description="Observed air pressure in pascals."
+    )
+    humidity: Optional[float] = Field(None, description="Specific humidity percentage.")
+    temperature: Optional[float] = Field(
+        None, description="Air temperature in degrees Celsius."
+    )
 
 
 # class GrowthStages(BaseModel):

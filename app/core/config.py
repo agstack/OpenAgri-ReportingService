@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from password_validator import PasswordValidator
 
 from typing import Optional, Any, List
@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
+    SERVICE_NAME: str
+    SERVICE_PORT: int
+    USING_GATEKEEPER: bool
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 

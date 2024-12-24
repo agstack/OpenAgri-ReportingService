@@ -1,0 +1,427 @@
+[
+    {
+        "@id": "urn:openagri:fertilization:158226ac-7d8d-4b4d-a017-6835675920d7",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-02-07",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:23c48b78-af8b-4040-abda-1abb06acff33",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:9ca1be2d-fa25-488c-98d5-6566cf132460",
+            "@type": "QuantityValue",
+            "numericValue": 1176.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:87162488-1d7d-4796-9251-0810b41cb8bd",
+            "@type": "TreatmentPlan",
+            "description": "This was a preventive application. No prior symptoms detected."
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:aac18b75-551c-49bd-bf3b-f9c021e5e654",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-03-16",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:fe6f17e5-2a33-4aba-a9f6-c990693e5597",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:d0a7d750-55e7-40a1-aa19-7e31f188c680",
+            "@type": "QuantityValue",
+            "numericValue": 588.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:e432ca6c-c5cb-4f5f-8b82-6e0b101d886a",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:dc407aec-e72c-4e14-afa2-6519c98e092c",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-04-08",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:c926374a-7e13-4b19-b8d5-5a482ee8759e",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:5f4cb50a-63db-4046-9f78-bf386d83ba06",
+            "@type": "QuantityValue",
+            "numericValue": 470.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:21e7eeb5-fbf2-4ea8-988f-ba373edce470",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:dbd82be3-89b8-4b7a-aa42-551b5bfdb0a5",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-04-08",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:e47bc3b3-88d9-42fd-bd6f-5a82a154ac09",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:da87d550-2137-40fd-939c-a691d2f8fa10",
+            "@type": "QuantityValue",
+            "numericValue": 200.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:309620a3-4ab8-4058-bcf1-9482f2d6921c",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:4d11dc2b-50af-4cfc-9b1c-ab72149eff38",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-04-28",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:f40951bd-ed89-4505-a470-e9a0adc65071",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:988cc1c9-510f-4cce-b442-6ae0761b7c59",
+            "@type": "QuantityValue",
+            "numericValue": 150.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:a6d6a24d-60aa-4bd1-ab9e-5bec22685a9b",
+            "@type": "TreatmentPlan",
+            "description": "\u03ba\u03b1\u03b9 KSAR"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:fcd9a03d-baf6-4710-b9d7-b737a618358f",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-05-11",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:33c7520d-b575-4b1e-bcc5-47e1d49d0701",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:58ded09c-9f8d-48be-8c1f-f0ec92f0db18",
+            "@type": "QuantityValue",
+            "numericValue": 100.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:4212e27c-0aec-4d36-b740-5c876643e602",
+            "@type": "TreatmentPlan",
+            "description": "ACTELIC \u039a\u0391\u0399 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:02b7d7fa-85a2-459b-96e6-12fb43e1747c",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-05-19",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:871c7186-9d58-4031-b54c-4e4debbdeedf",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:360115af-aafb-4050-9627-453adc74617b",
+            "@type": "QuantityValue",
+            "numericValue": 30.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:78f56390-ece9-4e63-8605-9d796e811371",
+            "@type": "TreatmentPlan",
+            "description": "\u03ba\u03b1\u03b9 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391."
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:cd2a5154-f898-4849-826a-0d5a96690ad5",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-05-19",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:685cac1e-d9cb-40c1-b65c-8b29e4ad77e8",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:1f0c9fba-8788-4c68-9523-fec027983fb6",
+            "@type": "QuantityValue",
+            "numericValue": 100.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:b586701f-e7c0-4d44-91e3-fc87624b1898",
+            "@type": "TreatmentPlan",
+            "description": "\u03ba\u03b1\u03b9 \u0394\u0399\u0391\u03a6\u03a5\u039b\u039b\u0399\u039a\u0391."
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:d672203b-0c88-4e93-b403-ca34b031761e",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-06-01",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:6fc33953-8797-4da7-8757-5a7eed0f3eee",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:82350955-8f9f-4118-8ccd-946722373285",
+            "@type": "QuantityValue",
+            "numericValue": 100.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:aa4fa3ca-62c8-4958-8b65-f0aa155b1cfe",
+            "@type": "TreatmentPlan",
+            "description": "\u039f \u03c0\u03b1\u03c1\u03b1\u03b3\u03c9\u03b3\u03cc\u03c2 \u03c8\u03ad\u03ba\u03b1\u03c3\u03b5 \u03bc\u03b5 \u03c4\u03bf \u03c3\u03ba\u03b5\u03cd\u03b1\u03c3\u03bc\u03b1 Actellic 50 EC (\u03b4\u03c1\u03b1\u03c3\u03c4\u03b9\u03ba\u03ae \u03bf\u03c5\u03c3\u03af\u03b1 50% pirimiphos-methyl)"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:79a76401-ea2f-4ff1-800f-4b4e51822140",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-06-14",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:1eb85c8c-4abb-4476-88e8-6d50ceac1cc2",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:46bc6e9d-08d8-4aeb-9efd-e3ce30c17d7c",
+            "@type": "QuantityValue",
+            "numericValue": 20.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:b53b649e-d877-4e95-9542-6b6732c9b06e",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:ee7d50f3-369d-45d7-b6ad-5a5dbd2670b9",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-08-29",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:4de64c0e-9911-4f23-b316-1c77fa222bd1",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:896ed15c-9656-411b-a217-e4dce9dd5f01",
+            "@type": "QuantityValue",
+            "numericValue": 320.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:46fb2cbf-1cb4-4cd8-9258-711ab0c49a3d",
+            "@type": "TreatmentPlan",
+            "description": "Intervention by advice. It also acts against gliosporium"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:7b2ccb54-12f9-462e-8f08-de2e0d1fcace",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-11-18",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:8bf5a074-0b1d-429d-92b2-b092ba762e27",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:9f9a3901-d008-4765-8297-3357f38c2b73",
+            "@type": "QuantityValue",
+            "numericValue": 250.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:5cf4d383-7168-4157-aa14-7cb3c8a1f04f",
+            "@type": "TreatmentPlan",
+            "description": "Intervention by advice. It also acts against gliosporium"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:0f5b27f1-ee31-47e2-a90b-b8e2092ab3f0",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-12-13",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:f9f3ba26-feee-49f0-a31e-8cfe38e2d4e9",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:f19abe8e-8ea3-4556-bf99-a2b7d50b089e",
+            "@type": "QuantityValue",
+            "numericValue": 500.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:3cc526d2-6ddd-4ff7-9ef8-6f3655423b25",
+            "@type": "TreatmentPlan",
+            "description": "Intervention by advice. It also acts against gliosporium"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1"
+    },
+    {
+        "@id": "urn:openagri:fertilization:12d502b4-f9eb-49d6-b6df-af04a73fb6f1",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-02-08",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:5af44ee6-4977-4d32-bcb0-be34ac13a584",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:6cbbddfb-07b5-4663-a915-33924fe86d4a",
+            "@type": "QuantityValue",
+            "numericValue": 1100.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:73aed22d-1d5f-4b85-b02e-6a644eac761f",
+            "@type": "TreatmentPlan",
+            "description": "This was a preventive application. No prior symptoms detected."
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:99b5a0ea-76af-4deb-8d0c-2f4d8d607d81"
+    },
+    {
+        "@id": "urn:openagri:fertilization:c03d492f-caa2-4cb6-bf48-4b8efa018589",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-03-26",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:53b50d28-69da-43d6-b11f-98dc527e8ec4",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:6c06cbdf-52da-49c9-8ce9-757a03d880c9",
+            "@type": "QuantityValue",
+            "numericValue": 550.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:b6b62387-da25-4746-8f1c-2619d2e33f52",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:99b5a0ea-76af-4deb-8d0c-2f4d8d607d81"
+    },
+    {
+        "@id": "urn:openagri:fertilization:0dd7fb4a-1fdc-4f41-86aa-e9d2512f052c",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-04-12",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:5809d56d-c0f8-4c2c-9d5c-aebf3d4ea1c9",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:453ce549-b680-4654-9671-d4335cfbb8c6",
+            "@type": "QuantityValue",
+            "numericValue": 490.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:41aa5093-17bd-4d8c-b784-ed12ce52e649",
+            "@type": "TreatmentPlan",
+            "description": null
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:99b5a0ea-76af-4deb-8d0c-2f4d8d607d81"
+    },
+    {
+        "@id": "urn:openagri:fertilization:950bf772-f278-479e-a4e8-22d7e718eea6",
+        "@type": "FertilizationOperation",
+        "description": "No description provided",
+        "hasTimestamp": "2023-12-15",
+        "usesFertilizer": {
+            "@id": "urn:openagri:fertilization:product:bd1cdc5b-ed51-4f46-93e8-fd20babf6539",
+            "@type": "Fertilizer",
+            "hasCommercialName": null
+        },
+        "hasAppliedAmount": {
+            "@id": "urn:openagri:fertilization:amount:0407b628-6596-4dd7-a8b6-27ab97a22d17",
+            "@type": "QuantityValue",
+            "numericValue": 510.0,
+            "unit": null
+        },
+        "plan": {
+            "@id": "urn:openagri:fertilization:plan:fc719215-da8f-4a5a-99f5-089cd4f79a18",
+            "@type": "TreatmentPlan",
+            "description": "Intervention by advice. It also acts against gliosporium"
+        },
+        "hasApplicationMethod": null,
+        "operationType": null,
+        "isOperatedOn": "urn:openagri:parcel:99b5a0ea-76af-4deb-8d0c-2f4d8d607d81"
+    }
+]

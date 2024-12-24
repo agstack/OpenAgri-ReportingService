@@ -3,8 +3,6 @@ from pathlib import Path
 import uuid
 import sys
 
-import report_service_utils as report_srv
-
 
 # Function to generate a UUID with a specific prefix
 def generate_uuid(prefix):
@@ -393,26 +391,6 @@ def main():
                 json.dump(combined_output, combined_file, indent=4)
             print("All data written to combined_output.jsonld")
 
-            hasReport = input("Do you want to create a PDF report? (Y/N)")
-            if hasReport == "Y":
-
-                report_types = [
-                    "work-book",
-                    "plant-protection",
-                    "irrigations",
-                    "fertilisations",
-                    "harvests",
-                    "GlobalGAP",
-                ]
-                report_srv.register()
-                token = report_srv.authenticate()
-                dataset_id = report_srv.upload_dataset(
-                    aim_farm_calendar_filename, token
-                )
-                report_srv.generate_reports_for_dataset(
-                    dataset_id, report_types, token, isDownload=True
-                )
-
         else:
             print("Invalid choice or no data for the selected option.")
     else:
@@ -420,5 +398,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

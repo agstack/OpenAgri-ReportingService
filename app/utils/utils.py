@@ -12,6 +12,7 @@ from schemas import (
     PestManagement,
     Fertilization,
     Livestock,
+    WeatherObservation,
 )
 
 import datetime
@@ -169,7 +170,6 @@ def parse_irrigation(json: dict) -> List[Irrigation]:
 
 
 def parse_fertilization(json: dict) -> List[Fertilization]:
-
     if "@graph" not in json:
         raise HTTPException(
             status_code=400, detail="Received json does not comply to expected format."
@@ -275,7 +275,6 @@ def parse_plot_detail(json: dict) -> List[PlotParcelDetail]:
             continue
 
         for parcel in node["hasAgriParcel"]:
-
             plot_id = parcel["identifier"] if "identifier" in parcel else ""
 
             reporting_year = (
@@ -377,7 +376,6 @@ def parse_generic_cultivation_info(
             continue
 
         for parcel in node["hasAgriParcel"]:
-
             variety, production_direction, cultivation_type = "", "", ""
             if "hasAgriCrop" in parcel:
                 cultivation_type = (
@@ -504,11 +502,8 @@ def parse_farm_profile(json: dict) -> FarmProfile:
 
         plot_ids = []
         if "hasAgriParcel" in node:
-
             for parcel in node["hasAgriParcel"]:
-
                 if "identifier" in parcel:
-
                     plot_ids.append(parcel["identifier"])
 
         return FarmProfile(
@@ -603,6 +598,48 @@ def parse_livestock(json: dict) -> List[Livestock]:
         )
 
     return livestock_list
+
+
+def parse_weather_jsonld(json: dict) -> List[WeatherObservation]:
+    if "@graph" not in json:
+        raise ValueError("JSON-LD does not contain an '@graph' key.")
+
+    graph = json["@graph"]
+    observations = []
+
+    for entry in graph:
+        if "@type" in entry and "WeatherObserved" in entry["@type"]:
+            timestamp = entry.get("resultTime", None)
+            wind_speed = None
+            air_pressure = None
+            humidity = None
+            temperature = None
+
+            for member in entry.get("hasMember", []):
+                observed_property = member.get("observedProperty", "")
+                result = member.get("hasResult", {})
+                value = result.get("numericValue", None)
+
+                if observed_property == "cf:wind_speed":
+                    wind_speed = value
+                elif observed_property == "cf:air_pressure":
+                    air_pressure = value
+                elif observed_property == "cf:specific_humidity":
+                    humidity = value
+                elif observed_property == "cf:air_temperature":
+                    temperature = value
+
+            observations.append(
+                WeatherObservation(
+                    timestamp=timestamp,
+                    wind_speed=wind_speed,
+                    air_pressure=air_pressure,
+                    humidity=humidity,
+                    temperature=temperature,
+                )
+            )
+
+    return observations
 
 
 def harvests():
@@ -792,7 +829,6 @@ def work_book(
     fert: List[Fertilization],
     pdmd: List[PestManagement],
 ):
-
     pdf = EX()
 
     pdf.set_title("OpenAgri Reporting Template")
@@ -1244,6 +1280,44 @@ def livestock(lst: List[Livestock]):
             row.cell(str(lv.sale_amount) if lv.sale_amount else "N/A", align="C")
             row.cell(str(lv.sale_weight) if lv.sale_weight else "N/A", align="C")
             row.cell("Yes" if lv.is_owned else "No", align="C")
+
+    return pdf
+
+
+def generate_weather_report(observations: List[WeatherObservation]):
+    pdf = EX()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    add_fonts(pdf)
+    pdf.set_title("OpenAgri Reporting Template")
+
+    pdf.add_page()
+    EX.ln(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(200, 10, txt="Compost Report", ln=True, align="C")
+    pdf.ln(10)
+
+    pdf.set_font("FreeSerif", "B", 8)
+    pdf.cell(40, 10, "Timestamp", 1)
+    pdf.cell(40, 10, "Wind Speed (m/s)", 1)
+    pdf.cell(40, 10, "Air Pressure (Pa)", 1)
+    pdf.cell(40, 10, "Humidity (%)", 1)
+    pdf.cell(40, 10, "Temperature (°C)", 1)
+    pdf.ln(10)
+
+    for obs in observations:
+        pdf.cell(40, 10, obs.timestamp if obs.timestamp else "N/A", 1)
+        pdf.cell(
+            40, 10, str(obs.wind_speed) if obs.wind_speed is not None else "N/A", 1
+        )
+        pdf.cell(
+            40, 10, str(obs.air_pressure) if obs.air_pressure is not None else "N/A", 1
+        )
+        pdf.cell(40, 10, str(obs.humidity) if obs.humidity is not None else "N/A", 1)
+        pdf.cell(
+            40, 10, str(obs.temperature) if obs.temperature is not None else "N/A", 1
+        )
+        pdf.ln(10)
 
     return pdf
 
