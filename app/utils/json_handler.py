@@ -6,7 +6,10 @@ from fastapi import HTTPException
 
 import utils.utils
 from core import settings
-from models import Report
+from utils.irrigation_report import (
+    create_pdf_from_aggregations,
+    parse_irr_jsonld_to_schema,
+)
 
 
 class ReportHandler:
@@ -15,7 +18,7 @@ class ReportHandler:
 
     """
 
-    def __init__(self, *, file, file_type):
+    def __init__(self, *, file, file_type, dataset_id: Optional[str] = None):
         """
         :param file: Report model file (if exist)
         :param file_type: Report model type
@@ -31,7 +34,9 @@ class ReportHandler:
                     farm=utils.parse_farm_profile(json_file),
                     plot=utils.parse_plot_detail(json_file),
                     cult=utils.parse_generic_cultivation_info(json_file),
-                    irri=utils.parse_irrigation(json_file),
+                    irri=create_pdf_from_aggregations(
+                        parse_irr_jsonld_to_schema(json_file)
+                    ),
                     fert=utils.parse_fertilization(json_file),
                     pdmd=utils.parse_plant_protection(json_file),
                 ),
@@ -44,8 +49,10 @@ class ReportHandler:
                 "api/plan/",
             ),
             "irrigations": (
-                lambda json_file: utils.irrigations(utils.parse_irrigation(json_file)),
-                "api/irrigation",
+                lambda json_file: create_pdf_from_aggregations(
+                    parse_irr_jsonld_to_schema(json_file)
+                ),
+                f"irr_backend/api/v1/dataset/{dataset_id}/analysis",
             ),
             "fertilisations": (
                 lambda json_file: utils.fertilisation(
@@ -107,5 +114,6 @@ class ReportHandler:
                 )
 
                 return return_value
-        except Exception:
+        except Exception as e:
+            print(e)
             return None

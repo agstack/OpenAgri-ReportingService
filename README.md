@@ -55,7 +55,7 @@ The application will be served on http://127.0.0.1:80 (I.E. typing localhost/doc
 <h3>POST</h3>
 
 ```
-/api/v1/openagri-report/{report_type}/
+/api/v1/openagri-report/{report_type}/dataset/
 ```
 
 Response is generated PDF file.
@@ -68,6 +68,9 @@ If gatekeeper is used data is retrieved from another service \
 depending on the requested report type. \
 If JSON-LD file is passed directlty with corresponding type \
 pdf will be generated with JSON-LD passed file with type template.
+
+If datasat needs to be retrieved from specific service it must be sent \
+as query param.
 
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
