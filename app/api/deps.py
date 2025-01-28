@@ -46,6 +46,7 @@ def get_current_user(
             user_db = user.get(db, id=payload["sub"])
             if not user_db:
                 raise HTTPException(status_code=404, detail="User not found")
+            return user_db
 
     except (jwt.PyJWTError, ValidationError):
         raise HTTPException(
