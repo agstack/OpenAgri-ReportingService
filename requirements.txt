@@ -24,3 +24,4 @@ httpx==0.27.2
 black==24.10.0 # Python formatter
 ruff==0.8.1
 pre-commit==4.0.1
+
