@@ -1,50 +1,28 @@
-from typing import List, Optional
-from pydantic import BaseModel
 from datetime import datetime
+from typing import List
 
-
-class Measure(BaseModel):
-    hasNumericValue: float
-    hasUnit: str
+from pydantic import BaseModel, Field
 
 
 class QuantityValue(BaseModel):
-    numericValue: float
+    """Model for quantity measurements"""
+
     unit: str
-    atDepth: Measure
+    numericValue: float
 
 
-class SaturationAnalysis(BaseModel):
-    numberOfSaturationDays: int
-    hasSaturationDates: List[datetime]
-    hasFieldCapacities: List[QuantityValue]
+class IrrigationOperation(BaseModel):
+    """Model for irrigation operations"""
 
-
-class StressAnalysis(BaseModel):
-    numberOfStressDays: int
-    hasStressDates: List[datetime]
-    hasStressLevels: List[QuantityValue]
-
-
-class IrrigationAnalysis(BaseModel):
-    numberOfIrrigationOperations: int
-    numberOfHighDoseIrrigationOperations: int
-    hasHighDoseIrrigationOperationDates: List[datetime]
-
-
-class Instant(BaseModel):
-    inXSDDateTime: datetime
-
-
-class Interval(BaseModel):
-    hasBeginning: Instant
-    hasEnd: Instant
-
-
-class SoilMoistureAggregation(BaseModel):
-    description: str
-    duringPeriod: Interval
-    numberOfPrecipitationEvents: int
-    saturationAnalysis: SaturationAnalysis
-    stressAnalysis: StressAnalysis
-    irrigationAnalysis: IrrigationAnalysis
+    type: str = Field(alias="@type")
+    id: str = Field(alias="@id")
+    activityType: str
+    title: str
+    details: str
+    hasStartDatetime: datetime
+    hasEndDatetime: datetime
+    responsibleAgent: str
+    usesAgriculturalMachinery: List[str]
+    hasAppliedAmount: QuantityValue
+    usesIrrigationSystem: str
+    operatedOn: str

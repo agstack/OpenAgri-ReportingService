@@ -1,189 +1,85 @@
-from typing import List
+from typing import Union, Optional
+
+from utils import EX, add_fonts
 from schemas.irrigation import *
-from utils import EX
 
 
-def parse_irr_jsonld_to_schema(jsonld: dict) -> List[SoilMoistureAggregation]:
+def parse_irrigation_operations(
+    data: Union[dict, str],
+) -> Optional[List[IrrigationOperation]]:
+    """
+    Parse list of irrigation operations from JSON data
+    """
     try:
-        results = []
-        for item in jsonld["@graph"]:
-            # Parse period
-            period = item["duringPeriod"]
-            interval = Interval(
-                hasBeginning=Instant(
-                    inXSDDateTime=period["hasBeginning"]["inXSDDateTime"][:-1]
-                ),
-                hasEnd=Instant(inXSDDateTime=period["hasEnd"]["inXSDDateTime"][:-1]),
-            )
-
-            # Parse Saturation Analysis
-            saturation = item["saturationAnalysis"]
-            saturation_analysis = SaturationAnalysis(
-                numberOfSaturationDays=saturation["numberOfSaturationDays"],
-                hasSaturationDates=[
-                    datetime.fromisoformat(d["@value"][:-1])
-                    for d in saturation["hasSaturationDates"]
-                ],
-                hasFieldCapacities=[
-                    QuantityValue(
-                        numericValue=field["numericValue"],
-                        unit=field["unit"],
-                        atDepth=Measure(
-                            hasNumericValue=float(field["atDepth"]["hasNumericValue"]),
-                            hasUnit=field["atDepth"]["hasUnit"],
-                        ),
-                    )
-                    for field in saturation["hasFieldCapacities"]
-                ],
-            )
-
-            stress = item["stressAnalysis"]
-            stress_analysis = StressAnalysis(
-                numberOfStressDays=stress["numberOfStressDays"],
-                hasStressDates=[
-                    datetime.fromisoformat(d["@value"][:-1])
-                    for d in stress["hasStressDates"]
-                ],
-                hasStressLevels=[
-                    QuantityValue(
-                        numericValue=level["numericValue"],
-                        unit=level["unit"],
-                        atDepth=Measure(
-                            hasNumericValue=float(level["atDepth"]["hasNumericValue"]),
-                            hasUnit=level["atDepth"]["hasUnit"],
-                        ),
-                    )
-                    for level in stress["hasStressLevels"]
-                ],
-            )
-
-            # Parse Irrigation Analysis
-            irrigation = item["irrigationAnalysis"]
-            irrigation_analysis = IrrigationAnalysis(
-                numberOfIrrigationOperations=irrigation["numberOfIrrigationOperations"],
-                numberOfHighDoseIrrigationOperations=irrigation[
-                    "numberOfHighDoseIrrigationOperations"
-                ],
-                hasHighDoseIrrigationOperationDates=[
-                    datetime.fromisoformat(d["@value"][:-1])
-                    for d in irrigation["hasHighDoseIrrigationOperationDates"]
-                ],
-            )
-
-            # Construct the main schema object
-            aggregation = SoilMoistureAggregation(
-                description=item["description"],
-                duringPeriod=interval,
-                numberOfPrecipitationEvents=item["numberOfPrecipitationEvents"],
-                saturationAnalysis=saturation_analysis,
-                stressAnalysis=stress_analysis,
-                irrigationAnalysis=irrigation_analysis,
-            )
-            results.append(aggregation)
+        return [IrrigationOperation.model_validate(item) for item in data]
     except Exception as e:
+        print(f"Error parsing irrigation operations: {e}")
         return None
-    return results
 
 
-def create_pdf_from_aggregations(aggregations: List[SoilMoistureAggregation]):
+def create_pdf_from_operations(operations: List[IrrigationOperation]):
+    """
+    Create PDF report from irrigation operations
+    """
     pdf = EX()
-    pdf.set_title("Soil Moisture Aggregation Report")
     pdf.add_page()
+    add_fonts(pdf)
+    pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(40, 10, "Soil Moisture Aggregations")
+    pdf.set_title("Irrigation Operations Report")
+    EX.ln(pdf)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(40, 10, "Irrigation Operations Report")
     pdf.ln(10)
 
-    for agg in aggregations:
-        pdf.set_font("Arial", "B", 10)
-        pdf.cell(0, 10, "Description:", ln=True)
+    for op in operations:
+        # Operation Header
+        pdf.set_font("FreeSerif", "B", 9)
+        pdf.cell(0, 10, f"Operation: {op.title}", ln=True)
 
-        pdf.set_font("Arial", "", 10)
-        pdf.multi_cell(0, 10, agg.description)
+        # Details
+        pdf.set_font("FreeSerif", "", 9)
+        pdf.multi_cell(0, 10, f"Details: {op.details}")
         pdf.ln(5)
 
-        # Period Table
-        pdf.set_font("Arial", "B", 9)
-        pdf.cell(0, 10, "Period Information", ln=True)
-        pdf.set_font("Arial", "", 9)
-        pdf.cell(
-            0, 10, f"  Start: {agg.duringPeriod.hasBeginning.inXSDDateTime}", ln=True
-        )
-        pdf.cell(0, 10, f"  End: {(agg.duringPeriod.hasEnd.inXSDDateTime)}", ln=True)
-        pdf.ln(5)
+        pdf.cell(0, 10, f"Operated on Parcel: {op.operatedOn.split(':')[3]}", ln=True)
+        pdf.cell(0, 10, f"Start: {op.hasStartDatetime}", ln=True)
+        pdf.cell(0, 10, f"End: {op.hasEndDatetime}", ln=True)
 
-        # Saturation Analysis
-        pdf.set_font("Arial", "B", 9)
-        pdf.cell(0, 10, "Saturation Analysis", ln=True)
-        pdf.set_font("Arial", "", 9)
         pdf.cell(
             0,
             10,
-            f"  Number of Saturation Days: {agg.saturationAnalysis.numberOfSaturationDays}",
+            f"Applied Amount: {op.hasAppliedAmount.numericValue} {op.hasAppliedAmount.unit}",
             ln=True,
         )
-        pdf.cell(
-            0,
-            10,
-            f"  Saturation Dates: {', '.join([str(d) for d in agg.saturationAnalysis.hasSaturationDates])}",
-            ln=True,
-        )
-        for field in agg.saturationAnalysis.hasFieldCapacities:
+
+        pdf.cell(0, 10, f"Irrigation System: {op.usesIrrigationSystem}", ln=True)
+        pdf.cell(0, 10, f"Responsible Agent: {op.responsibleAgent}", ln=True)
+
+        if op.usesAgriculturalMachinery:
             pdf.cell(
                 0,
                 10,
-                f"  Field Capacity: {field.numericValue}{field.unit} at {field.atDepth.hasNumericValue}{field.atDepth.hasUnit}",
+                f"Machinery IDs: {', '.join(op.usesAgriculturalMachinery).split(':')[3]}",
                 ln=True,
             )
-        pdf.ln(5)
 
-        # Stress Analysis
-        pdf.set_font("Arial", "B", 9)
-        pdf.cell(0, 10, "Stress Analysis", ln=True)
-        pdf.set_font("Arial", "", 9)
-        pdf.cell(
-            0,
-            10,
-            f"  Number of Stress Days: {agg.stressAnalysis.numberOfStressDays}",
-            ln=True,
-        )
-        pdf.cell(
-            0,
-            10,
-            f"  Stress Dates: {', '.join([str(d) for d in agg.stressAnalysis.hasStressDates])}",
-            ln=True,
-        )
-        for level in agg.stressAnalysis.hasStressLevels:
-            pdf.cell(
-                0,
-                10,
-                f"  Stress Level: {level.numericValue}{level.unit} at {level.atDepth.hasNumericValue}{level.atDepth.hasUnit}",
-                ln=True,
-            )
-        pdf.ln(5)
-
-        # Irrigation Analysis
-        pdf.set_font("Arial", "B", 9)
-        pdf.cell(0, 10, "Irrigation Analysis", ln=True)
-        pdf.set_font("Arial", "", 9)
-        pdf.cell(
-            0,
-            10,
-            f"  Number of Irrigation Operations: {agg.irrigationAnalysis.numberOfIrrigationOperations}",
-            ln=True,
-        )
-        pdf.cell(
-            0,
-            10,
-            f"  High Dose Operations: {agg.irrigationAnalysis.numberOfHighDoseIrrigationOperations}",
-            ln=True,
-        )
-        pdf.cell(
-            0,
-            10,
-            f"  High Dose Dates: {', '.join([str(d) for d in agg.irrigationAnalysis.hasHighDoseIrrigationOperationDates])}",
-            ln=True,
-        )
         pdf.ln(10)
+
+    return pdf
+
+
+def process_irrigation_data(json_data: Union[dict, str]):
+    """
+    Process irrigation data and generate PDF report
+    """
+
+    operations = parse_irrigation_operations(json_data)
+
+    if not operations:
+        return None
+
+    pdf = create_pdf_from_operations(operations)
 
     return pdf

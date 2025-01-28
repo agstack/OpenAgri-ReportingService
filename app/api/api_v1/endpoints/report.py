@@ -1,78 +1,174 @@
+import json
 import uuid
-from typing import Optional
-
+from json import JSONDecodeError
 from fastapi import APIRouter, File, Depends, HTTPException, UploadFile, Response
 from api import deps
 from core import settings
-from schemas import ReportDBID
-from utils.json_handler import ReportHandler
+from utils.farm_calendar_report import process_farm_calendar_data
+from utils.irrigation_report import process_irrigation_data
+from utils.json_handler import make_get_request
 
 router = APIRouter()
 
 
-@router.post("/{report_type}/dataset/", response_model=ReportDBID)
-async def generate_pdf_report(
-    report_type: str,
+@router.post("/irrigation-report/")
+async def generate_irrigation_report(
     token=Depends(deps.get_current_user),
-    dataset_id: Optional[str] = None,
     data: UploadFile = None,
 ):
     """
-    Generate a report based off of a previously uploaded/queried data file.
-    Types: [work-book, plant-protection, irrigations, fertilisations, harvests, GlobalGAP, livestock, forecast]
+    Generates Irrigation Report PDF file
+
     """
 
-    types = {
-        "work-book": False,
-        "plant-protection": False,
-        "irrigations": True,
-        "fertilisations": False,
-        "harvests": True,
-        "GlobalGAP": True,
-        "livestock": False,
-        "compost": True,
-    }
-
-    if report_type not in types:
-        raise HTTPException(
-            status_code=400,
-            detail="Report type {} isn't part of the offered types.".format(
-                report_type
-            ),
-        )
-
-    if settings.USING_GATEKEEPER and not dataset_id and types[report_type]:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Dataset ID must be provided with report type: {report_type}",
-        )
-
-    file = None
-    if report_type != "harvests":
-        if not data:
-            raise HTTPException(status_code=400, detail="JSON-LD file is missing!")
-
-        file_data = await data.read()
-        try:
-            file = file_data.decode("utf-8")
-        except Exception:
+    pdf = None
+    if not data:
+        if not settings.REPORTING_USING_GATEKEEPER:
             raise HTTPException(
                 status_code=400,
-                detail="Error during file decoding, .json file may be corrupted.",
+                detail=f"Data file must be provided if gatekeeper is not used.",
             )
 
-    report_pdf_handler = ReportHandler(file=file, file_type=report_type)
-    pdf = report_pdf_handler.generate_pdf(token=token)
+        params = {"format": "json"}
+        json_response = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+            token=token,
+            params=params,
+        )
+
+        if not json_response:
+            raise HTTPException(status_code=400, detail="No Irrigation data found.")
+
+        pdf = process_irrigation_data(json_data=json_response)
+
+    else:
+        try:
+            pdf = process_irrigation_data(json_data=json.load(data.file))
+
+        except JSONDecodeError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Reporting service failed during PDF generation. File is not correct JSON.",
+            )
 
     if not pdf:
         raise HTTPException(
             status_code=400,
-            detail=f"Reporting service failed during PDF generation. Error details: [Type: {report_pdf_handler}]",
+            detail=f"Reporting service failed during PDF generation.",
         )
 
     headers = {
         "Content-Disposition": "attachment; filename={}-report-{}.pdf".format(
-            report_type, uuid.uuid4()
+            "irrigation", uuid.uuid4()
+        )
+    }
+
+    return Response(
+        content=bytes(pdf.output()), media_type="application/pdf", headers=headers
+    )
+
+
+@router.post("/compost-report/")
+async def generate_generic_observation_report(
+    observation_type_name: str,
+    token=Depends(deps.get_current_user),
+    data: UploadFile = None,
+):
+    """
+    Generates Observation Report PDF file
+    possible_names = ["Pesticides", "Irrigation", "Fertilization", "CropStressIndicator", "CropGrowthObservation"]
+
+
+    """
+    print(observation_type_name)
+    possible_names = [
+        "Pesticides",
+        "Irrigation",
+        "Fertilization",
+        "CropStressIndicator",
+        "CropGrowthObservation",
+    ]
+    if observation_type_name not in possible_names:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Observation type name: {observation_type_name} is not inside supported types: {possible_names}",
+        )
+
+    if observation_type_name == "CropGrowthObservation":
+        observation_type_name = "Crop Growth Stage Observation"
+
+    if observation_type_name == "CropStressIndicator":
+        observation_type_name = "Crop Stress Indicator"
+
+    pdf = None
+    if not data:
+        if not settings.REPORTING_USING_GATEKEEPER:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Data file must be provided if gatekeeper is not used.",
+            )
+
+        params = {"format": "json", "name": observation_type_name}
+        farm_activity_type_info = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+            token=token,
+            params=params,
+        )
+
+        if not farm_activity_type_info:
+            raise HTTPException(status_code=400, detail="Activity Type API failed.")
+
+        del params["name"]
+        params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+
+        observations = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}',
+            token=token,
+            params=params,
+        )
+
+        if not observations:
+            raise HTTPException(status_code=400, detail="Observations are empty.")
+
+        farm_activities = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
+            token=token,
+            params=params,
+        )
+
+        if not farm_activities:
+            raise HTTPException(status_code=400, detail="Farm Activities are empty.")
+
+        print(farm_activity_type_info, observations, farm_activities, "here")
+        pdf = process_farm_calendar_data(
+            activity_type_info=observation_type_name,
+            observations=observations,
+            farm_activities=farm_activities,
+        )
+
+    else:
+        try:
+            pdf = process_farm_calendar_data(
+                activity_type_info=observation_type_name,
+                observations=json.load(data.file)["observations"],
+                farm_activities=json.load(data.file)["farm_activities"],
+            )
+
+        except JSONDecodeError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Reporting service failed during PDF generation. File is not correct JSON.",
+            )
+
+    if not pdf:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Reporting service failed during PDF generation.",
+        )
+
+    headers = {
+        "Content-Disposition": "attachment; filename={}-report-{}.pdf".format(
+            "irrigation", uuid.uuid4()
         )
     }
 

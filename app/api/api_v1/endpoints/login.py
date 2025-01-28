@@ -23,14 +23,21 @@ def login_access_token(
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    if settings.USING_GATEKEEPER:
-        return requests.post(
-            url=settings.GATEKEEPER_BASE_URL.unicode_string() + "api/login/",
+    if settings.REPORTING_USING_GATEKEEPER:
+        login = requests.post(
+            url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/login/",
             headers={"Content-Type": "application/json"},
             json={
                 "username": "{}".format(form_data.username),
                 "password": "{}".format(form_data.password),
             },
+        )
+
+        if login.status_code == 400:
+            raise HTTPException(status_code=400, detail="Login failed.")
+        return Token(
+            access_token=login.json()["access"],
+            token_type="bearer",
         )
     else:
         user_db = user.authenticate(
@@ -40,7 +47,9 @@ def login_access_token(
         if not user_db:
             raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRATION_TIME)
+        access_token_expires = timedelta(
+            minutes=settings.REPORTING_ACCESS_TOKEN_EXPIRATION_TIME
+        )
 
         at = Token(
             access_token=security.create_access_token(

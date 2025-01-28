@@ -29,10 +29,9 @@ def get_current_user(
     db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ):
     try:
-        if settings.USING_GATEKEEPER:
+        if settings.REPORTING_USING_GATEKEEPER:
             response = requests.post(
-                url=settings.GATEKEEPER_BASE_URL.unicode_string()
-                + "api/validate_token/",
+                url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/validate_token/",
                 headers={"Content-Type": "application/json"},
                 json={"token": token, "token_type": "access"},
             )
@@ -42,7 +41,7 @@ def get_current_user(
             return token
         else:
             payload = jwt.decode(
-                token, settings.JWT_KEY, algorithms=[security.ALGORITHM]
+                token, settings.REPORTING_JWT_KEY, algorithms=[security.ALGORITHM]
             )
             user_db = user.get(db, id=payload["sub"])
             if not user_db:

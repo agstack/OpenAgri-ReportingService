@@ -5,33 +5,46 @@ set -e
 
 
 # Check whether these values have been passed
-if [ -z "${POSTGRES_USER}" ]; then
+if [ -z "${REPORTING_POSTGRES_USER}" ]; then
   echo "Postgres username is not set in env"
   exit
 fi
 
-if [ -z "${POSTGRES_PASSWORD}" ]; then
+if [ -z "${REPORTING_POSTGRES_PASSWORD}" ]; then
   echo "Postgres password is not set in env"
   exit
 fi
 
-if [ -z "${POSTGRES_HOST}" ]; then
+if [ -z "${REPORTING_POSTGRES_HOST}" ]; then
   echo "Postgres hostname is not set in env"
   exit
 fi
 
-if [ -z "${POSTGRES_PORT}" ]; then
+if [ -z "${REPORTING_POSTGRES_PORT}" ]; then
   echo "Postgres port is not set in env"
   exit
 fi
 
-if [ -z "${POSTGRES_DB}" ]; then
+if [ -z "${REPORTING_POSTGRES_DB}" ]; then
   echo "Postgres database name is not set in env"
   exit
 fi
+if [ -z "${REPORTING_GATEKEEPER_USERNAME}" ]; then
+  echo "Gatekeeper username is not set in env"
+  exit
+fi
+if [ -z "${REPORTING_GATEKEEPER_PASSWORD}" ]; then
+  echo "Gatekeeper password  is not set in env"
+  exit
+fi
+if [ -z "${REPORTING_BACKEND_CORS_ORIGINS}" ]; then
+  echo "Cors is not set in env"
+  exit
+fi
+
 
 # Before the migrations can take place, we need to build the connection string in the alembic.ini file
-sed -i -e "s/PGU/${POSTGRES_USER}/g" -e "s/PGP/${POSTGRES_PASSWORD}/g" -e "s/PGH/${POSTGRES_HOST}/g" -e "s/PGO/${POSTGRES_PORT}/g" -e "s/PGD/${POSTGRES_DB}/g" ./alembic.ini
+sed -i -e "s/PGU/${REPORTING_POSTGRES_USER}/g" -e "s/PGP/${REPORTING_POSTGRES_PASSWORD}/g" -e "s/PGH/${REPORTING_POSTGRES_HOST}/g" -e "s/PGO/${REPORTING_POSTGRES_PORT}/g" -e "s/PGD/${REPORTING_POSTGRES_DB}/g" ./alembic.ini
 
 
 # Migrate sqlalchemy models to postgres via alembic
