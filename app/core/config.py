@@ -52,8 +52,8 @@ class Settings(BaseSettings):
     PASSWORD_SCHEMA_OBJ.min(8).max(
         100
     ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
-    REPORTING_ACCESS_TOKEN_EXPIRATION_TIME: int
-    REPORTING_JWT_KEY: str
+    JWT_ACCESS_TOKEN_EXPIRATION_TIME: int
+    JWT_SIGNING_KEY: str
 
 
 settings = Settings()

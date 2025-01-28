@@ -48,7 +48,7 @@ def login_access_token(
             raise HTTPException(status_code=400, detail="Incorrect email or password")
 
         access_token_expires = timedelta(
-            minutes=settings.REPORTING_ACCESS_TOKEN_EXPIRATION_TIME
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRATION_TIME
         )
 
         at = Token(

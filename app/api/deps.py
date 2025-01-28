@@ -41,7 +41,7 @@ def get_current_user(
             return token
         else:
             payload = jwt.decode(
-                token, settings.REPORTING_JWT_KEY, algorithms=[security.ALGORITHM]
+                token, settings.JWT_SIGNING_KEY, algorithms=[security.ALGORITHM]
             )
             user_db = user.get(db, id=payload["sub"])
             if not user_db:
