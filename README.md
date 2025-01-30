@@ -49,7 +49,7 @@ docker compose build
 docker compose up
 ```
 
-The application will be served on http://127.0.0.1:8011 (I.E. typing localhost/docs in your browser will load the swagger documentation)
+The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
 # Documentation
 <h3>POST</h3>
