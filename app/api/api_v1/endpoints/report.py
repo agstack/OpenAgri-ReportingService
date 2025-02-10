@@ -180,7 +180,7 @@ async def generate_generic_observation_report(
     )
 
 
-@router.get("/animal-report/")
+@router.post("/animal-report/")
 async def generate_animal_report(
     token=Depends(deps.get_current_user),
     animal_group: Optional[str] = None,
