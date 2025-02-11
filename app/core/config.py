@@ -22,6 +22,13 @@ class Settings(BaseSettings):
     REPORTING_SERVICE_PORT: int
     REPORTING_USING_GATEKEEPER: bool = True
     REPORTING_GATEKEEPER_BASE_URL: str
+    REPORTING_FARMCALENDAR_URLS: dict = {
+        "irrigations": "/IrrigationOperations/",
+        "activity_types": "/FarmCalendarActivityTypes/",
+        "observations": "/Observations/",
+        "activities": "/FarmCalendarActivities/",
+        "parcel": "/FarmParcels/",
+    }
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
