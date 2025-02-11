@@ -1,0 +1,102 @@
+[
+    {
+        "@id": "urn:openagri:farm:d0e2b646-a4c5-419c-a492-0e43e6c1a6e5",
+        "@type": "Farm",
+        "name": "The OpenAgri prototype Farm",
+        "description": "A farm in Attica Greece with two parcels cultivating table olives",
+        "hasAdministrator": "Marinos Antypas",
+        "contactPerson": {
+            "@id": "urn:openagri:contact:604748a7-e9e9-4b10-8a21-41ea36477633",
+            "@type": "Person",
+            "firstname": "Marinos Antypas",
+            "lastname": "Marinos Antypas"
+        },
+        "telephone": "+30-08101907",
+        "vatID": "xyz-abc-1234",
+        "address": {
+            "@id": "urn:openagri:address:12eaee9a-8515-4723-9e8e-13ba73565cd8",
+            "@type": "Address",
+            "adminUnitL1": "Greece",
+            "adminUnitL2": "Attica",
+            "addressArea": "no address",
+            "municipality": "Oropos",
+            "community": "",
+            "locatorName": "Killeler"
+        },
+        "area": 200000,
+        "hasAgriParcel": [
+            {
+                "@id": "urn:openagri:parcel:5b4f2836-3c6b-4d4d-a134-c37707173fb1",
+                "@type": "Vineyard",
+                "identifier": 123001,
+                "description": "Olive grove A",
+                "category": "orchard",
+                "validFrom": "2023-01-01T00:00:00",
+                "validTo": "2023-12-31T23:59:59",
+                "inRegion": "Attica/Greece",
+                "hasToponym": "Oropos",
+                "area": 30000.0,
+                "isNitroAarea": 1,
+                "isNatura2000Area": 0,
+                "isPDOPGIArea": 0,
+                "isIrrigated": 1,
+                "isCultivatedInLevels": 0,
+                "isGroundSlope": 1,
+                "depiction": "http://example.org/satelite_image/picture1.jpg",
+                "hasGeometry": {
+                    "@id": "urn:openagri:parcel:geo:f2191f23-1f5c-498d-b424-ae9766b0eb0b",
+                    "@type": "Polygon",
+                    "asWKT": "POLYGON(((23.7291120943909 38.311867323636875,23.72834175131419 38.309300443635294, 23.729491989607823 38.309118274505494, 23.7302095694605 38.311676880822006, 23.7291120943909, 38.311867323636875)))"
+                },
+                "location": {
+                    "@id": "urn:openagri:parcel:point:5fe9e42a-52d7-4588-bcb8-6c394feb72d5",
+                    "@type": "Point",
+                    "lat": 38.309300443635294,
+                    "long": 23.72834175131419
+                },
+                "usesIrrigationSystem": {
+                    "@id": "urn:openagri:parcel:irrigation:14636e1f-aefc-4e9b-b0f6-c5e361cd6ed8",
+                    "@type": "IrrigationSystem",
+                    "name": "micro sprinkler"
+                },
+                "hasIrrigationFlow": 0.12
+            },
+            {
+                "@id": "urn:openagri:parcel:99b5a0ea-76af-4deb-8d0c-2f4d8d607d81",
+                "@type": "Vineyard",
+                "identifier": 123002,
+                "description": "Olive grove B",
+                "category": "orchard",
+                "validFrom": "2023-01-01T00:00:00",
+                "validTo": "2023-12-31T23:59:59",
+                "inRegion": "Attica/Greece",
+                "hasToponym": "Oropos",
+                "area": 63000.0,
+                "isNitroAarea": 1,
+                "isNatura2000Area": 0,
+                "isPDOPGIArea": 0,
+                "isIrrigated": 1,
+                "isCultivatedInLevels": 0,
+                "isGroundSlope": 1,
+                "depiction": "http://example.org/satelite_image/picture1.jpg",
+                "hasGeometry": {
+                    "@id": "urn:openagri:parcel:geo:c819bbdf-4d2b-40ba-96f7-d8b125a686a0",
+                    "@type": "Polygon",
+                    "asWKT": "POLYGON(((23.733335084908617 38.31118631434748,   23.732465315464964 38.308413730027695,  23.732465315464964 38.308413730027695,  23.734346191887084 38.3079359817161, 23.735042007441933 38.30957396282503, 23.735476892164286 38.31025644403522,  23.735966137476566 38.31077683164247, 23.733335084908617 38.31118631434748)))"
+                },
+                "location": {
+                    "@id": "urn:openagri:parcel:point:76de1901-6aa5-4f6f-9f27-50de22df8c4c",
+                    "@type": "Point",
+                    "lat": 38.308413730027695,
+                    "long": 23.732465315464964
+                },
+                "usesIrrigationSystem": {
+                    "@id": "urn:openagri:parcel:irrigation:04c8efb0-4cef-42fc-a73f-f9642ded510f",
+                    "@type": "IrrigationSystem",
+                    "name": "micro sprinkler"
+                },
+                "hasIrrigationFlow": 0.12
+            }
+        ]
+    }
+]

@@ -1,104 +1,61 @@
-import json
-import requests
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from typing import Any
 
+from core import security
+from core.security import *
+from core.config import settings
 from api import deps
-from models import User
-from schemas import Message, UserCreate, UserMe
 from crud import user
-from core import settings
-
+from schemas import Token
+import requests
 
 router = APIRouter()
 
 
-@router.post("/register/", response_model=Message)
-def register(
-    user_information: UserCreate, db: Session = Depends(deps.get_db)
-) -> Message:
-    """
-    Registration API for the service.
-    """
-    if settings.REPORTING_USING_GATEKEEPER:
-        payload = json.dumps(
-            {
-                "username": user_information.email.split("@")[0],
-                "email": user_information.email,
-                "password": user_information.password,
-                "first_name": "Reporting",
-                "last_name": "Backend",
-            }
-        )
-        headers = {"Content-Type": "application/json"}
-        url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
-
-        try:
-            response = requests.request("POST", url, headers=headers, data=payload)
-            print(response.json())
-            if str(response.status_code)[0] == 2:
-                response = Message(message="You have successfully registered!")
-
-                return response
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Registration failed",
-                )
-        except Exception as e:
-            print("Failed to register REPORTING user", e)
-            raise HTTPException(
-                status_code=400,
-                detail="Registration failed",
-            )
-
-    pwd_check = settings.PASSWORD_SCHEMA_OBJ.validate(pwd=user_information.password)
-    if not pwd_check:
-        raise HTTPException(
-            status_code=400,
-            detail="Password needs to be at least 8 characters long,"
-            "contain at least one uppercase and one lowercase letter, one digit and have no spaces.",
-        )
-
-    user_db = user.get_by_email(db=db, email=user_information.email)
-    if user_db:
-        raise HTTPException(
-            status_code=400,
-            detail="User with email:{} already exists.".format(user_information.email),
-        )
-
-    user.create(db=db, obj_in=user_information)
-
-    response = Message(message="You have successfully registered!")
-
-    return response
-
-
-@router.get("/me/", response_model=UserMe)
-def get_me(current_user: User = Depends(deps.get_current_user)) -> Any:
-    """
-    Returns user email
-    """
-    if settings.REPORTING_USING_GATEKEEPER:
-        raise HTTPException(
-            status_code=400, detail="This API can't be called when gatekeeper is used."
-        )
-    return current_user
-
-
-@router.delete("/", response_model=Message)
-def delete_user(
-    current_user: User = Depends(deps.get_current_user),
+@router.post("/access-token/", response_model=Token)
+def login_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(deps.get_db),
-) -> Message:
+) -> Token | Any:
     """
-    Delete self from system.
+    OAuth2 compatible token login, get an access token for future requests
     """
     if settings.REPORTING_USING_GATEKEEPER:
-        raise HTTPException(
-            status_code=400, detail="This API can't be called when gatekeeper is used."
+        login = requests.post(
+            url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/login/",
+            headers={"Content-Type": "application/json"},
+            json={
+                "username": "{}".format(form_data.username),
+                "password": "{}".format(form_data.password),
+            },
         )
-    user.remove(db=db, id=current_user.id)
 
-    return Message(message="Successfully deleted user.")
+        if login.status_code == 400:
+            raise HTTPException(status_code=400, detail="Login failed.")
+        return Token(
+            access_token=login.json()["access"],
+            token_type="bearer",
+        )
+    else:
+        user_db = user.authenticate(
+            db, email=form_data.username, password=form_data.password
+        )
+
+        if not user_db:
+            raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+        access_token_expires = timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRATION_TIME
+        )
+
+        at = Token(
+            access_token=security.create_access_token(
+                user_db.id, expires_delta=access_token_expires
+            ),
+            token_type="bearer",
+        )
+
+    return at
