@@ -80,7 +80,6 @@ async def generate_generic_observation_report(
 
 
     """
-    print(observation_type_name)
     possible_names = [
         "Pesticides",
         "Irrigation",
@@ -139,7 +138,6 @@ async def generate_generic_observation_report(
         if not farm_activities:
             raise HTTPException(status_code=400, detail="Farm Activities are empty.")
 
-        print(farm_activity_type_info, observations, farm_activities, "here")
         pdf = process_farm_calendar_data(
             activity_type_info=observation_type_name,
             observations=observations,
