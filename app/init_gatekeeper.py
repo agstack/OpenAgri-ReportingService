@@ -1,13 +1,19 @@
 import json
 
 import requests
+import logging
+
 from fastapi import APIRouter
 from core.config import settings
 from api.api_v1.endpoints import report
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 def register_apis_to_gatekeeper():
-    print("Adding APIs to gatekeeper")
+    logger.info("Adding APIs to gatekeeper")
 
     payload = json.dumps(
         {
@@ -18,11 +24,10 @@ def register_apis_to_gatekeeper():
             "last_name": "Backend",
         }
     )
-    headers = {"Content-Type": "application/json"}
     url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
 
     try:
-        response = requests.request("POST", url, headers=headers, data=payload)
+        response = requests.request("POST", url, data=payload)
     except Exception as e:
         print("Failed to register REPORTING user", e)
         return
@@ -30,7 +35,6 @@ def register_apis_to_gatekeeper():
 
     at = requests.post(
         url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/login/",
-        headers={"Content-Type": "application/json"},
         json={
             "username": "{}".format(settings.REPORTING_GATEKEEPER_USERNAME),
             "password": "{}".format(settings.REPORTING_GATEKEEPER_PASSWORD),
@@ -65,12 +69,11 @@ def register_apis_to_gatekeeper():
             )
 
         except Exception as e:
-            print("Failed to register API to gatekeeper.", e)
+            logger.info(f"Failed to register API to gatekeeper. {e}")
             return
 
         if str(api_response.status_code)[0] != "2":
-            print(api_response.json())
-            print(
+            logger.info(
                 f"API api/v1/{api.path.strip('/')} failed with registration to gatekeeper"
             )
 
