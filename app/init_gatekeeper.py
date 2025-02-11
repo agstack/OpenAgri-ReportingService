@@ -79,7 +79,6 @@ def register_apis_to_gatekeeper():
 
     requests.post(
         url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/logout/",
-        headers={"Content-Type": "application/json"},
         json={"refresh": refresh},
     )
     return
