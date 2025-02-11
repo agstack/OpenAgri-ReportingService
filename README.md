@@ -49,159 +49,35 @@ docker compose build
 docker compose up
 ```
 
-The application will be served on http://127.0.0.1:80 (I.E. typing localhost/docs in your browser will load the swagger documentation)
+The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
 # Documentation
-Examples:
-<h3>GET</h3>
+<h3>POST</h3>
 
 ```
-/api/v1/openagri-report/{report_id}
+/api/v1/openagri-report/irrigation-report/
 ```
 
-Example response:
+Response is generated PDF file.
 
-```
-A .pdf file that contains the report
-```
 
 <h3>POST</h3>
 
 ```
-/api/v1/openagri-report/{report_type}/dataset/{dataset_id}
+/api/v1/openagri-report/compost-report/
 ```
 
-Example response:
+Response is generated PDF file.
+Possible observation_type_name values = \
+["Pesticides", "Irrigation", "Fertilization", "CropStressIndicator", "CropGrowthObservation"]
 
-```json
-{
-    "id": 1
-}
-```
-
-<h3>DELETE</h3>
-
-```
-/api/v1/openagri-report/{report_id}
-```
-
-Example response:
-
-```json
-{
-    "message": "Successfully deleted report with ID:1"
-}
-```
-
-<h3>GET</h3>
-
-```
-/api/v1/openagri-dataset/{dataset_id}
-```
-
-Example response:
-
-```json
-{
-    "@context": [
-        "https://w3id.org/ocsm/main-context.jsonld"
-    ],
-    "@graph": [
-        {
-            "@id": "urn:openagri:pestMgmt:2ba53329-612c-47f3-a7f9-67f5f74f98f0",
-            "@type": "ChemicalControlOperation",
-            "description": "treatment description",
-            "hasAppliedAmount": {
-                "@id": "urn:openagri:pestMgmt:amount:762c62ca-bca2-464e-be18-94caf4596d3a",
-                "@type": "QuantityValue",
-                "numericValue": 1176.0,
-                "unit": "http://qudt.org/vocab/unit/GM"
-            },
-            "hasTimestamp": "2022-02-07",
-            "hasTreatedArea": "null",
-            "isOperatedOn": "urn:openagri:parcel:72d9fb43-53f8-4ec8-a33c-fa931360259a",
-            "isTargetedTowards": "Powdery mildew",
-            "usesPesticide": {
-                "@id": "urn:openagri:pestMgmt:pesticide:4db60ed3-a98a-4bf1-9e61-5be81391af4e",
-                "@type": "Pesticide",
-                "hasActiveSubstance": "Bordeaux mixtureα",
-                "hasCommercialName": "BORDELESA 20 WP"
-            }
-        },
-        {
-            "@id": "urn:openagri:pestMgmt:51527cd3-f607-458d-9872-9996a7f2fff3",
-            "@type": "ChemicalControlOperation",
-            "description": "treatment description",
-            "hasAppliedAmount": {
-                "@id": "urn:openagri:pestMgmt:amount:cb3f3364-5c9c-4cf2-ad26-c93b836f6a5d",
-                "@type": "QuantityValue",
-                "numericValue": 588.0,
-                "unit": "http://qudt.org/vocab/unit/GM"
-            },
-            "hasTimestamp": "2022-03-16",
-            "hasTreatedArea": "null",
-            "isOperatedOn": "urn:openagri:parcel:72d9fb43-53f8-4ec8-a33c-fa931360259a",
-            "isTargetedTowards": "Powdery mildew",
-            "usesPesticide": {
-                "@id": "urn:openagri:pestMgmt:pesticide:f7957436-1391-4ee6-abf9-b461ffce2c5f",
-                "@type": "Pesticide",
-                "hasActiveSubstance": "Copper hydroxide",
-                "hasCommercialName": "KOCIDE 2000 35 WG"
-            }
-        }
-    ]
-}
-```
-
-<h3>POST</h3>
-
-```
-/api/v1/openagri-dataset/
-```
-
-Example response:
-
-```json
-{
-    "id": 1
-}
-```
-
-<h3>DELETE</h3>
-
-```
-/api/v1/openagri-dataset/{dataset_id}
-```
-
-Example response:
-
-```json
-{
-    "message": "Successfully removed dataset with ID:1."
-}
-```
 
 <h3> Example usage </h3>
 
-In order to create a report, you need data for that report.\
-For this, there are two main APIs that are of significance:\
-1. POST localhost/api/v1/openagri-dataset/
-2. POST localhost/api/v1/openagri-report/{report_type}/dataset/{dataset_id}
+Compost and Irrigation Report APIs can be used with and without Gatekeeper support.
+If Gatekeeper is used, data file param can be ignored.
+When service is run wihtout Gatekeeper data must be provided in .json file format.
 
-The first one is used to upload a dataset to the service.\
-It returns the ID of the dataset.
-
-The second one is used to generate a .pdf report, it takes an *ID* of a dataset\
-and a *type* of report and generates it if the service finds the required data\
-inside the dataset.\
-The type can be any one of:\
-*[work-book, plant-protection, irrigations, fertilisations, harvests, GlobalGAP]*
-
-For more examples, please view the swagger documentation.
-
-# Testing
-The reporting service offers two ways to test it out, using the suite of tests written in pytest, or using converter \
-scripts that are present [here](https://github.com/openagri-eu/OCSM/tree/main/converters).
 
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
@@ -210,23 +86,9 @@ Pytest can be run on the same machine the service has been deployed to by moving
 pytest tests_.py 
 ```
 
-This will run the tests and return success values for each api in the terminal.
+This will run the tests and return success values for each api tested in the terminal.
 
 <h3>These tests will NOT result in generated .pdf files.</h3>
-
-<h2>Script</h2>
-There is also the farm_calendar_to_jsonld.py script, that can be run from the tests dir as well, with the following command:
-
-```
-python farm_calendar_to_jsonld.py ./example/datasets/example_farm_calendar.json
-```
-
-This command will then prompt the user for input. \
-Any generated reports via this script will be placed inside the /tests/example/reports/ dir. \
-The example raw dataset is transformed into the example_farm_calendar_AIM.jsonld file, that is OCSM compliant. \
-This file is then used for generating reports, that can be seen in the reports dir.
-
-<h3>These tests WILL result in generated .pdf files.</h3>
 
 # Contribution
 Please contact the maintainer of this repository.
