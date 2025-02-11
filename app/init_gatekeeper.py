@@ -29,7 +29,7 @@ def register_apis_to_gatekeeper():
     try:
         response = requests.request("POST", url, data=payload)
     except Exception as e:
-        print("Failed to register REPORTING user", e)
+        logger.info(f"Failed to register REPORTING user {e}")
         return
     # If already registered it will proceed
 
@@ -58,7 +58,7 @@ def register_apis_to_gatekeeper():
                 "endpoint": f"api/v1/{api.path.strip('/')}",
                 "methods": list(api.methods),
             }
-            print("Port registered", settings.REPORTING_SERVICE_PORT)
+            logger.info("Port registered", settings.REPORTING_SERVICE_PORT)
             api_response = requests.post(
                 url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/register_service/",
                 headers={
