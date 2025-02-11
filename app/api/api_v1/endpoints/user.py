@@ -1,3 +1,5 @@
+import json
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Any
@@ -19,6 +21,37 @@ def register(
     """
     Registration API for the service.
     """
+    if settings.REPORTING_USING_GATEKEEPER:
+        payload = json.dumps(
+            {
+                "username": user_information.email.split("@")[0],
+                "email": user_information.email,
+                "password": user_information.password,
+                "first_name": "Reporting",
+                "last_name": "Backend",
+            }
+        )
+        headers = {"Content-Type": "application/json"}
+        url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
+
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.json())
+            if str(response.status_code)[0] == 2:
+                response = Message(message="You have successfully registered!")
+
+                return response
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Registration failed",
+                )
+        except Exception as e:
+            print("Failed to register REPORTING user", e)
+            raise HTTPException(
+                status_code=400,
+                detail="Registration failed",
+            )
 
     pwd_check = settings.PASSWORD_SCHEMA_OBJ.validate(pwd=user_information.password)
     if not pwd_check:
@@ -47,7 +80,10 @@ def get_me(current_user: User = Depends(deps.get_current_user)) -> Any:
     """
     Returns user email
     """
-
+    if settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400, detail="This API can't be called when gatekeeper is used."
+        )
     return current_user
 
 
@@ -59,7 +95,10 @@ def delete_user(
     """
     Delete self from system.
     """
-
+    if settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400, detail="This API can't be called when gatekeeper is used."
+        )
     user.remove(db=db, id=current_user.id)
 
     return Message(message="Successfully deleted user.")
