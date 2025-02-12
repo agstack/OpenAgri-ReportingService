@@ -3,6 +3,7 @@ import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Any
+import logging
 
 from api import deps
 from models import User
@@ -10,6 +11,8 @@ from schemas import Message, UserCreate, UserMe
 from crud import user
 from core import settings
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -36,7 +39,6 @@ def register(
 
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            print(response.json())
             if str(response.status_code)[0] == 2:
                 response = Message(message="You have successfully registered!")
 
@@ -47,7 +49,7 @@ def register(
                     detail="Registration failed",
                 )
         except Exception as e:
-            print("Failed to register REPORTING user", e)
+            logger.info(f"Failed to register REPORTING user, {e}")
             raise HTTPException(
                 status_code=400,
                 detail="Registration failed",
