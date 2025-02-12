@@ -40,7 +40,9 @@ def register(
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
             if str(response.status_code)[0] == 2:
-                response = Message(message="You have successfully registered!")
+                response = Message(
+                    message="You have successfully registered to Gatekeeper!"
+                )
 
                 return response
             else:
@@ -54,6 +56,8 @@ def register(
                 status_code=400,
                 detail="Registration failed",
             )
+
+    # When Gatekeeper is not used
 
     pwd_check = settings.PASSWORD_SCHEMA_OBJ.validate(pwd=user_information.password)
     if not pwd_check:
@@ -72,7 +76,7 @@ def register(
 
     user.create(db=db, obj_in=user_information)
 
-    response = Message(message="You have successfully registered!")
+    response = Message(message="You have successfully registered to reporting system!")
 
     return response
 
