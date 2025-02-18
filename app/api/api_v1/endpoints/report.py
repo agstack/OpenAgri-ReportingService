@@ -58,8 +58,8 @@ async def generate_irrigation_report(
         )
 
     headers = {
-        "Content-Disposition": "attachment; filename={}-report-{}.pdf".format(
-            "irrigation", uuid.uuid4()
+        "Content-Disposition": "attachment; filename=irrigation-report-{}.pdf".format(
+            uuid.uuid4()
         )
     }
 
