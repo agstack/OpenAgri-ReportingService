@@ -13,26 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 def register_apis_to_gatekeeper():
-    logger.info("Adding APIs to gatekeeper")
-
-    payload = json.dumps(
-        {
-            "username": settings.REPORTING_GATEKEEPER_USERNAME,
-            "email": "reporting-backend@gmail.com",
-            "password": settings.REPORTING_GATEKEEPER_PASSWORD,
-            "first_name": "Reporting",
-            "last_name": "Backend",
-        }
-    )
-    url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
-
-    try:
-        response = requests.request("POST", url, data=payload)
-    except Exception as e:
-        logger.info(f"Failed to register REPORTING user {e}")
-        return
-    # If already registered it will proceed
-
     at = requests.post(
         url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/login/",
         json={

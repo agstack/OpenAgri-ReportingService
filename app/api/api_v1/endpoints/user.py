@@ -36,20 +36,16 @@ def register(
         )
         headers = {"Content-Type": "application/json"}
         url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
-
+        gatekeeper_response_code = False
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
             if str(response.status_code)[0] == 2:
                 response = Message(
                     message="You have successfully registered to Gatekeeper!"
                 )
-
+                gatekeeper_response_code = True
                 return response
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Registration failed",
-                )
+
         except Exception as e:
             logger.info(f"Failed to register REPORTING user, {e}")
             raise HTTPException(
@@ -57,6 +53,11 @@ def register(
                 detail="Registration failed",
             )
 
+        if not gatekeeper_response_code:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Gatekeeper failed to register user. Please make sure all fields are correct.",
+            )
     # When Gatekeeper is not used
 
     pwd_check = settings.PASSWORD_SCHEMA_OBJ.validate(pwd=user_information.password)
