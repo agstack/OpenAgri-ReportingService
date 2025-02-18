@@ -21,14 +21,14 @@ async def generate_irrigation_report(
 
     """
 
+    if not data and not settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Data file must be provided if gatekeeper is not used.",
+        )
+
     pdf = None
     if not data:
-        if not settings.REPORTING_USING_GATEKEEPER:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Data file must be provided if gatekeeper is not used.",
-            )
-
         params = {"format": "json"}
         farm_calendar_irrigation_response = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
