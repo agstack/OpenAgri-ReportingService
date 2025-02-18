@@ -29,16 +29,16 @@ async def generate_irrigation_report(
             )
 
         params = {"format": "json"}
-        json_response = make_get_request(
+        farm_calendar_irrigation_response = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
             token=token,
             params=params,
         )
 
-        if not json_response:
+        if not farm_calendar_irrigation_response:
             raise HTTPException(status_code=400, detail="No Irrigation data found.")
 
-        pdf = process_irrigation_data(json_data=json_response)
+        pdf = process_irrigation_data(json_data=farm_calendar_irrigation_response)
 
     else:
         try:
