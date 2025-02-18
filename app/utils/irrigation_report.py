@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_irrigation_operations(
-    data: Union[dict, str],
+    data: dict,
 ) -> Optional[List[IrrigationOperation]]:
     """
     Parse list of irrigation operations from JSON data
@@ -80,7 +80,7 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(json_data: Union[dict, str]):
+def process_irrigation_data(json_data: dict):
     """
     Process irrigation data and generate PDF report
     """
