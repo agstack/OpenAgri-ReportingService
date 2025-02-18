@@ -20,7 +20,7 @@ def parse_irrigation_operations(
     try:
         return [IrrigationOperation.model_validate(item) for item in data]
     except Exception as e:
-        logger.info(f"Error parsing irrigation operations: {e}")
+        logger.error(f"Error parsing irrigation operations: {e}")
         raise HTTPException(
             status_code=400,
             detail=f"Reporting service failed during PDF generation. File is not correct JSON. {e}",
