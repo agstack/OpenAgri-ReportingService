@@ -1,7 +1,12 @@
+import logging
 from typing import Union, Optional
 
 from utils import EX, add_fonts
 from schemas.irrigation import *
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def parse_irrigation_operations(
@@ -13,7 +18,7 @@ def parse_irrigation_operations(
     try:
         return [IrrigationOperation.model_validate(item) for item in data]
     except Exception as e:
-        print(f"Error parsing irrigation operations: {e}")
+        logger.info(f"Error parsing irrigation operations: {e}")
         return None
 
 
