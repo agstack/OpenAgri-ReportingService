@@ -26,16 +26,25 @@ def make_get_request(
     """
 
     base_url = f"{settings.REPORTING_GATEKEEPER_BASE_URL}{url}"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer {}".format(token),
-    }
+    headers = None
+    if token:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {}".format(token),
+        }
 
     try:
-        response = requests.get(
-            base_url,
-            params=params,
-            headers=headers,
+        response = (
+            requests.get(
+                base_url,
+                params=params,
+                headers=headers,
+            )
+            if headers
+            else requests.get(
+                base_url,
+                params=params,
+            )
         )
 
         response.raise_for_status()
