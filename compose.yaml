@@ -12,6 +12,7 @@ services:
       start_period: 10s
       retries: 3
       interval: 360s
+
   backend:
     depends_on:
       reportingdb:
