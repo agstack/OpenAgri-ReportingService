@@ -1,6 +1,8 @@
 import logging
 from typing import Union, Optional
 
+from fastapi import HTTPException
+
 from utils import EX, add_fonts
 from schemas.irrigation import *
 
@@ -19,7 +21,10 @@ def parse_irrigation_operations(
         return [IrrigationOperation.model_validate(item) for item in data]
     except Exception as e:
         logger.info(f"Error parsing irrigation operations: {e}")
-        return None
+        raise HTTPException(
+            status_code=400,
+            detail=f"Reporting service failed during PDF generation. File is not correct JSON. {e}",
+        )
 
 
 def create_pdf_from_operations(operations: List[IrrigationOperation]):
