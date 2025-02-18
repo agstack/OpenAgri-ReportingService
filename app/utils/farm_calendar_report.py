@@ -26,7 +26,7 @@ class FarmCalendarData:
             self.operations = [Operation.model_validate(act) for act in farm_activities]
 
         except Exception as e:
-            logger.info(f"Error parsing farm calendar data: {e}")
+            logger.error(f"Error parsing farm calendar data: {e}")
             raise HTTPException(
                 status_code=400,
                 detail=f"Reporting service failed during data validation. File is not correct JSON. {e}",
