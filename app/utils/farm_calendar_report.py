@@ -1,8 +1,12 @@
+import logging
 from typing import Union
 from fastapi import HTTPException
 
 from schemas.compost import *
 from utils import EX, add_fonts
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class FarmCalendarData:
@@ -15,10 +19,18 @@ class FarmCalendarData:
         farm_activities: Union[dict, str],
     ):
         self.activity_type = activity_type_info
-        self.observations = [
-            CropObservation.model_validate(obs) for obs in observations
-        ]
-        self.operations = [Operation.model_validate(act) for act in farm_activities]
+        try:
+            self.observations = [
+                CropObservation.model_validate(obs) for obs in observations
+            ]
+            self.operations = [Operation.model_validate(act) for act in farm_activities]
+
+        except Exception as e:
+            logger.error(f"Error parsing farm calendar data: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Reporting service failed during data validation. File is not correct JSON. {e}",
+            )
 
 
 def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:

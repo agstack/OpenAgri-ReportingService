@@ -26,25 +26,25 @@ async def generate_irrigation_report(
 
     """
 
+    if not data and not settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Data file must be provided if gatekeeper is not used.",
+        )
+
     pdf = None
     if not data:
-        if not settings.REPORTING_USING_GATEKEEPER:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Data file must be provided if gatekeeper is not used.",
-            )
-
         params = {"format": "json"}
-        json_response = make_get_request(
+        farm_calendar_irrigation_response = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
             token=token,
             params=params,
         )
 
-        if not json_response:
+        if not farm_calendar_irrigation_response:
             raise HTTPException(status_code=400, detail="No Irrigation data found.")
 
-        pdf = process_irrigation_data(json_data=json_response)
+        pdf = process_irrigation_data(json_data=farm_calendar_irrigation_response)
 
     else:
         try:
@@ -63,8 +63,8 @@ async def generate_irrigation_report(
         )
 
     headers = {
-        "Content-Disposition": "attachment; filename={}-report-{}.pdf".format(
-            "irrigation", uuid.uuid4()
+        "Content-Disposition": "attachment; filename=irrigation-report-{}.pdf".format(
+            uuid.uuid4()
         )
     }
 
@@ -85,7 +85,6 @@ async def generate_generic_observation_report(
 
 
     """
-    print(observation_type_name)
     possible_names = [
         "Pesticides",
         "Irrigation",

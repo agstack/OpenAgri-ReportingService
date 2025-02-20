@@ -1,11 +1,18 @@
+import logging
 from typing import Union, Optional
+
+from fastapi import HTTPException
 
 from utils import EX, add_fonts
 from schemas.irrigation import *
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 def parse_irrigation_operations(
-    data: Union[dict, str],
+    data: dict,
 ) -> Optional[List[IrrigationOperation]]:
     """
     Parse list of irrigation operations from JSON data
@@ -13,8 +20,11 @@ def parse_irrigation_operations(
     try:
         return [IrrigationOperation.model_validate(item) for item in data]
     except Exception as e:
-        print(f"Error parsing irrigation operations: {e}")
-        return None
+        logger.error(f"Error parsing irrigation operations: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Reporting service failed during PDF generation. File is not correct JSON. {e}",
+        )
 
 
 def create_pdf_from_operations(operations: List[IrrigationOperation]):
@@ -70,7 +80,7 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(json_data: Union[dict, str]):
+def process_irrigation_data(json_data: dict):
     """
     Process irrigation data and generate PDF report
     """

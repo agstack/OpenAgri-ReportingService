@@ -3,6 +3,7 @@ import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Any
+import logging
 
 from api import deps
 from models import User
@@ -10,6 +11,8 @@ from schemas import Message, UserCreate, UserMe
 from crud import user
 from core import settings
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -22,34 +25,11 @@ def register(
     Registration API for the service.
     """
     if settings.REPORTING_USING_GATEKEEPER:
-        payload = json.dumps(
-            {
-                "username": user_information.email.split("@")[0],
-                "email": user_information.email,
-                "password": user_information.password,
-                "first_name": "Reporting",
-                "last_name": "Backend",
-            }
+        raise HTTPException(
+            status_code=400, detail="Registration is not possible with gatekeeper."
         )
-        headers = {"Content-Type": "application/json"}
-        url = settings.REPORTING_GATEKEEPER_BASE_URL + "api/register/"
 
-        try:
-            response = requests.request("POST", url, headers=headers, data=payload)
-            if str(response.status_code)[0] == 2:
-                response = Message(message="You have successfully registered!")
-
-                return response
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Registration failed",
-                )
-        except Exception as e:
-            raise HTTPException(
-                status_code=400,
-                detail="Registration failed",
-            )
+    # When Gatekeeper is not used
 
     pwd_check = settings.PASSWORD_SCHEMA_OBJ.validate(pwd=user_information.password)
     if not pwd_check:
@@ -68,7 +48,7 @@ def register(
 
     user.create(db=db, obj_in=user_information)
 
-    response = Message(message="You have successfully registered!")
+    response = Message(message="You have successfully registered to reporting system!")
 
     return response
 
