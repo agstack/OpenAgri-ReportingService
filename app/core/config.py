@@ -29,6 +29,7 @@ class Settings(BaseSettings):
         "observations": "/Observations/",
         "activities": "/FarmCalendarActivities/",
         "parcel": "/FarmParcels/",
+        "animals": "/FarmAnimals/",
     }
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
@@ -42,7 +43,7 @@ class Settings(BaseSettings):
             environ.get("REPORTING_POSTGRES_USER"),
             environ.get("REPORTING_POSTGRES_PASSWORD"),
             environ.get("REPORTING_POSTGRES_HOST"),
-            environ.get("REPORTING_POSTGRES_PORT"),
+            environ.get("REPORTING_POSTGRES_PORT", 5439),
             environ.get("REPORTING_POSTGRES_DB"),
         )
 
