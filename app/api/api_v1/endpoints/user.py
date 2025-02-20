@@ -36,7 +36,6 @@ def register(
 
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            print(response.json())
             if str(response.status_code)[0] == 2:
                 response = Message(message="You have successfully registered!")
 
@@ -47,7 +46,6 @@ def register(
                     detail="Registration failed",
                 )
         except Exception as e:
-            print("Failed to register REPORTING user", e)
             raise HTTPException(
                 status_code=400,
                 detail="Registration failed",
