@@ -170,8 +170,8 @@ async def generate_generic_observation_report(
         )
 
     headers = {
-        "Content-Disposition": "attachment; filename={}-report-{}.pdf".format(
-            "irrigation", uuid.uuid4()
+        "Content-Disposition": "attachment; filename=compost-report-{}.pdf".format(
+            uuid.uuid4()
         )
     }
 
