@@ -3,7 +3,6 @@ import uuid
 from json import JSONDecodeError
 from fastapi import APIRouter, File, Depends, HTTPException, UploadFile, Response
 from api import deps
-from models import User
 from core import settings
 from utils.irrigation_report import process_irrigation_data
 from utils.json_handler import make_get_request
