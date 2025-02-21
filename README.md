@@ -79,6 +79,29 @@ If Gatekeeper is used, data file param can be ignored.
 When service is run wihtout Gatekeeper data must be provided in .json file format.
 
 
+```shell
+
+/api/v1/openagri-report/animal-report/
+
+```
+
+Response: A generated PDF file containing the animal report.
+
+Possible query parameters:
+
+animal_group (Optional, string): Specifies the group of animals to include in the report.
+name (Optional, string): Filters results by animal name.
+parcel (Optional, UUID4): Identifies the specific parcel where the animals are located.
+status (Optional, integer): Filters animals by their status.
+Example Usage
+The Animal Report API can be used with or without Gatekeeper support:
+
+With Gatekeeper: The data file parameter can be ignored.
+Without Gatekeeper: Data must be provided in JSON file format.
+If no data file is provided and Gatekeeper is not enabled, the API fetches data from an external Farm Calendar service. The request is made with the provided filters, and the system retrieves the necessary animal data.
+
+If a valid JSON file is uploaded, the API processes the data directly to generate the report
+
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
 
