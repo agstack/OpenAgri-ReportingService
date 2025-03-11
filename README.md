@@ -59,10 +59,15 @@ Full list of APIs available you can check [here](https://editor-next.swagger.io/
 /api/v1/openagri-report/irrigation-report/
 ```
 
+## Request Params
+
 ### data
 - **Type**: `UploadFile`
 - **Description**: API processes the data directly to generate the report if data passed. This parameter is not required and when it is, must be provided as an `UploadFile`.
 
+
+
+## Response
 
 Response is generated PDF file.
 
@@ -72,6 +77,8 @@ Response is generated PDF file.
 ```
 /api/v1/openagri-report/compost-report/
 ```
+
+## Request Params 
 
 ### observation_type_name
 - **Type**: `str`
@@ -87,6 +94,7 @@ Response is generated PDF file.
 - **Description**: API processes the data directly to generate the report if data is passed. This parameter is not required and when it is, must be provided as an `UploadFile`.
 
 
+## Response 
 Response is generated PDF file.
 
 <h3> Example usage </h3>
@@ -102,8 +110,7 @@ When service is run wihtout Gatekeeper data must be provided in .json file forma
 
 ```
 
-Response: A generated PDF file containing the animal report.
-## Parameters Explanation
+## Request Params
 
 ### animal_group
 - **Type**: `Optional[str]`
@@ -132,6 +139,10 @@ Without Gatekeeper: Data must be provided in JSON file format.
 If no data file is provided and Gatekeeper is not enabled, the API fetches data from an external Farm Calendar service. The request is made with the provided filters, and the system retrieves the necessary animal data.
 
 If a valid JSON file is uploaded, the API processes the data directly to generate the report
+
+## Response
+
+Response is generated PDF file.
 
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
