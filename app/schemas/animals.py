@@ -24,6 +24,6 @@ class Animal(BaseModel):
     birthdate: datetime
     isMemberOfAnimalGroup: Optional[AnimalGroup]
     status: int
-    invalidatedAtTime: Optional[datetime]
-    dateCreated: datetime
-    dateModified: datetime
+    invalidatedAtTime: Optional[datetime] = None
+    dateCreated: Optional[datetime] = None
+    dateModified: Optional[datetime] = None

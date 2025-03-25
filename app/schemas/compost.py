@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 
@@ -8,13 +8,13 @@ class CropObservation(BaseModel):
 
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    activityType: str
+    activityType: dict
     title: str
     details: str
-    hasStartDatetime: datetime
-    hasEndDatetime: datetime
-    responsibleAgent: str
-    usesAgriculturalMachinery: List[str]
+    hasStartDatetime: Optional[datetime] = None
+    hasEndDatetime: Optional[datetime] = None
+    responsibleAgent: Optional[str] = None
+    usesAgriculturalMachinery: List[dict] = []
     hasValue: str
     isMeasuredIn: str
     relatesToProperty: str
@@ -25,10 +25,10 @@ class Operation(BaseModel):
 
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    activityType: str
+    activityType: dict
     title: str
     details: str
-    hasStartDatetime: datetime
-    hasEndDatetime: datetime
-    responsibleAgent: str
-    usesAgriculturalMachinery: List[str]
+    hasStartDatetime: Optional[datetime] = None
+    hasEndDatetime: Optional[datetime] = None
+    responsibleAgent: Optional[str] = None
+    usesAgriculturalMachinery: List[dict] = []

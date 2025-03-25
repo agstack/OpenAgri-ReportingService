@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,13 +16,13 @@ class IrrigationOperation(BaseModel):
 
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    activityType: str
+    activityType: dict
     title: str
     details: str
-    hasStartDatetime: datetime
-    hasEndDatetime: datetime
-    responsibleAgent: str
-    usesAgriculturalMachinery: List[str]
+    hasStartDatetime: Optional[datetime] = None
+    hasEndDatetime: Optional[datetime] = None
+    responsibleAgent: Optional[str] = None
+    usesAgriculturalMachinery: List[dict] = []
     hasAppliedAmount: QuantityValue
     usesIrrigationSystem: str
-    operatedOn: str
+    operatedOn: Optional[dict] = None

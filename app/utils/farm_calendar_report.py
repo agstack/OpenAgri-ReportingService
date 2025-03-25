@@ -61,14 +61,33 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
         pdf.set_font("FreeSerif", "", 9)
         pdf.multi_cell(0, 10, f"Details: {operation.details}", ln=True)
-        pdf.cell(0, 10, f"Start: {operation.hasStartDatetime}", ln=True)
-        pdf.cell(0, 10, f"End: {operation.hasEndDatetime}", ln=True)
-        pdf.cell(0, 10, f"Responsible: {operation.responsibleAgent}", ln=True)
+        pdf.cell(
+            0,
+            10,
+            f"Start: {operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
+            ln=True,
+        )
+        pdf.cell(
+            0,
+            10,
+            f"End: {operation.hasEndDatetime if operation.hasEndDatetime else 'N/A'}",
+            ln=True,
+        )
+        (
+            pdf.cell(0, 10, f"Responsible: {operation.responsibleAgent}", ln=True)
+            if operation.responsibleAgent
+            else None
+        )
+        pdf.cell(0, 10, f"Type: {operation.activity_type.get('@id', 'N/A')}", ln=True)
 
         if operation.usesAgriculturalMachinery:
-            pdf.cell(0, 10, "Machinery:", ln=True)
-            for machinery in operation.usesAgriculturalMachinery:
-                pdf.cell(0, 10, f"  - {machinery.split(':')[3]}", ln=True)
+            machinery_ids = ", ".join(
+                [
+                    machinery.get("@id", "N/A").split(":")[3]
+                    for machinery in operation.usesAgriculturalMachinery
+                ]
+            )
+            pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
 
         for x in calendar_data.observations:
             pdf.set_font("FreeSerif", "B", 10)
@@ -77,14 +96,33 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             pdf.cell(0, 10, f"Value: {x.hasValue}", ln=True)
             pdf.cell(0, 10, f"Property: {x.relatesToProperty}", ln=True)
             pdf.cell(0, 10, f"Details: {x.details}", ln=True)
-            pdf.cell(0, 10, f"Start: {x.hasStartDatetime}", ln=True)
-            pdf.cell(0, 10, f"End: {x.hasEndDatetime}", ln=True)
-            pdf.cell(0, 10, f"Responsible: {x.responsibleAgent}", ln=True)
+            pdf.cell(
+                0,
+                10,
+                f"Start: {x.hasStartDatetime if x.hasStartDatetime else 'N/A'}",
+                ln=True,
+            )
+            pdf.cell(
+                0,
+                10,
+                f"End: {x.hasEndDatetime if x.hasEndDatetime else 'N/A'}",
+                ln=True,
+            )
+            (
+                pdf.cell(0, 10, f"Responsible: {x.responsibleAgent}", ln=True)
+                if x.responsibleAgent
+                else None
+            )
 
             if x.usesAgriculturalMachinery:
-                pdf.cell(0, 10, "Machinery:", ln=True)
-                for machinery in operation.usesAgriculturalMachinery:
-                    pdf.cell(0, 10, f"  - {machinery.split(':')[3]}", ln=True)
+                machinery_ids = ", ".join(
+                    [
+                        machinery.get("@id", "N/A").split(":")[3]
+                        for machinery in x.usesAgriculturalMachinery
+                    ]
+                )
+                pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
+
         pdf.ln(10)
 
     return pdf
