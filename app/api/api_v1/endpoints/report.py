@@ -151,10 +151,11 @@ async def generate_generic_observation_report(
 
     else:
         try:
+            dt = json.load(data.file)
             pdf = process_farm_calendar_data(
                 activity_type_info=observation_type_name,
-                observations=json.load(data.file)["observations"],
-                farm_activities=json.load(data.file)["farm_activities"],
+                observations=dt["observations"],
+                farm_activities=dt["farm_activities"],
             )
 
         except JSONDecodeError as e:
