@@ -85,19 +85,6 @@ async def generate_generic_observation_report(
 
 
     """
-    possible_names = [
-        "Pesticides",
-        "Irrigation",
-        "Fertilization",
-        "CropStressIndicator",
-        "CropGrowthObservation",
-    ]
-    if observation_type_name not in possible_names:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Observation type name: {observation_type_name} is not inside supported types: {possible_names}",
-        )
-
     if observation_type_name == "CropGrowthObservation":
         observation_type_name = "Crop Growth Stage Observation"
 

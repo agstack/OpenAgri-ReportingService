@@ -3,6 +3,13 @@ from typing import List, Optional
 from datetime import datetime
 
 
+class HasResult(BaseModel):
+    type: str = Field(alias="@type")
+    id: str = Field(alias="@id")
+    unit: Optional[str] = (None,)
+    hasValue: Optional[str] = None
+
+
 class CropObservation(BaseModel):
     """Model for observations"""
 
@@ -15,9 +22,10 @@ class CropObservation(BaseModel):
     hasEndDatetime: Optional[datetime] = None
     responsibleAgent: Optional[str] = None
     usesAgriculturalMachinery: List[dict] = []
-    hasValue: str
-    isMeasuredIn: str
-    relatesToProperty: str
+    hasResult: Optional[HasResult] = None
+    isMeasuredIn: Optional[str] = None
+    relatesToProperty: Optional[str] = None
+    observedProperty: Optional[str] = None
 
 
 class Operation(BaseModel):

@@ -61,24 +61,29 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
         pdf.set_font("FreeSerif", "", 9)
         pdf.multi_cell(0, 10, f"Details: {operation.details}", ln=True)
-        pdf.cell(
-            0,
-            10,
-            f"Start: {operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
-            ln=True,
-        )
-        pdf.cell(
-            0,
-            10,
-            f"End: {operation.hasEndDatetime if operation.hasEndDatetime else 'N/A'}",
-            ln=True,
-        )
+
+        if operation.hasStartDatetime:
+            pdf.cell(
+                0,
+                10,
+                f"Start: {operation.hasStartDatetime}",
+                ln=True,
+            )
+
+        if operation.hasEndDatetime:
+            pdf.cell(
+                0,
+                10,
+                f"End: {operation.hasEndDatetime}",
+                ln=True,
+            )
+
         (
             pdf.cell(0, 10, f"Responsible: {operation.responsibleAgent}", ln=True)
             if operation.responsibleAgent
             else None
         )
-        pdf.cell(0, 10, f"Type: {operation.activity_type.get('@id', 'N/A')}", ln=True)
+        pdf.cell(0, 10, f"Type: {operation.activityType.get('@id', 'N/A')}", ln=True)
 
         if operation.usesAgriculturalMachinery:
             machinery_ids = ", ".join(
@@ -93,21 +98,44 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             pdf.set_font("FreeSerif", "B", 10)
             pdf.cell(0, 10, "Observations:", ln=True)
             pdf.set_font("FreeSerif", "", 10)
-            pdf.cell(0, 10, f"Value: {x.hasValue}", ln=True)
-            pdf.cell(0, 10, f"Property: {x.relatesToProperty}", ln=True)
+            (
+                pdf.cell(0, 10, f"Value: {x.hasResult.hasValue}", ln=True)
+                if x.hasResult
+                else None
+            )
+            (
+                pdf.cell(0, 10, f"Value unit: {x.hasResult.unit}", ln=True)
+                if x.hasResult
+                else None
+            )
+            (
+                pdf.cell(0, 10, f"Property: {x.relatesToProperty}", ln=True)
+                if x.relatesToProperty
+                else None
+            )
+            (
+                pdf.cell(0, 10, f"Observed Property: {x.observedProperty}", ln=True)
+                if x.observedProperty
+                else None
+            )
             pdf.cell(0, 10, f"Details: {x.details}", ln=True)
-            pdf.cell(
-                0,
-                10,
-                f"Start: {x.hasStartDatetime if x.hasStartDatetime else 'N/A'}",
-                ln=True,
-            )
-            pdf.cell(
-                0,
-                10,
-                f"End: {x.hasEndDatetime if x.hasEndDatetime else 'N/A'}",
-                ln=True,
-            )
+
+            if x.hasStartDatetime:
+                pdf.cell(
+                    0,
+                    10,
+                    f"Start: {x.hasStartDatetime}",
+                    ln=True,
+                )
+
+            if x.hasEndDatetime:
+                pdf.cell(
+                    0,
+                    10,
+                    f"Start: {x.hasEndDatetime}",
+                    ln=True,
+                )
+
             (
                 pdf.cell(0, 10, f"Responsible: {x.responsibleAgent}", ln=True)
                 if x.responsibleAgent

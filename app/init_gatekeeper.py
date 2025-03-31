@@ -38,7 +38,7 @@ def register_apis_to_gatekeeper():
                 "endpoint": f"api/v1/{api.path.strip('/')}",
                 "methods": list(api.methods),
             }
-            logger.info("Port registered", settings.REPORTING_SERVICE_PORT)
+            logger.info("Port registered: %s", settings.REPORTING_SERVICE_PORT)
             api_response = requests.post(
                 url=settings.REPORTING_GATEKEEPER_BASE_URL + "api/register_service/",
                 headers={
