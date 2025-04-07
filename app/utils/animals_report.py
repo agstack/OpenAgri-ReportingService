@@ -65,7 +65,7 @@ def create_pdf_from_animals(animals: List[Animal]):
         pdf.cell(
             0,
             10,
-            f"Created: {animal.dateCreated} | Modified: {animal.dateModified}",
+            f"Created: {animal.dateCreated if animal.dateCreated else 'N/A'} | Modified: {animal.dateModified if animal.dateModified else 'N/A'}",
             ln=True,
         )
         pdf.ln(10)
