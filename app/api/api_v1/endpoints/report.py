@@ -85,19 +85,6 @@ async def generate_generic_observation_report(
 
 
     """
-    possible_names = [
-        "Pesticides",
-        "Irrigation",
-        "Fertilization",
-        "CropStressIndicator",
-        "CropGrowthObservation",
-    ]
-    if observation_type_name not in possible_names:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Observation type name: {observation_type_name} is not inside supported types: {possible_names}",
-        )
-
     if observation_type_name == "CropGrowthObservation":
         observation_type_name = "Crop Growth Stage Observation"
 
@@ -151,10 +138,11 @@ async def generate_generic_observation_report(
 
     else:
         try:
+            dt = json.load(data.file)
             pdf = process_farm_calendar_data(
                 activity_type_info=observation_type_name,
-                observations=json.load(data.file)["observations"],
-                farm_activities=json.load(data.file)["farm_activities"],
+                observations=dt["observations"],
+                farm_activities=dt["farm_activities"],
             )
 
         except JSONDecodeError as e:
