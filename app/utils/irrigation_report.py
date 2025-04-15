@@ -108,7 +108,7 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(json_data: dict):
+def process_irrigation_data(json_data: dict, pdf_file_name: str):
     """
     Process irrigation data and generate PDF report
     """

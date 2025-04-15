@@ -160,6 +160,7 @@ def process_farm_calendar_data(
     activity_type_info: str,
     observations: Union[dict, str],
     farm_activities: Union[dict, str],
+    pdf_file_name: str,
 ) -> EX:
     """
     Process farm calendar data and generate PDF report

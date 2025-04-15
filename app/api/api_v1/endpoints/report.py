@@ -70,7 +70,9 @@ async def generate_irrigation_report(
         uuid_of_pdf = str(uuid.uuid4())
 
         background_tasks.add_task(
-            process_irrigation_data, json_data=farm_calendar_irrigation_response
+            process_irrigation_data,
+            json_data=farm_calendar_irrigation_response,
+            pdf_file_name=uuid_of_pdf,
         )
 
         return uuid_of_pdf
@@ -82,6 +84,7 @@ async def generate_irrigation_report(
             background_tasks.add_task(
                 process_irrigation_data,
                 json_data=json.load(data.file),
+                pdf_file_name=uuid_of_pdf,
             )
 
             return uuid_of_pdf
@@ -157,6 +160,7 @@ async def generate_generic_observation_report(
             activity_type_info=observation_type_name,
             observations=observations,
             farm_activities=farm_activities,
+            pdf_file_name=uuid_of_pdf,
         )
 
         return uuid_of_pdf
@@ -172,6 +176,7 @@ async def generate_generic_observation_report(
                 activity_type_info=observation_type_name,
                 observations=dt["observations"],
                 farm_activities=dt["farm_activities"],
+                pdf_file_name=uuid_of_pdf,
             )
 
             return uuid_of_pdf
