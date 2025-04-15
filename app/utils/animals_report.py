@@ -73,7 +73,7 @@ def create_pdf_from_animals(animals: List[Animal]):
     return pdf
 
 
-def process_animal_data(json_data: Union[List[dict], str]):
+def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str):
     """
     Process animal data and generate PDF report
     """
