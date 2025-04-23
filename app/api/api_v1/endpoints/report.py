@@ -49,6 +49,7 @@ async def generate_irrigation_report(
     Generates Irrigation Report PDF file
 
     """
+    uuid_of_pdf = str(uuid.uuid4())
 
     if not data and not settings.REPORTING_USING_GATEKEEPER:
         raise HTTPException(
@@ -67,8 +68,6 @@ async def generate_irrigation_report(
         if not farm_calendar_irrigation_response:
             raise HTTPException(status_code=400, detail="No Irrigation data found.")
 
-        uuid_of_pdf = str(uuid.uuid4())
-
         background_tasks.add_task(
             process_irrigation_data,
             json_data=farm_calendar_irrigation_response,
@@ -79,8 +78,6 @@ async def generate_irrigation_report(
 
     else:
         try:
-            uuid_of_pdf = str(uuid.uuid4())
-
             background_tasks.add_task(
                 process_irrigation_data,
                 json_data=json.load(data.file),
@@ -114,6 +111,7 @@ async def generate_generic_observation_report(
 
     if observation_type_name == "CropStressIndicator":
         observation_type_name = "Crop Stress Indicator"
+    uuid_of_pdf = str(uuid.uuid4())
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
@@ -153,8 +151,6 @@ async def generate_generic_observation_report(
         if not farm_activities:
             raise HTTPException(status_code=400, detail="Farm Activities are empty.")
 
-        uuid_of_pdf = str(uuid.uuid4())
-
         background_tasks.add_task(
             process_farm_calendar_data,
             activity_type_info=observation_type_name,
@@ -168,8 +164,6 @@ async def generate_generic_observation_report(
     else:
         try:
             dt = json.load(data.file)
-
-            uuid_of_pdf = str(uuid.uuid4())
 
             background_tasks.add_task(
                 process_farm_calendar_data,
@@ -201,6 +195,7 @@ async def generate_animal_report(
     """
     Generates Animal Report PDF file
     """
+    uuid_of_pdf = str(uuid.uuid4())
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
@@ -228,8 +223,6 @@ async def generate_animal_report(
         if not json_response:
             raise HTTPException(status_code=400, detail="No animal data found.")
 
-        uuid_of_pdf = str(uuid.uuid4())
-
         background_tasks.add_task(
             process_animal_data, json_data=json_response, pdf_file_name=uuid_of_pdf
         )
@@ -238,8 +231,6 @@ async def generate_animal_report(
 
     else:
         try:
-            uuid_of_pdf = str(uuid.uuid4())
-
             background_tasks.add_task(
                 process_animal_data,
                 json_data=json.load(data.file),

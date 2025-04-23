@@ -1,4 +1,6 @@
 import os
+
+import jwt
 from fpdf import FPDF
 
 
@@ -23,3 +25,15 @@ class EX(FPDF):
             keep_aspect_ratio=True,
             x=160,
         )
+
+
+def export_user_id(token: str) -> dict:
+    """
+    Decode JWT token
+
+    :param token: JWT token (str)
+
+    :return: Dictionary with decoded information
+    """
+    decoded = jwt.decode(token, options={"verify_signature": False})
+    return decoded

@@ -80,4 +80,5 @@ def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str):
     animals = parse_animal_data(json_data)
     if not animals:
         return None
-    return create_pdf_from_animals(animals)
+    anima_pdf = create_pdf_from_animals(animals)
+    anima_pdf.output(f"{pdf_file_name}.pdf")
