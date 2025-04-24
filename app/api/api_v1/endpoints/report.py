@@ -16,6 +16,7 @@ from pydantic import UUID4
 
 from api import deps
 from core import settings
+from schemas import PDF
 from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
@@ -48,7 +49,7 @@ def retrieve_generated_pdf(
     )
 
 
-@router.post("/irrigation-report/")
+@router.post("/irrigation-report/", response_model=PDF)
 async def generate_irrigation_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
@@ -58,13 +59,13 @@ async def generate_irrigation_report(
     Generates Irrigation Report PDF file
 
     """
-    uuid_of_pdf = str(uuid.uuid4())
+    uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]
         if settings.REPORTING_USING_GATEKEEPER
         else token.id
     )
-    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
 
     if not data and not settings.REPORTING_USING_GATEKEEPER:
         raise HTTPException(
@@ -89,7 +90,7 @@ async def generate_irrigation_report(
             pdf_file_name=uuid_of_pdf,
         )
 
-        return uuid_of_pdf
+        return PDF(uuid=uuid_v4)
 
     else:
         try:
@@ -99,7 +100,7 @@ async def generate_irrigation_report(
                 pdf_file_name=uuid_of_pdf,
             )
 
-            return uuid_of_pdf
+            return PDF(uuid=uuid_v4)
 
         except JSONDecodeError as e:
             raise HTTPException(
@@ -108,7 +109,7 @@ async def generate_irrigation_report(
             )
 
 
-@router.post("/compost-report/")
+@router.post("/compost-report/", response_model=PDF)
 async def generate_generic_observation_report(
     observation_type_name: str,
     background_tasks: BackgroundTasks,
@@ -126,13 +127,13 @@ async def generate_generic_observation_report(
 
     if observation_type_name == "CropStressIndicator":
         observation_type_name = "Crop Stress Indicator"
-    uuid_of_pdf = str(uuid.uuid4())
+    uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]
         if settings.REPORTING_USING_GATEKEEPER
         else token.id
     )
-    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
@@ -180,8 +181,7 @@ async def generate_generic_observation_report(
             pdf_file_name=uuid_of_pdf,
         )
 
-        return uuid_of_pdf
-
+        return PDF(uuid=uuid_v4)
     else:
         try:
             dt = json.load(data.file)
@@ -194,7 +194,7 @@ async def generate_generic_observation_report(
                 pdf_file_name=uuid_of_pdf,
             )
 
-            return uuid_of_pdf
+            return PDF(uuid=uuid_v4)
 
         except JSONDecodeError as e:
             raise HTTPException(
@@ -203,7 +203,7 @@ async def generate_generic_observation_report(
             )
 
 
-@router.post("/animal-report/")
+@router.post("/animal-report/", response_model=PDF)
 async def generate_animal_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
@@ -216,13 +216,13 @@ async def generate_animal_report(
     """
     Generates Animal Report PDF file
     """
-    uuid_of_pdf = str(uuid.uuid4())
+    uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]
         if settings.REPORTING_USING_GATEKEEPER
         else token.id
     )
-    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
@@ -254,7 +254,7 @@ async def generate_animal_report(
             process_animal_data, json_data=json_response, pdf_file_name=uuid_of_pdf
         )
 
-        return uuid_of_pdf
+        return PDF(uuid=uuid_v4)
 
     else:
         try:
@@ -264,7 +264,7 @@ async def generate_animal_report(
                 pdf_file_name=uuid_of_pdf,
             )
 
-            return uuid_of_pdf
+            return PDF(uuid=uuid_v4)
 
         except JSONDecodeError as e:
             raise HTTPException(
