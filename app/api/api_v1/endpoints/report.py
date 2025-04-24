@@ -21,23 +21,31 @@ from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
 from utils.irrigation_report import process_irrigation_data
 from utils.json_handler import make_get_request
+from fastapi.responses import FileResponse
 
 router = APIRouter()
 
 
-@router.get("{report_id}")
+@router.get("{report_id}", response_class=FileResponse)
 def retrieve_generated_pdf(
     report_id: str,
-    background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
 ):
-    pass
-
     """
 
     Retrieve generated PDF file
 
     """
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    file_path = f"{settings.PDF_DIRECTORY}{user_id}/{report_id}.pdf"
+
+    return FileResponse(
+        path=file_path, media_type="application/pdf", filename=f"{report_id}"
+    )
 
 
 @router.post("/irrigation-report/")

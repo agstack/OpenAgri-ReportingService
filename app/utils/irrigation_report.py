@@ -3,6 +3,7 @@ from typing import Union, Optional
 
 from fastapi import HTTPException
 
+from core import settings
 from utils import EX, add_fonts
 from schemas.irrigation import *
 
@@ -118,5 +119,5 @@ def process_irrigation_data(json_data: dict, pdf_file_name: str):
         return None
 
     pdf = create_pdf_from_operations(operations)
-
-    return pdf
+    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    pdf.output(f"{pdf_dir}.pdf")

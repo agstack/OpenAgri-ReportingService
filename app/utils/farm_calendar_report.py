@@ -2,6 +2,7 @@ import logging
 from typing import Union
 from fastapi import HTTPException
 
+from core import settings
 from schemas.compost import *
 from utils import EX, add_fonts
 
@@ -161,7 +162,7 @@ def process_farm_calendar_data(
     observations: Union[dict, str],
     farm_activities: Union[dict, str],
     pdf_file_name: str,
-) -> EX:
+) -> None:
     """
     Process farm calendar data and generate PDF report
     """
@@ -173,7 +174,8 @@ def process_farm_calendar_data(
         )
 
         pdf = create_farm_calendar_pdf(calendar_data)
-        return pdf
+        pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+        pdf.output(f"{pdf_dir}.pdf")
 
     except Exception as e:
         raise HTTPException(
