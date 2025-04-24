@@ -16,6 +16,7 @@ from pydantic import UUID4
 
 from api import deps
 from core import settings
+from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
 from utils.irrigation_report import process_irrigation_data
@@ -50,6 +51,12 @@ async def generate_irrigation_report(
 
     """
     uuid_of_pdf = str(uuid.uuid4())
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
 
     if not data and not settings.REPORTING_USING_GATEKEEPER:
         raise HTTPException(
@@ -112,6 +119,12 @@ async def generate_generic_observation_report(
     if observation_type_name == "CropStressIndicator":
         observation_type_name = "Crop Stress Indicator"
     uuid_of_pdf = str(uuid.uuid4())
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
@@ -196,6 +209,12 @@ async def generate_animal_report(
     Generates Animal Report PDF file
     """
     uuid_of_pdf = str(uuid.uuid4())
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    uuid_of_pdf = f"{user_id}/{uuid_of_pdf}"
 
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:

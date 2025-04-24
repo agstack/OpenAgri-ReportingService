@@ -1,5 +1,7 @@
 from typing import List, Union
-from utils import EX, add_fonts
+
+from core import settings
+from utils import EX, add_fonts, decode_jwt_token
 from schemas.animals import *
 
 
@@ -81,4 +83,5 @@ def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str):
     if not animals:
         return None
     anima_pdf = create_pdf_from_animals(animals)
-    anima_pdf.output(f"{pdf_file_name}.pdf")
+    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    anima_pdf.output(f"{pdf_dir}.pdf")

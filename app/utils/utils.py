@@ -27,7 +27,7 @@ class EX(FPDF):
         )
 
 
-def export_user_id(token: str) -> dict:
+def decode_jwt_token(token: str) -> dict:
     """
     Decode JWT token
 
