@@ -1,3 +1,4 @@
+import json
 import os
 from typing import List, Union
 
@@ -6,6 +7,7 @@ from fastapi import HTTPException
 from core import settings
 from utils import EX, add_fonts, decode_jwt_token
 from schemas.animals import *
+from utils.json_handler import make_get_request
 
 
 def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
@@ -78,10 +80,25 @@ def create_pdf_from_animals(animals: List[Animal]):
     return pdf
 
 
-def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str) -> None:
+def process_animal_data(
+    token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None
+) -> None:
     """
     Process animal data and generate PDF report
     """
+    if params:
+        json_data = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+            token=token,
+            params=params,
+        )
+
+        if not json_data:
+            raise HTTPException(status_code=400, detail="No animal data found.")
+
+    else:
+        json_data = json.load(data.file)
+
     animals = parse_animal_data(json_data)
     if not animals:
         return

@@ -1,16 +1,12 @@
-import json
 import os
 import uuid
-from json import JSONDecodeError
 from typing import Optional
 
 from fastapi import (
     APIRouter,
-    File,
     Depends,
     HTTPException,
     UploadFile,
-    Response,
     BackgroundTasks,
 )
 from pydantic import UUID4
@@ -22,7 +18,6 @@ from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
 from utils.irrigation_report import process_irrigation_data
-from utils.json_handler import make_get_request
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -81,40 +76,14 @@ async def generate_irrigation_report(
             detail=f"Data file must be provided if gatekeeper is not used.",
         )
 
-    if not data:
-        params = {"format": "json"}
-        farm_calendar_irrigation_response = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
-            token=token,
-            params=params,
-        )
+    background_tasks.add_task(
+        process_irrigation_data,
+        data=data,
+        token=token,
+        pdf_file_name=uuid_of_pdf,
+    )
 
-        if not farm_calendar_irrigation_response:
-            raise HTTPException(status_code=400, detail="No Irrigation data found.")
-
-        background_tasks.add_task(
-            process_irrigation_data,
-            json_data=farm_calendar_irrigation_response,
-            pdf_file_name=uuid_of_pdf,
-        )
-
-        return PDF(uuid=uuid_v4)
-
-    else:
-        try:
-            background_tasks.add_task(
-                process_irrigation_data,
-                json_data=json.load(data.file),
-                pdf_file_name=uuid_of_pdf,
-            )
-
-            return PDF(uuid=uuid_v4)
-
-        except JSONDecodeError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Reporting service failed during PDF generation. File is not correct JSON.",
-            )
+    return PDF(uuid=uuid_v4)
 
 
 @router.post("/compost-report/", response_model=PDF)
@@ -143,72 +112,15 @@ async def generate_generic_observation_report(
     )
     uuid_of_pdf = f"{user_id}/{uuid_v4}"
 
-    if not data:
-        if not settings.REPORTING_USING_GATEKEEPER:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Data file must be provided if gatekeeper is not used.",
-            )
+    background_tasks.add_task(
+        process_farm_calendar_data,
+        observation_type_name=observation_type_name,
+        token=token,
+        data=data,
+        pdf_file_name=uuid_of_pdf,
+    )
 
-        params = {"format": "json", "name": observation_type_name}
-        farm_activity_type_info = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-            token=token,
-            params=params,
-        )
-
-        if not farm_activity_type_info:
-            raise HTTPException(status_code=400, detail="Activity Type API failed.")
-
-        del params["name"]
-        params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
-
-        observations = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}',
-            token=token,
-            params=params,
-        )
-
-        if not observations:
-            raise HTTPException(status_code=400, detail="Observations are empty.")
-
-        farm_activities = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
-            token=token,
-            params=params,
-        )
-
-        if not farm_activities:
-            raise HTTPException(status_code=400, detail="Farm Activities are empty.")
-
-        background_tasks.add_task(
-            process_farm_calendar_data,
-            activity_type_info=observation_type_name,
-            observations=observations,
-            farm_activities=farm_activities,
-            pdf_file_name=uuid_of_pdf,
-        )
-
-        return PDF(uuid=uuid_v4)
-    else:
-        try:
-            dt = json.load(data.file)
-
-            background_tasks.add_task(
-                process_farm_calendar_data,
-                activity_type_info=observation_type_name,
-                observations=dt["observations"],
-                farm_activities=dt["farm_activities"],
-                pdf_file_name=uuid_of_pdf,
-            )
-
-            return PDF(uuid=uuid_v4)
-
-        except JSONDecodeError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Reporting service failed during PDF generation. File is not correct JSON.",
-            )
+    return PDF(uuid=uuid_v4)
 
 
 @router.post("/animal-report/", response_model=PDF)
@@ -231,7 +143,7 @@ async def generate_animal_report(
         else token.id
     )
     uuid_of_pdf = f"{user_id}/{uuid_v4}"
-
+    params = None
     if not data:
         if not settings.REPORTING_USING_GATEKEEPER:
             raise HTTPException(
@@ -249,33 +161,12 @@ async def generate_animal_report(
         if status is not None:
             params["status"] = status
 
-        json_response = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
-            token=token,
-            params=params,
-        )
+    background_tasks.add_task(
+        process_animal_data,
+        data=data,
+        token=token,
+        params=params,
+        pdf_file_name=uuid_of_pdf,
+    )
 
-        if not json_response:
-            raise HTTPException(status_code=400, detail="No animal data found.")
-
-        background_tasks.add_task(
-            process_animal_data, json_data=json_response, pdf_file_name=uuid_of_pdf
-        )
-
-        return PDF(uuid=uuid_v4)
-
-    else:
-        try:
-            background_tasks.add_task(
-                process_animal_data,
-                json_data=json.load(data.file),
-                pdf_file_name=uuid_of_pdf,
-            )
-
-            return PDF(uuid=uuid_v4)
-
-        except JSONDecodeError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Reporting service failed during PDF generation. File is not correct JSON.",
-            )
+    return PDF(uuid=uuid_v4)
