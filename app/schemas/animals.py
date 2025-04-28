@@ -18,7 +18,7 @@ class Animal(BaseModel):
     description: str
     hasAgriParcel: Optional[HasAgriParcel] = None
     sex: int
-    castrated: bool
+    isCastrated: bool = False
     species: str
     breed: str
     birthdate: datetime

@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Union
 from fastapi import HTTPException
 
@@ -175,9 +176,10 @@ def process_farm_calendar_data(
 
         pdf = create_farm_calendar_pdf(calendar_data)
         pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+        os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
         pdf.output(f"{pdf_dir}.pdf")
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error processing farm calendar data: {str(e)}"
+            status_code=400, detail=f"Error processing farm calendar data: {str(e)}"
         )

@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Union, Optional
 
 from fastapi import HTTPException
@@ -109,15 +110,21 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(json_data: dict, pdf_file_name: str):
+def process_irrigation_data(json_data: dict, pdf_file_name: str) -> None:
     """
     Process irrigation data and generate PDF report
     """
     operations = parse_irrigation_operations(json_data)
 
     if not operations:
-        return None
+        return
 
-    pdf = create_pdf_from_operations(operations)
+    try:
+        pdf = create_pdf_from_operations(operations)
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="PDF generation of irrigation report failed."
+        )
     pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
     pdf.output(f"{pdf_dir}.pdf")

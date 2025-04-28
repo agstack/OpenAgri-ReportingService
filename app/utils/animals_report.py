@@ -1,4 +1,7 @@
+import os
 from typing import List, Union
+
+from fastapi import HTTPException
 
 from core import settings
 from utils import EX, add_fonts, decode_jwt_token
@@ -50,7 +53,7 @@ def create_pdf_from_animals(animals: List[Animal]):
         pdf.cell(
             0,
             10,
-            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.castrated}",
+            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
             ln=True,
         )
         pdf.cell(0, 10, f"Birthdate: {animal.birthdate}", ln=True)
@@ -75,13 +78,19 @@ def create_pdf_from_animals(animals: List[Animal]):
     return pdf
 
 
-def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str):
+def process_animal_data(json_data: Union[List[dict], str], pdf_file_name: str) -> None:
     """
     Process animal data and generate PDF report
     """
     animals = parse_animal_data(json_data)
     if not animals:
-        return None
-    anima_pdf = create_pdf_from_animals(animals)
+        return
+    try:
+        anima_pdf = create_pdf_from_animals(animals)
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="PDF generation of animal report failed."
+        )
     pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
     anima_pdf.output(f"{pdf_dir}.pdf")

@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 from json import JSONDecodeError
 from typing import Optional
@@ -42,7 +43,14 @@ def retrieve_generated_pdf(
         if settings.REPORTING_USING_GATEKEEPER
         else token.id
     )
+
     file_path = f"{settings.PDF_DIRECTORY}{user_id}/{report_id}.pdf"
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"File with uuid {report_id} for logged user not found.",
+        )
 
     return FileResponse(
         path=file_path, media_type="application/pdf", filename=f"{report_id}"
