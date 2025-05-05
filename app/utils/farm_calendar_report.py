@@ -1,9 +1,13 @@
+import json
 import logging
+import os
 from typing import Union
 from fastapi import HTTPException
 
+from core import settings
 from schemas.compost import *
 from utils import EX, add_fonts
+from utils.json_handler import make_get_request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -157,24 +161,74 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
 
 def process_farm_calendar_data(
-    activity_type_info: str,
-    observations: Union[dict, str],
-    farm_activities: Union[dict, str],
-) -> EX:
+    observation_type_name: str,
+    token: dict[str, str],
+    pdf_file_name: str,
+    data=None,
+) -> None:
     """
     Process farm calendar data and generate PDF report
     """
     try:
-        calendar_data = FarmCalendarData(
-            activity_type_info=activity_type_info,
-            observations=observations,
-            farm_activities=farm_activities,
-        )
+        if not data:
+            if not settings.REPORTING_USING_GATEKEEPER:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Data file must be provided if gatekeeper is not used.",
+                )
+
+            params = {"format": "json", "name": observation_type_name}
+            farm_activity_type_info = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+                token=token,
+                params=params,
+            )
+
+            if not farm_activity_type_info:
+                raise HTTPException(status_code=400, detail="Activity Type API failed.")
+
+            del params["name"]
+            params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+
+            observations = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}',
+                token=token,
+                params=params,
+            )
+
+            if not observations:
+                raise HTTPException(status_code=400, detail="Observations are empty.")
+
+            farm_activities = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
+                token=token,
+                params=params,
+            )
+
+            if not farm_activities:
+                raise HTTPException(
+                    status_code=400, detail="Farm Activities are empty."
+                )
+
+            calendar_data = FarmCalendarData(
+                activity_type_info=observation_type_name,
+                observations=observations,
+                farm_activities=farm_activities,
+            )
+        else:
+            dt = json.load(data.file)
+            calendar_data = FarmCalendarData(
+                activity_type_info=observation_type_name,
+                observations=dt["observations"],
+                farm_activities=dt["farm_activities"],
+            )
 
         pdf = create_farm_calendar_pdf(calendar_data)
-        return pdf
+        pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+        os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
+        pdf.output(f"{pdf_dir}.pdf")
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error processing farm calendar data: {str(e)}"
+            status_code=400, detail=f"Error processing farm calendar data: {str(e)}"
         )

@@ -21,6 +21,8 @@ services:
     command: /code/entrypoint.sh ${REPORTING_SERVICE_PORT}
     ports:
       - ${REPORTING_SERVICE_PORT}:${REPORTING_SERVICE_PORT}
+    volumes:
+      - user_reports:/code/app/user_reports
     environment:
       REPORTING_POSTGRES_HOST: ${REPORTING_POSTGRES_HOST}
       REPORTING_POSTGRES_USER: ${REPORTING_POSTGRES_USER}

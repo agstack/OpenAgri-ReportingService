@@ -4,3 +4,4 @@ venv
 .alembic
 __pycache__
 .env
+app/user_reports

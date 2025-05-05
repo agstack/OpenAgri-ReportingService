@@ -1,6 +1,13 @@
+import json
+import os
 from typing import List, Union
-from utils import EX, add_fonts
+
+from fastapi import HTTPException
+
+from core import settings
+from utils import EX, add_fonts, decode_jwt_token
 from schemas.animals import *
+from utils.json_handler import make_get_request
 
 
 def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
@@ -48,7 +55,7 @@ def create_pdf_from_animals(animals: List[Animal]):
         pdf.cell(
             0,
             10,
-            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.castrated}",
+            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
             ln=True,
         )
         pdf.cell(0, 10, f"Birthdate: {animal.birthdate}", ln=True)
@@ -73,11 +80,34 @@ def create_pdf_from_animals(animals: List[Animal]):
     return pdf
 
 
-def process_animal_data(json_data: Union[List[dict], str]):
+def process_animal_data(
+    token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None
+) -> None:
     """
     Process animal data and generate PDF report
     """
+    if params:
+        json_data = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+            token=token,
+            params=params,
+        )
+
+        if not json_data:
+            raise HTTPException(status_code=400, detail="No animal data found.")
+
+    else:
+        json_data = json.load(data.file)
+
     animals = parse_animal_data(json_data)
     if not animals:
-        return None
-    return create_pdf_from_animals(animals)
+        return
+    try:
+        anima_pdf = create_pdf_from_animals(animals)
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="PDF generation of animal report failed."
+        )
+    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
+    anima_pdf.output(f"{pdf_dir}.pdf")

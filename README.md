@@ -51,8 +51,25 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/20645c6e8e3545d02c7c4570271bdc49/raw/6efafb74bd2bc33e4221ee2a202d0c830b867c70/reporting)
+Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/b1bcdd77ac82aeb115a6c94fb3dadbdc/raw/4ce7fea5b022142002d0dfebcd2156a3e408fbe4/api.json)
 # Documentation
+<h3>GET</h3>
+
+```
+/api/v1/openagri-report/{report_id}/
+```
+
+## Path Params
+
+### report_id
+- **Type**: `uuid str`
+- **Description**: UUID of the generated PDF file..
+
+
+## Response
+
+Response is generated PDF file.
+
 <h3>POST</h3>
 
 ```
@@ -69,8 +86,7 @@ Full list of APIs available you can check [here](https://editor-next.swagger.io/
 
 ## Response
 
-Response is generated PDF file.
-
+Response is uuid of generated PDF file.
 
 <h3>POST</h3>
 
@@ -95,13 +111,13 @@ Response is generated PDF file.
 
 
 ## Response 
-Response is generated PDF file.
+Response is uuid of generated PDF file.
 
 <h3> Example usage </h3>
 
 Compost and Irrigation Report APIs can be used with and without Gatekeeper support.
 If Gatekeeper is used, data file param can be ignored.
-When service is run wihtout Gatekeeper data must be provided in .json file format.
+When service is run without Gatekeeper data must be provided in .json file format.
 
 
 ```shell
@@ -142,7 +158,7 @@ If a valid JSON file is uploaded, the API processes the data directly to generat
 
 ## Response
 
-Response is generated PDF file.
+Response is uuid of generated PDF file.
 
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
