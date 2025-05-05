@@ -23,7 +23,7 @@ from fastapi.responses import FileResponse
 router = APIRouter()
 
 
-@router.get("{report_id}", response_class=FileResponse)
+@router.get("/{report_id}", response_class=FileResponse)
 def retrieve_generated_pdf(
     report_id: str,
     token=Depends(deps.get_current_user),
