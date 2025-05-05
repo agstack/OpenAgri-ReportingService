@@ -1,10 +1,14 @@
+import json
 import logging
+import os
 from typing import Union, Optional
 
 from fastapi import HTTPException
 
+from core import settings
 from utils import EX, add_fonts
 from schemas.irrigation import *
+from utils.json_handler import make_get_request
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -108,15 +112,35 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(json_data: dict):
+def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str) -> None:
     """
     Process irrigation data and generate PDF report
     """
+
+    if not data:
+        params = {"format": "json"}
+        json_data = make_get_request(
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+            token=token,
+            params=params,
+        )
+
+        if not json_data:
+            raise HTTPException(status_code=400, detail="No Irrigation data found.")
+    else:
+        json_data = json.load(data.file)
+
     operations = parse_irrigation_operations(json_data)
 
     if not operations:
-        return None
+        return
 
-    pdf = create_pdf_from_operations(operations)
-
-    return pdf
+    try:
+        pdf = create_pdf_from_operations(operations)
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="PDF generation of irrigation report failed."
+        )
+    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
+    pdf.output(f"{pdf_dir}.pdf")

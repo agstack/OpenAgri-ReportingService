@@ -32,6 +32,7 @@ class Settings(BaseSettings):
         "animals": "/FarmAnimals/",
     }
 
+    PDF_DIRECTORY: str = "user_reports/"
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
     @field_validator("SQLALCHEMY_DATABASE_URI", mode="before")
