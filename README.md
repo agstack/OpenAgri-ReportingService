@@ -51,7 +51,7 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/b1bcdd77ac82aeb115a6c94fb3dadbdc/raw/4ce7fea5b022142002d0dfebcd2156a3e408fbe4/api.json)
+Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/b1bcdd77ac82aeb115a6c94fb3dadbdc/raw/32df1d94947b67dcc70f730a629d7c91161e532f/api.json)
 # Documentation
 <h3>GET</h3>
 
