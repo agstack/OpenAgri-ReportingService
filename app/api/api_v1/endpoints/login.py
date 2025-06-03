@@ -33,8 +33,9 @@ def login_access_token(
             },
         )
 
-        if login.status_code == 400:
-            raise HTTPException(status_code=400, detail="Login failed.")
+        if login.status_code // 100 != 2:
+            raise HTTPException(status_code=400, detail="Login failed, bad credentials.")
+
         return Token(
             access_token=login.json()["access"],
             token_type="bearer",
