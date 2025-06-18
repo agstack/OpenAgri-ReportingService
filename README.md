@@ -1,5 +1,7 @@
 # Reporting Service
 
+*"This service was created in the context of OpenAgri project (https://horizon-openagri.eu/). OpenAgri has received funding from the EU’s Horizon Europe research and innovation programme under Grant Agreement no. 101134083."*
+
 # Description
 
 The reporting service generates .pdf reports based on information present in datasets.\
@@ -175,4 +177,5 @@ This will run the tests and return success values for each api tested in the ter
 Please contact the maintainer of this repository.
 
 # License
-[European Union Public License 1.2](https://github.com/openagri-eu/reporting-service/blob/main/LICENSE)
+This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/reporting-service/blob/main/LICENSE) file for more details.
+Please note that each service may have different licenses, which can be found their specific source code repository.
