@@ -177,5 +177,5 @@ This will run the tests and return success values for each api tested in the ter
 Please contact the maintainer of this repository.
 
 # License
-This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/reporting-service/blob/main/LICENSE) file for more details.
+This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/OpenAgri-ReportingService/blob/main/LICENSE) file for more details.
 Please note that each service may have different licenses, which can be found their specific source code repository.
