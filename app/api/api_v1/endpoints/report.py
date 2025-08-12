@@ -95,15 +95,9 @@ async def generate_generic_observation_report(
 ):
     """
     Generates Observation Report PDF file
-    possible_names = ["Pesticides", "Irrigation", "Fertilization", "CropStressIndicator", "CropGrowthObservation"]
-
+    All Farm Calendar Observation Type values are possible as input
 
     """
-    if observation_type_name == "CropGrowthObservation":
-        observation_type_name = "Crop Growth Stage Observation"
-
-    if observation_type_name == "CropStressIndicator":
-        observation_type_name = "Crop Stress Indicator"
     uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]

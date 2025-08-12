@@ -76,7 +76,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                 f"Start",
             )
             row.cell("End")
-            row.cell("Responsible")
+            row.cell("Responsible Agent")
             row.cell("Type")
             row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
@@ -142,7 +142,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row.cell("Details")
             row.cell("Start")
             row.cell("End")
-            row.cell("Responsible")
+            row.cell("Responsible Agent")
             row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
 
