@@ -5,6 +5,8 @@ from typing import Union
 from fastapi import HTTPException
 
 from core import settings
+from fpdf import FontFace
+from fpdf.enums import VAlign
 from schemas.compost import *
 from utils import EX, add_fonts
 from utils.json_handler import make_get_request
@@ -59,103 +61,148 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
     pdf.cell(0, 10, "Operations and Observations", ln=True)
     pdf.ln(5)
 
-    for operation in calendar_data.operations:
-        pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(0, 10, f"Operation: {operation.title}", ln=True)
+    style = FontFace(fill_color=(180, 196, 36	))
+    if calendar_data.operations:
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
 
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.multi_cell(0, 10, f"Details: {operation.details}", ln=True)
-
-        if operation.hasStartDatetime:
-            pdf.cell(
-                0,
-                10,
-                f"Start: {operation.hasStartDatetime}",
-                ln=True,
-            )
-
-        if operation.hasEndDatetime:
-            pdf.cell(
-                0,
-                10,
-                f"End: {operation.hasEndDatetime}",
-                ln=True,
-            )
-
-        (
-            pdf.cell(0, 10, f"Responsible: {operation.responsibleAgent}", ln=True)
-            if operation.responsibleAgent
-            else None
-        )
-        pdf.cell(0, 10, f"Type: {operation.activityType.get('@id', 'N/A')}", ln=True)
-
-        if operation.usesAgriculturalMachinery:
-            machinery_ids = ", ".join(
-                [
-                    machinery.get("@id", "N/A").split(":")[3]
-                    for machinery in operation.usesAgriculturalMachinery
-                ]
-            )
-            pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
-
-        for x in calendar_data.observations:
+            row = table.row()
+            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            pdf.cell(0, 10, "Observations:", ln=True)
-            pdf.set_font("FreeSerif", "", 10)
-            (
-                pdf.cell(0, 10, f"Value: {x.hasResult.hasValue}", ln=True)
-                if x.hasResult
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Value unit: {x.hasResult.unit}", ln=True)
-                if x.hasResult
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Property: {x.relatesToProperty}", ln=True)
-                if x.relatesToProperty
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Observed Property: {x.observedProperty}", ln=True)
-                if x.observedProperty
-                else None
-            )
-            pdf.cell(0, 10, f"Details: {x.details}", ln=True)
+            row.cell(f"Operation")
 
-            if x.hasStartDatetime:
-                pdf.cell(
-                    0,
-                    10,
-                    f"Start: {x.hasStartDatetime}",
-                    ln=True,
+            row.cell(f"Details")
+
+            row.cell(
+                f"Start",
+            )
+            row.cell("End")
+            row.cell("Responsible")
+            row.cell("Type")
+            row.cell("Machinery IDs")
+            pdf.set_font("FreeSerif", "", 9)
+            style = FontFace(fill_color=(255, 255, 240			))
+            for operation in calendar_data.operations:
+
+                row = table.row()
+                row.style = style
+
+                row.cell(f"{operation.title}")
+
+                row.cell( f"{operation.details}",)
+
+                if operation.hasStartDatetime:
+                    row.cell(
+                        f"{operation.hasStartDatetime}",
+                    )
+                else:
+                    row.cell(
+                    "N/a"
+                    )
+                if operation.hasEndDatetime:
+                    row.cell(
+                        f"{operation.hasEndDatetime}",
+                    )
+                else:
+                    row.cell(
+                        f"{operation.hasEndDatetime}",
+                    )
+                (
+                    row.cell(f"{operation.responsibleAgent}")
+                    if operation.responsibleAgent
+                    else row.cell(
+                        f"{operation.hasEndDatetime}",
+                    )
+                )
+                row.cell(calendar_data.activity_type)
+
+                if operation.usesAgriculturalMachinery:
+                    machinery_ids = ", ".join(
+                        [
+                            machinery.get("@id", "N/A").split(":")[3]
+                            for machinery in operation.usesAgriculturalMachinery
+                        ]
+                    )
+                    row.cell( f"{machinery_ids}")
+                else:
+                    row.cell(
+                        f"{operation.hasEndDatetime}",
+                    )
+    if calendar_data.observations:
+        pdf.ln()
+        style = FontFace(fill_color=(180, 196, 36	))
+
+        with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+            row = table.row()
+            row.style = style
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Value")
+            row.cell("Value unit")
+            row.cell("Property")
+            row.cell("Observed Property")
+            row.cell("Details")
+            row.cell("Start")
+            row.cell("End")
+            row.cell("Responsible")
+            row.cell("Machinery IDs")
+            pdf.set_font("FreeSerif", "", 9)
+
+            for x in calendar_data.observations:
+                row = table.row()
+                style = FontFace(fill_color=(255, 255, 240		))
+                row.style = style
+                (
+                    row.cell( f"{x.hasResult.hasValue}")
+                    if x.hasResult
+                    else row.cell("N/A")
+                )
+                (
+                    row.cell( f"{x.hasResult.unit}")
+                    if x.hasResult
+                    else row.cell("N/A")
+                )
+                (
+                    row.cell( f"{x.relatesToProperty}")
+                    if x.relatesToProperty
+                    else row.cell("N/A")
+                )
+                (
+                    row.cell(f"O{x.observedProperty}")
+                    if x.observedProperty
+                    else row.cell("N/A")
+                )
+                row.cell(f"{x.details}")
+
+                if x.hasStartDatetime:
+                    row.cell(
+                        f"{x.hasStartDatetime}",
+                    )
+                else:
+                    row.cell("N/A")
+
+                if x.hasEndDatetime:
+                    row.cell(
+                        f"{x.hasEndDatetime}",
+                    )
+                else:
+                    row.cell("N/A")
+                (
+                    row.cell(f"Responsible: {x.responsibleAgent}")
+                    if x.responsibleAgent
+                    else row.cell("N/A")
                 )
 
-            if x.hasEndDatetime:
-                pdf.cell(
-                    0,
-                    10,
-                    f"Start: {x.hasEndDatetime}",
-                    ln=True,
-                )
+                if x.usesAgriculturalMachinery:
+                    machinery_ids = ", ".join(
+                        [
+                            machinery.get("@id", "N/A").split(":")[3]
+                            for machinery in x.usesAgriculturalMachinery
+                        ]
+                    )
+                    row.cell(f"{machinery_ids}")
+                else:
+                    row.cell("N/A")
 
-            (
-                pdf.cell(0, 10, f"Responsible: {x.responsibleAgent}", ln=True)
-                if x.responsibleAgent
-                else None
-            )
-
-            if x.usesAgriculturalMachinery:
-                machinery_ids = ", ".join(
-                    [
-                        machinery.get("@id", "N/A").split(":")[3]
-                        for machinery in x.usesAgriculturalMachinery
-                    ]
-                )
-                pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
-
-        pdf.ln(10)
+    pdf.ln(10)
 
     return pdf
 
