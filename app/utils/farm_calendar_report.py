@@ -185,7 +185,7 @@ def process_farm_calendar_data(
             )
 
             if not farm_activity_type_info:
-                raise HTTPException(status_code=400, detail="Activity Type API failed.")
+                return
 
             del params["name"]
             params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
@@ -196,19 +196,11 @@ def process_farm_calendar_data(
                 params=params,
             )
 
-            if not observations:
-                raise HTTPException(status_code=400, detail="Observations are empty.")
-
             farm_activities = make_get_request(
                 url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
                 token=token,
                 params=params,
             )
-
-            if not farm_activities:
-                raise HTTPException(
-                    status_code=400, detail="Farm Activities are empty."
-                )
 
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,

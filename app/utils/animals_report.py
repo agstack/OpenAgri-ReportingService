@@ -93,15 +93,11 @@ def process_animal_data(
             params=params,
         )
 
-        if not json_data:
-            raise HTTPException(status_code=400, detail="No animal data found.")
-
     else:
         json_data = json.load(data.file)
 
     animals = parse_animal_data(json_data)
-    if not animals:
-        return
+
     try:
         anima_pdf = create_pdf_from_animals(animals)
     except Exception:

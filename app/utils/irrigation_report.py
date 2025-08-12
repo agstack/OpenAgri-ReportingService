@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-from typing import Union, Optional
 
 from fastapi import HTTPException
 
@@ -125,15 +124,10 @@ def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str) -> 
             params=params,
         )
 
-        if not json_data:
-            raise HTTPException(status_code=400, detail="No Irrigation data found.")
     else:
         json_data = json.load(data.file)
 
     operations = parse_irrigation_operations(json_data)
-
-    if not operations:
-        return
 
     try:
         pdf = create_pdf_from_operations(operations)
