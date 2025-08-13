@@ -58,7 +58,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
     pdf.cell(0, 10, f"Type: {calendar_data.activity_type}", ln=True)
 
     pdf.set_font("FreeSerif", "B", 12)
-    pdf.cell(0, 10, "Operations and Observations", ln=True)
+    pdf.cell(0, 10, "Operations", ln=True)
     pdf.ln(5)
 
     style = FontFace(fill_color=(180, 196, 36	))
@@ -68,7 +68,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell(f"Operation")
+            row.cell(f"Title")
 
             row.cell(f"Details")
 
@@ -79,6 +79,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row.cell("Responsible Agent")
             row.cell("Type")
             row.cell("Machinery IDs")
+            row.cell("Operated On")
             pdf.set_font("FreeSerif", "", 9)
             style = FontFace(fill_color=(255, 255, 240			))
             for operation in calendar_data.operations:
@@ -125,11 +126,23 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                     row.cell( f"{machinery_ids}")
                 else:
                     row.cell(
-                        f"{operation.hasEndDatetime}",
+                        "N/A",
+                    )
+
+                if operation.isOperatedOn:
+                    operated_on = operation.isOperatedOn.get("@id", "N/A").split(":")[3]
+                    row.cell( f"{operated_on}")
+                else:
+                    row.cell(
+                        "N/A",
                     )
     if calendar_data.observations:
         pdf.ln()
         style = FontFace(fill_color=(180, 196, 36	))
+
+        pdf.set_font("FreeSerif", "B", 12)
+        pdf.cell(0, 10, "Observations", ln=True)
+        pdf.ln(5)
 
         with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
             row = table.row()
@@ -172,9 +185,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                 )
                 row.cell(f"{x.details}")
 
-                if x.hasStartDatetime:
+                start_time = x.hasStartDatetime if x.hasStartDatetime else x.phenomenonTime
+                if  start_time:
                     row.cell(
-                        f"{x.hasStartDatetime}",
+                        f"{start_time}"
                     )
                 else:
                     row.cell("N/A")
@@ -208,10 +222,11 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
 
 def process_farm_calendar_data(
-    observation_type_name: str,
     token: dict[str, str],
     pdf_file_name: str,
+    observation_type_name: str = None,
     data=None,
+    operation_id: str = None
 ) -> None:
     """
     Process farm calendar data and generate PDF report
@@ -223,43 +238,83 @@ def process_farm_calendar_data(
                     status_code=400,
                     detail=f"Data file must be provided if gatekeeper is not used.",
                 )
+            params = {"format": "json", "activity_type": ""}
+            # Retrieve Type ID (no operation ID we retrieve all data from this type)
+            if observation_type_name and not operation_id:
+                params["name"] = observation_type_name
+                farm_activity_type_info = make_get_request(
+                    url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+                    token=token,
+                    params=params,
+                )
 
-            params = {"format": "json", "name": observation_type_name}
-            farm_activity_type_info = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-                token=token,
-                params=params,
-            )
+                del params["name"]
+                if not farm_activity_type_info:
+                    calendar_data = FarmCalendarData(
+                        activity_type_info=observation_type_name,
+                        observations=[],
+                        farm_activities=[],
+                    )
 
-            if not farm_activity_type_info:
-                return
+                    pdf = create_farm_calendar_pdf(calendar_data)
+                    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
+                    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
+                    pdf.output(f"{pdf_dir}.pdf")
+                    return
+                params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
 
-            del params["name"]
-            params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+            operation_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}'
+            obs_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}'
 
-            observations = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}',
-                token=token,
-                params=params,
-            )
+            observations = []
+            operations = []
+            if operation_id:
+                operation_url = f"{operation_url}{operation_id}/"
+                del params['activity_type']
 
-            farm_activities = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
-                token=token,
-                params=params,
-            )
+                operations = make_get_request(
+                    url=operation_url,
+                    token=token,
+                    params=params,
+                )
 
+                # Operations are not array it is only one element (ID used)
+                operations = [operations] if operations else []
+                if operations:
+                    if not observation_type_name:
+                        id = operations[0]['activityType']["@id"].split(":")[3]
+                        if id:
+                            farm_activity_type_info = make_get_request(
+                                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}{id}/',
+                                token=token,
+                                params=params
+                            )
+                            observation_type_name = farm_activity_type_info['name']
+                    for measurement in operations[0]['hasMeasurement']:
+                        observation = make_get_request(
+                            url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
+                            token=token,
+                            params=params,
+                        )
+                        observations.append(observation)
+            else:
+                if observation_type_name:
+                    observations = make_get_request(
+                        url=obs_url,
+                        token=token,
+                        params=params,
+                    )
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,
                 observations=observations,
-                farm_activities=farm_activities,
+                farm_activities=operations,
             )
         else:
             dt = json.load(data.file)
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,
                 observations=dt["observations"],
-                farm_activities=dt["farm_activities"],
+                farm_activities=dt["operations"],
             )
 
         pdf = create_farm_calendar_pdf(calendar_data)

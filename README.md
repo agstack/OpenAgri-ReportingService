@@ -99,12 +99,8 @@ Response is uuid of generated PDF file.
 
 ### observation_type_name
 - **Type**: `str`
-- **Description**: The name of the observation type for the report. The value of this parameter must be one of the following options:
-  - "Pesticides"
-  - "Irrigation"
-  - "Fertilization"
-  - "CropStressIndicator"
-  - "CropGrowthObservation"
+- **Description**:  All Farm Calendar Observation Type values are possible as input
+
 
 ### data
 - **Type**: `UploadFile`

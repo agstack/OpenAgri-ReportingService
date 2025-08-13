@@ -88,16 +88,20 @@ async def generate_irrigation_report(
 
 @router.post("/compost-report/", response_model=PDF)
 async def generate_generic_observation_report(
-    observation_type_name: str,
-    background_tasks: BackgroundTasks,
+        background_tasks: BackgroundTasks,
+
+        observation_type_name: str = None,
+
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
+    operation_id: str = None,
 ):
     """
     Generates Observation Report PDF file
     All Farm Calendar Observation Type values are possible as input
 
     """
+
     uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]
@@ -112,6 +116,7 @@ async def generate_generic_observation_report(
         token=token,
         data=data,
         pdf_file_name=uuid_of_pdf,
+        operation_id=operation_id
     )
 
     return PDF(uuid=uuid_v4)

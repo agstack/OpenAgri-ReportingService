@@ -20,6 +20,7 @@ class CropObservation(BaseModel):
     details: str
     hasStartDatetime: Optional[datetime] = None
     hasEndDatetime: Optional[datetime] = None
+    phenomenonTime: Optional[datetime] = None
     responsibleAgent: Optional[str] = None
     usesAgriculturalMachinery: List[dict] = []
     hasResult: Optional[HasResult] = None
@@ -40,3 +41,5 @@ class Operation(BaseModel):
     hasEndDatetime: Optional[datetime] = None
     responsibleAgent: Optional[str] = None
     usesAgriculturalMachinery: List[dict] = []
+    isOperatedOn: dict = None
+    hasMeasurement: list[dict] = None
