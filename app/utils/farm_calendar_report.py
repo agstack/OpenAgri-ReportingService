@@ -68,52 +68,24 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell(f"Title")
-
-            row.cell(f"Details")
-
-            row.cell(
-                f"Start",
-            )
-            row.cell("End")
-            row.cell("Responsible Agent")
-            row.cell("Type")
-            row.cell("Machinery IDs")
-            row.cell("Operated On")
+            row.cell("Title"); row.cell("Details"); row.cell("Start"); row.cell("End")
+            row.cell("Responsible Agent"); row.cell("Type");
+            row.cell("Machinery IDs"); row.cell("Operated On")
             pdf.set_font("FreeSerif", "", 9)
-            style = FontFace(fill_color=(255, 255, 240			))
+            style = FontFace(fill_color=(255, 255, 240))
             for operation in calendar_data.operations:
-
                 row = table.row()
                 row.style = style
 
-                row.cell(f"{operation.title}")
-
-                row.cell( f"{operation.details}",)
-
-                if operation.hasStartDatetime:
-                    row.cell(
-                        f"{operation.hasStartDatetime}",
+                row.cell(operation.title); row.cell(operation.details)
+                row.cell(
+                        f"{operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
                     )
-                else:
-                    row.cell(
-                    "N/a"
-                    )
-                if operation.hasEndDatetime:
-                    row.cell(
-                        f"{operation.hasEndDatetime}",
-                    )
-                else:
-                    row.cell(
-                        f"{operation.hasEndDatetime}",
-                    )
-                (
-                    row.cell(f"{operation.responsibleAgent}")
-                    if operation.responsibleAgent
-                    else row.cell(
-                        f"{operation.hasEndDatetime}",
-                    )
+                row.cell(
+                    f"{operation.hasEndDatetime if operation.hasEndDatetime else 'N/A'} ",
                 )
+
+                row.cell(f"{operation.responsibleAgent if operation.responsibleAgent else 'N/A'}")
                 row.cell(calendar_data.activity_type)
 
                 if operation.usesAgriculturalMachinery:
@@ -136,6 +108,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                     row.cell(
                         "N/A",
                     )
+
     if calendar_data.observations:
         pdf.ln()
         style = FontFace(fill_color=(180, 196, 36	))
@@ -148,17 +121,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Value")
-            row.cell("Value unit")
-            row.cell("Property")
-            row.cell("Observed Property")
-            row.cell("Details")
-            row.cell("Start")
-            row.cell("End")
-            row.cell("Responsible Agent")
-            row.cell("Machinery IDs")
+            row.cell("Value"); row.cell("Value unit"); row.cell("Property")
+            row.cell("Observed Property"); row.cell("Details"); row.cell("Start")
+            row.cell("End"); row.cell("Responsible Agent"); row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
-
             for x in calendar_data.observations:
                 row = table.row()
                 style = FontFace(fill_color=(255, 255, 240		))
@@ -186,24 +152,9 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                 row.cell(f"{x.details}")
 
                 start_time = x.hasStartDatetime if x.hasStartDatetime else x.phenomenonTime
-                if  start_time:
-                    row.cell(
-                        f"{start_time}"
-                    )
-                else:
-                    row.cell("N/A")
-
-                if x.hasEndDatetime:
-                    row.cell(
-                        f"{x.hasEndDatetime}",
-                    )
-                else:
-                    row.cell("N/A")
-                (
-                    row.cell(f"Responsible: {x.responsibleAgent}")
-                    if x.responsibleAgent
-                    else row.cell("N/A")
-                )
+                row.cell(f"{start_time}")
+                row.cell(f"{x.hasEndDatetime if x.hasEndDatetime else x.hasEndDatetime}")
+                row.cell(f"R{x.responsibleAgent if x.responsibleAgent else 'N/A'}")
 
                 if x.usesAgriculturalMachinery:
                     machinery_ids = ", ".join(
