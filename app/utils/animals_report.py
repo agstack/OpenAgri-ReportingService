@@ -3,6 +3,7 @@ import os
 from typing import List, Union
 
 from fastapi import HTTPException
+from fpdf.fonts import FontFace
 
 from core import settings
 from utils import EX, add_fonts, decode_jwt_token
@@ -36,46 +37,38 @@ def create_pdf_from_animals(animals: List[Animal]):
     pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Animal Report")
     pdf.ln(10)
-
-    for animal in animals:
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(
-            0, 10, f"Animal: {animal.name} (ID: {animal.id.split(':')[3]})", ln=True
-        )
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.cell(0, 10, f"National ID: {animal.nationalID}", ln=True)
-        pdf.cell(0, 10, f"Description: {animal.description}", ln=True)
-        pdf.cell(
-            0,
-            10,
-            f"Agricultural Parcel: {animal.hasAgriParcel.id.split(':')[3] if animal.hasAgriParcel else ''}",
-            ln=True,
-        )
-        pdf.cell(0, 10, f"Species: {animal.species} | Breed: {animal.breed}", ln=True)
-        pdf.cell(
-            0,
-            10,
-            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
-            ln=True,
-        )
-        pdf.cell(0, 10, f"Birthdate: {animal.birthdate}", ln=True)
-        pdf.cell(0, 10, f"Status: {animal.status}", ln=True)
-
-        if animal.invalidatedAtTime:
-            pdf.cell(0, 10, f"Invalidated At: {animal.invalidatedAtTime}", ln=True)
-
-        if animal.isMemberOfAnimalGroup:
-            pdf.cell(
-                0, 10, f"Animal group: {animal.isMemberOfAnimalGroup.hasName}", ln=True
-            )
-
-        pdf.cell(
-            0,
-            10,
-            f"Created: {animal.dateCreated if animal.dateCreated else 'N/A'} | Modified: {animal.dateModified if animal.dateModified else 'N/A'}",
-            ln=True,
-        )
-        pdf.ln(10)
+    style = FontFace(fill_color=(180, 196, 36))
+    if animals:
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
+            row = table.row()
+            row.style = style
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Animal"); row.cell("National ID"); row.cell("Description"); row.cell("Parcel ID")
+            row.cell("Species"); row.cell("Sex"); row.cell("Birthdate"); row.cell("Status")
+            row.cell("Invalidated"); row.cell("Is Member of group");  row.cell("Created")
+            row.cell("RModified")
+            style = FontFace(fill_color=(255, 255, 240	))
+            pdf.set_font("FreeSerif", "B", 9)
+            for animal in animals:
+                row = table.row()
+                row.style = style
+                row.cell(animal.name); row.cell(animal.nationalID); row.cell(animal.description)
+                row.cell(
+                    f"{animal.hasAgriParcel.id.split(':')[3] if animal.hasAgriParcel else ''}",
+                )
+                row.cell(animal.species)
+                row.cell(
+                    f"{'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
+                )
+                row.cell(animal.birthdate); row.cell(animal.status)
+                row.cell(f"{animal.invalidatedAtTime if animal.invalidatedAtTime else 'N/A'}")
+                row.cell(f"{animal.isMemberOfAnimalGroup.hasName if animal.isMemberOfAnimalGroup else 'N/A'}"
+                )
+                row.cell(
+                    f"Created: {animal.dateCreated if animal.dateCreated else 'N/A'}",
+                )
+                row.cell(f"{animal.dateModified if animal.dateModified else 'N/A'}")
+                pdf.ln(10)
 
     return pdf
 

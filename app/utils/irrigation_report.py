@@ -3,6 +3,7 @@ import logging
 import os
 
 from fastapi import HTTPException
+from fpdf.fonts import FontFace
 
 from core import settings
 from utils import EX, add_fonts
@@ -42,71 +43,68 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     pdf.set_font("FreeSerif", "B", 10)
     pdf.cell(40, 10, "Irrigation Operations Report")
     pdf.ln(10)
+    style = FontFace(fill_color=(180, 196, 36))
+    if operations:
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
+            row = table.row()
+            row.style = style
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Title"); row.cell("Type"); row.cell("Details"); row.cell(f"Parcel ID")
+            row.cell("Start"); row.cell("End"); row.cell("Applied amount"); row.cell("Irrigation System")
+            row.cell("Responsible Agent"); row.cell("Machinery IDs")
+            pdf.set_font("FreeSerif", "", 9)
+            style = FontFace(fill_color=(255, 255, 240		))
+            for op in operations:
+                # Operation Header
+                row = table.row()
+                row.style = style
+                row.cell(op.title)
 
-    for op in operations:
-        # Operation Header
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(0, 10, f"Operation: {op.title}", ln=True)
+                activity_type = op.activityType.get(
+                    "@id", "N/A"
+                )  # You can adjust this to extract the specific part you need
+                row.cell(activity_type)
 
-        # Activity Type
-        activity_type = op.activityType.get(
-            "@id", "N/A"
-        )  # You can adjust this to extract the specific part you need
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(0, 10, f"Activity Type: {activity_type}", ln=True)
+                row.cell(op.details)
 
-        # Details
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.multi_cell(0, 10, f"Details: {op.details}")
-        pdf.ln(5)
+                parcel_id = (
+                    op.operatedOn.get("@id", "N/A").split(":")[3] if op.operatedOn else "N/A"
+                )
+                row.cell(parcel_id)
 
-        # Parcel ID extraction
-        parcel_id = (
-            op.operatedOn.get("@id", "N/A").split(":")[3] if op.operatedOn else "N/A"
-        )
-        pdf.cell(0, 10, f"Operated on Parcel: {parcel_id}", ln=True)
+                # Date and Time
+                row.cell(
+                    f"{op.hasStartDatetime if op.hasStartDatetime else 'N/A'}"
+                )
+                row.cell(
+                    f"{op.hasEndDatetime if op.hasEndDatetime else 'N/A'}"
+                )
 
-        # Date and Time
-        pdf.cell(
-            0,
-            10,
-            f"Start: {op.hasStartDatetime if op.hasStartDatetime else 'N/A'}",
-            ln=True,
-        )
-        pdf.cell(
-            0, 10, f"End: {op.hasEndDatetime if op.hasEndDatetime else 'N/A'}", ln=True
-        )
+                # Applied Amount
+                row.cell(f"{op.hasAppliedAmount.numericValue} {op.hasAppliedAmount.unit}",
+                )
 
-        # Applied Amount
-        pdf.cell(
-            0,
-            10,
-            f"Applied Amount: {op.hasAppliedAmount.numericValue} {op.hasAppliedAmount.unit}",
-            ln=True,
-        )
+                # Irrigation System
+                row.cell(
+                    f"{op.usesIrrigationSystem}")
 
-        # Irrigation System
-        pdf.cell(0, 10, f"Irrigation System: {op.usesIrrigationSystem}", ln=True)
+                # Responsible Agent
+                row.cell(
+                    f"Responsible Agent: {op.responsibleAgent if op.responsibleAgent else 'N/A'}",
+                )
 
-        # Responsible Agent
-        pdf.cell(
-            0,
-            10,
-            f"Responsible Agent: {op.responsibleAgent if op.responsibleAgent else 'N/A'}",
-            ln=True,
-        )
-
-        # Machinery IDs (if any)
-        if op.usesAgriculturalMachinery:
-            machinery_ids = ", ".join(
-                [
-                    machinery.get("@id", "N/A").split(":")[3]
-                    for machinery in op.usesAgriculturalMachinery
-                ]
-            )
-            pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
-
-        pdf.ln(10)
+                # Machinery IDs (if any)
+                if op.usesAgriculturalMachinery:
+                    machinery_ids = ", ".join(
+                        [
+                            machinery.get("@id", "N/A").split(":")[3]
+                            for machinery in op.usesAgriculturalMachinery
+                        ]
+                    )
+                    row.cell( f"Machinery IDs: {machinery_ids}")
+                else:
+                    row.cell("N/A")
+                pdf.ln(10)
 
     return pdf
 

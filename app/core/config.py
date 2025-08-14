@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from password_validator import PasswordValidator
 from typing import Optional, Any
 
@@ -27,6 +27,7 @@ class Settings(BaseSettings):
         "irrigations": "/IrrigationOperations/",
         "activity_types": "/FarmCalendarActivityTypes/",
         "observations": "/Observations/",
+        "operations": "/CompostOperations/",
         "activities": "/FarmCalendarActivities/",
         "parcel": "/FarmParcels/",
         "animals": "/FarmAnimals/",
@@ -56,6 +57,8 @@ class Settings(BaseSettings):
     ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
     JWT_ACCESS_TOKEN_EXPIRATION_TIME: int
     JWT_SIGNING_KEY: str
+
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
 
 
 settings = Settings()
