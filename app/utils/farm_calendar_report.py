@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -8,7 +9,7 @@ from core import settings
 from fpdf import FontFace
 from fpdf.enums import VAlign
 from schemas.compost import *
-from utils import EX, add_fonts
+from utils import EX, add_fonts, decode_dates_filters
 from utils.json_handler import make_get_request
 
 logging.basicConfig(level=logging.INFO)
@@ -19,10 +20,10 @@ class FarmCalendarData:
     """Class to process and store connected farm calendar data"""
 
     def __init__(
-        self,
-        activity_type_info: str,
-        observations: Union[dict, str],
-        farm_activities: Union[dict, str],
+            self,
+            activity_type_info: str,
+            observations: Union[dict, str, list],
+            farm_activities: Union[dict, str, list],
     ):
         self.activity_type = activity_type_info
         try:
@@ -61,26 +62,32 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
     pdf.cell(0, 10, "Operations", ln=True)
     pdf.ln(5)
 
-    style = FontFace(fill_color=(180, 196, 36	))
+    style = FontFace(fill_color=(180, 196, 36))
     if calendar_data.operations:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
 
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Title"); row.cell("Details"); row.cell("Start"); row.cell("End")
-            row.cell("Responsible Agent"); row.cell("Type");
-            row.cell("Machinery IDs"); row.cell("Operated On")
+            row.cell("Title");
+            row.cell("Details");
+            row.cell("Start");
+            row.cell("End")
+            row.cell("Responsible Agent");
+            row.cell("Type");
+            row.cell("Machinery IDs");
+            row.cell("Operated On")
             pdf.set_font("FreeSerif", "", 9)
             style = FontFace(fill_color=(255, 255, 240))
             for operation in calendar_data.operations:
                 row = table.row()
                 row.style = style
 
-                row.cell(operation.title); row.cell(operation.details)
+                row.cell(operation.title);
+                row.cell(operation.details)
                 row.cell(
-                        f"{operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
-                    )
+                    f"{operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
+                )
                 row.cell(
                     f"{operation.hasEndDatetime if operation.hasEndDatetime else 'N/A'} ",
                 )
@@ -95,7 +102,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                             for machinery in operation.usesAgriculturalMachinery
                         ]
                     )
-                    row.cell( f"{machinery_ids}")
+                    row.cell(f"{machinery_ids}")
                 else:
                     row.cell(
                         "N/A",
@@ -103,7 +110,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
                 if operation.isOperatedOn:
                     operated_on = operation.isOperatedOn.get("@id", "N/A").split(":")[3]
-                    row.cell( f"{operated_on}")
+                    row.cell(f"{operated_on}")
                 else:
                     row.cell(
                         "N/A",
@@ -111,7 +118,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
     if calendar_data.observations:
         pdf.ln()
-        style = FontFace(fill_color=(180, 196, 36	))
+        style = FontFace(fill_color=(180, 196, 36))
 
         pdf.set_font("FreeSerif", "B", 12)
         pdf.cell(0, 10, "Observations", ln=True)
@@ -121,26 +128,32 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Value"); row.cell("Value unit"); row.cell("Property")
-            row.cell("Observed Property"); row.cell("Details"); row.cell("Start")
-            row.cell("End"); row.cell("Responsible Agent"); row.cell("Machinery IDs")
+            row.cell("Value");
+            row.cell("Value unit");
+            row.cell("Property")
+            row.cell("Observed Property");
+            row.cell("Details");
+            row.cell("Start")
+            row.cell("End");
+            row.cell("Responsible Agent");
+            row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
             for x in calendar_data.observations:
                 row = table.row()
-                style = FontFace(fill_color=(255, 255, 240		))
+                style = FontFace(fill_color=(255, 255, 240))
                 row.style = style
                 (
-                    row.cell( f"{x.hasResult.hasValue}")
+                    row.cell(f"{x.hasResult.hasValue}")
                     if x.hasResult
                     else row.cell("N/A")
                 )
                 (
-                    row.cell( f"{x.hasResult.unit}")
+                    row.cell(f"{x.hasResult.unit}")
                     if x.hasResult
                     else row.cell("N/A")
                 )
                 (
-                    row.cell( f"{x.relatesToProperty}")
+                    row.cell(f"{x.relatesToProperty}")
                     if x.relatesToProperty
                     else row.cell("N/A")
                 )
@@ -173,11 +186,13 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
 
 
 def process_farm_calendar_data(
-    token: dict[str, str],
-    pdf_file_name: str,
-    observation_type_name: str = None,
-    data=None,
-    operation_id: str = None
+        token: dict[str, str],
+        pdf_file_name: str,
+        observation_type_name: str = None,
+        data=None,
+        operation_id: str = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ) -> None:
     """
     Process farm calendar data and generate PDF report
@@ -223,10 +238,12 @@ def process_farm_calendar_data(
                 operation_url = f"{operation_url}{operation_id}/"
                 del params['activity_type']
 
+                operation_params = params.copy()
+                decode_dates_filters(operation_params, from_date, to_date)
                 operations = make_get_request(
                     url=operation_url,
                     token=token,
-                    params=params,
+                    params=operation_params,
                 )
 
                 # Operations are not array it is only one element (ID used)

@@ -1,8 +1,11 @@
+import datetime
+import logging
 import os
 
 import jwt
 from fpdf import FPDF
 
+logger = logging.Logger("utils")
 
 def add_fonts(pdf):
     fonts_folder_path = os.path.join(
@@ -37,3 +40,13 @@ def decode_jwt_token(token: str) -> dict:
     """
     decoded = jwt.decode(token, options={"verify_signature": False})
     return decoded
+
+def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date: datetime.date = None):
+    try:
+        if from_date:
+            from_date = from_date.strftime("%Y-%m-%d")
+            params['from_date'] = from_date
+        if to_date:
+            params['to_date'] = to_date.strftime("%Y-%m-%d")
+    except Exception as e:
+        logger.info(f"Error in parsing date: {e}. Request will be sent without date filters.")

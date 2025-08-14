@@ -5,7 +5,7 @@ import os
 from fastapi import HTTPException
 
 from core import settings
-from utils import EX, add_fonts
+from utils import EX, add_fonts, decode_dates_filters
 from schemas.irrigation import *
 from utils.json_handler import make_get_request
 
@@ -111,13 +111,15 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     return pdf
 
 
-def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str) -> None:
+def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str, from_date: datetime.date = None,
+                            to_date: datetime.date = None) -> None:
     """
     Process irrigation data and generate PDF report
     """
 
     if not data:
         params = {"format": "json"}
+        decode_dates_filters(params, from_date, to_date)
         json_data = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
             token=token,
