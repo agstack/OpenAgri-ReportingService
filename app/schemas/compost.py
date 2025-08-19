@@ -4,26 +4,26 @@ from datetime import datetime
 
 
 class QuantityValue(BaseModel):
-    type_: str = Field(alias="@type")
+    type: str = Field(alias="@type")
     unit: str = ""
     numericValue: float = 0.0
 
 
 class CompostMaterial(BaseModel):
-    type_: str = Field(alias="@type")
+    type: str = Field(alias="@type")
     typeName: str = ""
     quantityValue: Optional[QuantityValue] = None
 
 
 class ActivityType(BaseModel):
-    type_: str = Field(alias="@type")
-    id_: str = Field(alias="@id")
+    type: str = Field(alias="@type")
+    id: str = Field(alias="@id")
 
 
 class HasResult(BaseModel):
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    unit: Optional[str] = (None,)
+    unit: Optional[str] = None
     hasValue: Optional[str] = None
 
 
@@ -42,7 +42,6 @@ class CropObservation(BaseModel):
     usesAgriculturalMachinery: List[dict] = []
     hasResult: Optional[HasResult] = None
     isMeasuredIn: Optional[str] = None
-    relatesToProperty: Optional[str] = None
     observedProperty: Optional[str] = None
 
 
@@ -56,7 +55,7 @@ class Operation(BaseModel):
     details: str = ""
     hasStartDatetime: Optional[datetime] = None
     hasEndDatetime: Optional[datetime] = None
-    responsibleAgent: Optional[str] = None
+    responsibleAgent: Optional[str] = ""
     usesAgriculturalMachinery: List[dict] = []
     isOperatedOn: dict = None
     hasMeasurement: list[dict] = None
