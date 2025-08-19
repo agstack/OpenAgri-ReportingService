@@ -70,13 +70,13 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Title");
-            row.cell("Details");
-            row.cell("Start");
+            row.cell("Title")
+            row.cell("Details")
+            row.cell("Start")
             row.cell("End")
-            row.cell("Responsible Agent");
-            row.cell("Type");
-            row.cell("Machinery IDs");
+            row.cell("Responsible Agent")
+            row.cell("Type")
+            row.cell("Machinery IDs")
             row.cell("Operated On")
             pdf.set_font("FreeSerif", "", 9)
             style = FontFace(fill_color=(255, 255, 240))
@@ -84,7 +84,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
                 row = table.row()
                 row.style = style
 
-                row.cell(operation.title);
+                row.cell(operation.title)
                 row.cell(operation.details)
                 row.cell(
                     f"{operation.hasStartDatetime if operation.hasStartDatetime else 'N/A'}",
@@ -129,14 +129,14 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
             row = table.row()
             row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Value");
-            row.cell("Value unit");
+            row.cell("Value")
+            row.cell("Value unit")
             row.cell("Property")
-            row.cell("Observed Property");
-            row.cell("Details");
+            row.cell("Observed Property")
+            row.cell("Details")
             row.cell("Start")
-            row.cell("End");
-            row.cell("Responsible Agent");
+            row.cell("End")
+            row.cell("Responsible Agent")
             row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
             for x in calendar_data.observations:
@@ -290,6 +290,7 @@ def process_farm_calendar_data(
                 activity_type_info=observation_type_name,
                 observations=observations,
                 farm_activities=operations,
+                materials=materials
             )
         else:
             dt = json.load(data.file)
@@ -297,6 +298,7 @@ def process_farm_calendar_data(
                 activity_type_info=observation_type_name,
                 observations=dt["observations"],
                 farm_activities=dt["operations"],
+                materials=dt["materials"],
             )
 
         pdf = create_farm_calendar_pdf(calendar_data)
