@@ -51,6 +51,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
     pdf.add_page()
 
     EX.ln(pdf)
+
     pdf.set_font("FreeSerif", "B", 14)
     pdf.cell(0, 10, f"{calendar_data.activity_type} Report", ln=True, align="C")
     pdf.set_font("FreeSerif", style="", size=9)
@@ -59,6 +60,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
     pdf.set_font("FreeSerif", "B", 12)
     pdf.cell(0, 10, "Activity Type Information", ln=True, align="L")
+    pdf.set_fill_color(230, 230, 230)
 
     y_position = pdf.get_y()
     line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
@@ -83,12 +85,12 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 pdf.set_font("FreeSerif", "B", 10)
                 pdf.cell(40, 8, "Parcel Location:")
                 pdf.set_font("FreeSerif", "", 10)
-                pdf.multi_cell(0, 8, address, ln=True)
+                pdf.multi_cell(0, 8, address, ln=True, fill=True)
 
                 pdf.set_font("FreeSerif", "B", 10)
-                pdf.cell(40, 8, "Farm information:")
+                pdf.cell(40, 8, "Farm information:",)
                 pdf.set_font("FreeSerif", "", 10)
-                pdf.multi_cell(0, 8, farm, ln=True)
+                pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
         cp_id = operation.isOperatedOn.get("@id", "N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
         start_date = operation.hasStartDatetime.strftime("%d/%m/%Y") if operation.hasStartDatetime else operation.phenomenonTime
@@ -97,23 +99,23 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Details:")
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, str(operation.details), ln=True)
+        pdf.multi_cell(0, 8, str(operation.details), ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Starting Date:")
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, str(start_date), ln=True)
+        pdf.multi_cell(0, 8, str(start_date), ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Ending Date:")
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, str(end_date), ln=True)
+        pdf.multi_cell(0, 8, str(end_date), ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Compost Pile:")
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, str(cp_id), ln=True)
-    style = FontFace(fill_color=(180, 196, 36))
+        pdf.multi_cell(0, 8, str(cp_id), ln=True, fill=True)
+    pdf.set_fill_color(0, 255, 255)
     if len(calendar_data.operations) > 1:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
 
@@ -122,7 +124,6 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             pdf.ln(5)
 
             row = table.row()
-            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
             row.cell("Title")
             row.cell("Details")
@@ -132,10 +133,9 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Machinery IDs")
             row.cell("Compost Pile")
             pdf.set_font("FreeSerif", "", 9)
-            style = FontFace(fill_color=(255, 255, 240))
+            pdf.set_fill_color(255, 255, 240)
             for operation in calendar_data.operations:
                 row = table.row()
-                row.style = style
                 row.cell(operation.title)
                 row.cell(operation.details)
                 row.cell(
@@ -161,7 +161,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
     if calendar_data.observations:
         pdf.ln()
-        style = FontFace(fill_color=(180, 196, 36))
+        pdf.set_fill_color(0, 255, 255	)
 
         pdf.set_font("FreeSerif", "B", 12)
         pdf.cell(0, 10, "Observations", ln=True)
@@ -169,7 +169,6 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
         with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
             row = table.row()
-            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
             row.cell("Value info")
             row.cell("Observed Property")
@@ -177,12 +176,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Start")
             row.cell("End")
             row.cell("Responsible Agent")
-            row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
             for x in calendar_data.observations:
                 row = table.row()
-                style = FontFace(fill_color=(255, 255, 240))
-                row.style = style
+                pdf.set_fill_color(255, 255, 240)
                 (
                     row.cell(f"{x.hasResult.hasValue} ({x.hasResult.unit})")
                     if x.hasResult
@@ -199,21 +196,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 row.cell(f"{x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else x.hasEndDatetime}")
                 row.cell(f"R{x.responsibleAgent if x.responsibleAgent else 'N/A'}")
 
-                if x.usesAgriculturalMachinery:
-                    machinery_ids = ", ".join(
-                        [
-                            machinery.get("@id", "N/A").split(":")[3]
-                            for machinery in x.usesAgriculturalMachinery
-                        ]
-                    )
-                    row.cell(f"{machinery_ids}")
-                else:
-                    row.cell("N/A")
-
 
     if calendar_data.materials:
         pdf.ln()
-        style = FontFace(fill_color=(180, 196, 36))
+        pdf.set_fill_color(0, 255, 255)
 
         pdf.set_font("FreeSerif", "B", 12)
         pdf.cell(0, 10, "Raw materials added", ln=True)
@@ -221,7 +207,6 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
         with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
             row = table.row()
-            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
             row.cell("Name")
             row.cell("Unit")
@@ -230,8 +215,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             for material in calendar_data.materials:
                 for x in material.hasCompostMaterial:
                     row = table.row()
-                    style = FontFace(fill_color=(255, 255, 240))
-                    row.style = style
+                    pdf.set_fill_color(255, 255, 240)
                     row.cell(x.typeName)
                     row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
                     row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
