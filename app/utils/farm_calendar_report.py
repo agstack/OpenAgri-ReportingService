@@ -24,6 +24,7 @@ class FarmCalendarData:
             activity_type_info: str,
             observations: Union[dict, str, list],
             farm_activities: Union[dict, str, list],
+            materials: Union[dict, str, list],
     ):
         self.activity_type = activity_type_info
         try:
@@ -31,7 +32,7 @@ class FarmCalendarData:
                 CropObservation.model_validate(obs) for obs in observations
             ]
             self.operations = [Operation.model_validate(act) for act in farm_activities]
-
+            self.materials = [AddRawMaterialOperation.model_validate(mat) for mat in materials]
         except Exception as e:
             logger.error(f"Error parsing farm calendar data: {e}")
             raise HTTPException(
@@ -232,7 +233,9 @@ def process_farm_calendar_data(
             operation_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}'
             obs_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}'
 
+
             observations = []
+            materials = []
             operations = []
             if operation_id:
                 operation_url = f"{operation_url}{operation_id}/"
@@ -265,6 +268,17 @@ def process_farm_calendar_data(
                             params=params,
                         )
                         observations.append(observation)
+
+                    if operations[0]['hasNestedOperation']:
+                        material_url = (
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]} \
+                                        {operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
+                        materials = make_get_request(
+                            url=material_url,
+                            token=token,
+                            params=params
+                        )
+
             else:
                 if observation_type_name:
                     observations = make_get_request(
