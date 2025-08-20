@@ -3,10 +3,27 @@ from typing import List, Optional
 from datetime import datetime
 
 
+class QuantityValue(BaseModel):
+    type: str = Field(alias="@type")
+    unit: str = ""
+    numericValue: float = 0.0
+
+
+class CompostMaterial(BaseModel):
+    type: str = Field(alias="@type")
+    typeName: str = ""
+    quantityValue: Optional[QuantityValue] = None
+
+
+class ActivityType(BaseModel):
+    type: str = Field(alias="@type")
+    id: str = Field(alias="@id")
+
+
 class HasResult(BaseModel):
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    unit: Optional[str] = (None,)
+    unit: Optional[str] = None
     hasValue: Optional[str] = None
 
 
@@ -25,7 +42,6 @@ class CropObservation(BaseModel):
     usesAgriculturalMachinery: List[dict] = []
     hasResult: Optional[HasResult] = None
     isMeasuredIn: Optional[str] = None
-    relatesToProperty: Optional[str] = None
     observedProperty: Optional[str] = None
 
 
@@ -35,11 +51,17 @@ class Operation(BaseModel):
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
     activityType: dict
-    title: str
-    details: str
+    title: str = ""
+    details: str = ""
     hasStartDatetime: Optional[datetime] = None
     hasEndDatetime: Optional[datetime] = None
-    responsibleAgent: Optional[str] = None
+    responsibleAgent: Optional[str] = ""
     usesAgriculturalMachinery: List[dict] = []
     isOperatedOn: dict = None
     hasMeasurement: list[dict] = None
+    hasNestedOperation: list[dict] = None
+
+
+class AddRawMaterialOperation(Operation):
+    usesAgriculturalMachinery: List = []
+    hasCompostMaterial: List[CompostMaterial] = []

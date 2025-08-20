@@ -31,6 +31,9 @@ class Settings(BaseSettings):
         "activities": "/FarmCalendarActivities/",
         "parcel": "/FarmParcels/",
         "animals": "/FarmAnimals/",
+        "materials": "/AddRawMaterialOperations/",
+        "machines": "/AgriculturalMachines/",
+        "farm": "/Farm/"
     }
 
     PDF_DIRECTORY: str = "user_reports/"

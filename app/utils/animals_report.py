@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from fpdf.fonts import FontFace
 
 from core import settings
-from utils import EX, add_fonts, decode_jwt_token
+from utils import EX, add_fonts, decode_jwt_token, decode_dates_filters
 from schemas.animals import *
 from utils.json_handler import make_get_request
 
@@ -74,12 +74,15 @@ def create_pdf_from_animals(animals: List[Animal]):
 
 
 def process_animal_data(
-    token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None
+        token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ) -> None:
     """
     Process animal data and generate PDF report
     """
     if params:
+        decode_dates_filters(params, from_date, to_date)
         json_data = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
             token=token,

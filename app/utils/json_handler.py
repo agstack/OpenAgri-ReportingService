@@ -3,13 +3,15 @@ from fastapi import HTTPException
 from core import settings
 import requests
 from typing import Dict, Optional, Union
+import logging
 
+logger = logging.getLogger(__name__)
 
 def make_get_request(
     url: str,
     params: Optional[Dict[str, Union[str, int, float]]] = None,
     token: Optional[Dict[str, str]] = None,
-) -> Union[dict, str]:
+) -> Union[dict, str] | None:
     """
     Makes a GET request with custom parameters and headers.
 
@@ -51,5 +53,6 @@ def make_get_request(
 
         return response.json()
 
-    except Exception as ee:
-        raise HTTPException(status_code=400, detail="Gatekeeper API returned an error.")
+    except Exception as e:
+        logger.info(f"Gatekeeper API returned an error. {e}")
+        return None

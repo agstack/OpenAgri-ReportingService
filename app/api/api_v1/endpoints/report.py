@@ -1,3 +1,4 @@
+import datetime
 import os
 import uuid
 from typing import Optional
@@ -57,6 +58,8 @@ async def generate_irrigation_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ):
     """
     Generates Irrigation Report PDF file
@@ -81,6 +84,8 @@ async def generate_irrigation_report(
         data=data,
         token=token,
         pdf_file_name=uuid_of_pdf,
+    from_date=from_date,
+    to_date=to_date
     )
 
     return PDF(uuid=uuid_v4)
@@ -88,13 +93,13 @@ async def generate_irrigation_report(
 
 @router.post("/compost-report/", response_model=PDF)
 async def generate_generic_observation_report(
-        background_tasks: BackgroundTasks,
-
-        observation_type_name: str = None,
-
+    background_tasks: BackgroundTasks,
+    observation_type_name: str = None,
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
     operation_id: str = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None
 ):
     """
     Generates Observation Report PDF file
@@ -116,7 +121,9 @@ async def generate_generic_observation_report(
         token=token,
         data=data,
         pdf_file_name=uuid_of_pdf,
-        operation_id=operation_id
+        operation_id=operation_id,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     return PDF(uuid=uuid_v4)
@@ -131,6 +138,8 @@ async def generate_animal_report(
     parcel: Optional[UUID4] = None,
     status: Optional[int] = None,
     data: UploadFile = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ):
     """
     Generates Animal Report PDF file
@@ -166,6 +175,8 @@ async def generate_animal_report(
         token=token,
         params=params,
         pdf_file_name=uuid_of_pdf,
+    from_date=from_date,
+    to_date=to_date
     )
 
     return PDF(uuid=uuid_v4)
