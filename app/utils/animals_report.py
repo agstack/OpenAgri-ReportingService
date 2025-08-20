@@ -49,15 +49,24 @@ def create_pdf_from_animals(animals: List[Animal]):
             row = table.row()
             pdf.set_font("FreeSerif", "B", 10)
             row.cell("Animal")
-            row.cell("National ID") row.cell("Description") row.cell("Parcel ID")
-            row.cell("Species") row.cell("Sex") row.cell("Birthdate") row.cell("Status")
-            row.cell("Invalidated") row.cell("Is Member of group")  row.cell("Created")
+            row.cell("National ID")
+            row.cell("Description")
+            row.cell("Parcel ID")
+            row.cell("Species")
+            row.cell("Sex")
+            row.cell("Birthdate")
+            row.cell("Status")
+            row.cell("Invalidated")
+            row.cell("Is Member of group")
+            row.cell("Created")
             row.cell("RModified")
             pdf.set_fill_color(255, 255, 240)
             pdf.set_font("FreeSerif", "B", 9)
             for animal in animals:
                 row = table.row()
-                row.cell(animal.name) row.cell(animal.nationalID) row.cell(animal.description)
+                row.cell(animal.name)
+                row.cell(animal.nationalID)
+                row.cell(animal.description)
                 row.cell(
                     f"{animal.hasAgriParcel.id.split(':')[3] if animal.hasAgriParcel else ''}",
                 )
@@ -65,7 +74,8 @@ def create_pdf_from_animals(animals: List[Animal]):
                 row.cell(
                     f"{'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
                 )
-                row.cell(animal.birthdate) row.cell(animal.status)
+                row.cell(animal.birthdate)
+                row.cell(animal.status)
                 row.cell(f"{animal.invalidatedAtTime if animal.invalidatedAtTime else 'N/A'}")
                 row.cell(f"{animal.isMemberOfAnimalGroup.hasName if animal.isMemberOfAnimalGroup else 'N/A'}"
                 )
