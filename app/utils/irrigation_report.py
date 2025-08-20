@@ -37,27 +37,31 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
     add_fonts(pdf)
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    pdf.set_title("Irrigation Operations Report")
     EX.ln(pdf)
 
-    pdf.set_font("FreeSerif", "B", 10)
-    pdf.cell(40, 10, "Irrigation Operations Report")
-    pdf.ln(10)
-    style = FontFace(fill_color=(180, 196, 36))
+    pdf.set_font("FreeSerif", "B", 14)
+    pdf.cell(0, 10, "Irrigation Data Report", ln=True, align="C")
+    pdf.set_font("FreeSerif", style="", size=9)
+    pdf.cell(0, 7, "Farm Calendar  Report", ln=True, align="C")
+    pdf.ln(5)
+
+    y_position = pdf.get_y()
+    line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
+    pdf.ln(5)
+    pdf.set_fill_color(0, 255, 255)
     if operations:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
             row = table.row()
-            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Title"); row.cell("Type"); row.cell("Details"); row.cell(f"Parcel ID")
-            row.cell("Start"); row.cell("End"); row.cell("Applied amount"); row.cell("Irrigation System")
-            row.cell("Responsible Agent"); row.cell("Machinery IDs")
+            row.cell("Title") row.cell("Type") row.cell("Details") row.cell(f"Parcel ID")
+            row.cell("Start") row.cell("End") row.cell("Applied amount") row.cell("Irrigation System")
+            row.cell("Responsible Agent") row.cell("Machinery IDs")
             pdf.set_font("FreeSerif", "", 9)
-            style = FontFace(fill_color=(255, 255, 240		))
+            pdf.set_fill_color(255, 255, 240)
             for op in operations:
                 # Operation Header
                 row = table.row()
-                row.style = style
                 row.cell(op.title)
 
                 activity_type = op.activityType.get(

@@ -27,32 +27,37 @@ def create_pdf_from_animals(animals: List[Animal]):
     Create PDF report from animal records
     """
     pdf = EX()
-    pdf.add_page()
     add_fonts(pdf)
     pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
 
-    pdf.set_title("Animal Report")
-    pdf.ln()
+    EX.ln(pdf)
 
-    pdf.set_font("FreeSerif", "B", 10)
-    pdf.cell(40, 10, "Animal Report")
-    pdf.ln(10)
-    style = FontFace(fill_color=(180, 196, 36))
+    pdf.set_font("FreeSerif", "B", 14)
+    pdf.cell(0, 10, "Animal Data Report", ln=True, align="C")
+    pdf.set_font("FreeSerif", style="", size=9)
+    pdf.cell(0, 7, "Farm Calendar  Report", ln=True, align="C")
+    pdf.ln(5)
+
+    y_position = pdf.get_y()
+    line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
+    pdf.ln(5)
+    pdf.set_fill_color(0, 255, 255)
     if animals:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
             row = table.row()
-            row.style = style
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Animal"); row.cell("National ID"); row.cell("Description"); row.cell("Parcel ID")
-            row.cell("Species"); row.cell("Sex"); row.cell("Birthdate"); row.cell("Status")
-            row.cell("Invalidated"); row.cell("Is Member of group");  row.cell("Created")
+            row.cell("Animal")
+            row.cell("National ID") row.cell("Description") row.cell("Parcel ID")
+            row.cell("Species") row.cell("Sex") row.cell("Birthdate") row.cell("Status")
+            row.cell("Invalidated") row.cell("Is Member of group")  row.cell("Created")
             row.cell("RModified")
-            style = FontFace(fill_color=(255, 255, 240	))
+            pdf.set_fill_color(255, 255, 240)
             pdf.set_font("FreeSerif", "B", 9)
             for animal in animals:
                 row = table.row()
-                row.style = style
-                row.cell(animal.name); row.cell(animal.nationalID); row.cell(animal.description)
+                row.cell(animal.name) row.cell(animal.nationalID) row.cell(animal.description)
                 row.cell(
                     f"{animal.hasAgriParcel.id.split(':')[3] if animal.hasAgriParcel else ''}",
                 )
@@ -60,7 +65,7 @@ def create_pdf_from_animals(animals: List[Animal]):
                 row.cell(
                     f"{'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
                 )
-                row.cell(animal.birthdate); row.cell(animal.status)
+                row.cell(animal.birthdate) row.cell(animal.status)
                 row.cell(f"{animal.invalidatedAtTime if animal.invalidatedAtTime else 'N/A'}")
                 row.cell(f"{animal.isMemberOfAnimalGroup.hasName if animal.isMemberOfAnimalGroup else 'N/A'}"
                 )
