@@ -105,7 +105,7 @@ Response is uuid of generated PDF file.
 
 ### observation_type_name
 - **Type**: `str`
-- **Description**:  All Farm Calendar Observation Type values are possible as input (optional)
+- **Description**:  All Farm Calendar Observation Type values are possible as input (optional). If operation_id provided not used.
 
 ### operation_id
 - **Type**: `uudi str`
@@ -113,11 +113,11 @@ Response is uuid of generated PDF file.
 
 - ### from_date
 - **Type**: `date`
-- **Description**:  Optional date filter (from which data is filtered)
+- **Description**:  Optional date filter (from which data is filtered). If operation_id provided not used.
 
 - ### to_date
 - **Type**: `date`
-- **Description**:  AOptional date filter (until which data is filtered)
+- **Description**:  AOptional date filter (until which data is filtered). If operation_id provided not used.
 
 ### data
 - **Type**: `UploadFile`
