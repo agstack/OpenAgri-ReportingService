@@ -52,7 +52,7 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/b1bcdd77ac82aeb115a6c94fb3dadbdc/raw/32df1d94947b67dcc70f730a629d7c91161e532f/api.json)
+Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/42227cda7f1c3869abad5ac4cb7e8ab5/raw/e7cfc9b8642c0551bdfc14fc27362c8bb39515cb/dist.json)
 # Documentation
 <h3>GET</h3>
 
@@ -83,8 +83,14 @@ Response is generated PDF file.
 - **Type**: `UploadFile`
 - **Description**: API processes the data directly to generate the report if data passed. This parameter is not required and when it is, must be provided as an `UploadFile`.
 
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered)
 
-
+- ### to_date
+- **Type**: `date`
+- **Description**:  AOptional date filter (until which data is filtered)
+- 
 ## Response
 
 Response is uuid of generated PDF file.
@@ -99,8 +105,19 @@ Response is uuid of generated PDF file.
 
 ### observation_type_name
 - **Type**: `str`
-- **Description**:  All Farm Calendar Observation Type values are possible as input
+- **Description**:  All Farm Calendar Observation Type values are possible as input (optional)
 
+### operation_id
+- **Type**: `uudi str`
+- **Description**:  ID of operation for which PDF is generated (optional)
+
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered)
+
+- ### to_date
+- **Type**: `date`
+- **Description**:  AOptional date filter (until which data is filtered)
 
 ### data
 - **Type**: `UploadFile`
@@ -140,6 +157,14 @@ When service is run without Gatekeeper data must be provided in .json file forma
 ### status
 - **Type**: `Optional[int]`
 - **Description**: The status code associated with the animal or the transaction. It is an optional integer field. If not specified, it defaults to `None`.
+
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered)
+
+- ### to_date
+- **Type**: `date`
+- **Description**:  AOptional date filter (until which data is filtered)
 
 ### data
 - **Type**: `UploadFile`
