@@ -245,43 +245,49 @@ def process_farm_calendar_data(
                     detail=f"Data file must be provided if gatekeeper is not used.",
                 )
             params = {"format": "json", "activity_type": ""}
-            # Retrieve Type ID (no operation ID we retrieve all data from this type)
-            if observation_type_name and not operation_id:
-                params["name"] = observation_type_name
-                farm_activity_type_info = make_get_request(
-                    url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-                    token=token,
-                    params=params,
-                )
-
-                del params["name"]
-                if not farm_activity_type_info:
-                    calendar_data = FarmCalendarData(
-                        activity_type_info=observation_type_name,
-                        observations=[],
-                        farm_activities=[],
-                    )
-
-                    pdf = create_farm_calendar_pdf(calendar_data)
-                    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
-                    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
-                    pdf.output(f"{pdf_dir}.pdf")
-                    return
-                params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
-
             operation_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}'
             obs_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}'
-
 
             observations = []
             materials = []
             operations = []
-            if operation_id:
+
+            # No operation ID we retrieve all data from this type)
+            if not operation_id:
+                # Check for generic response
+                if observation_type_name:
+                    params["name"] = observation_type_name
+                    farm_activity_type_info = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+                        token=token,
+                        params=params,
+                    )
+
+                    del params["name"]
+                    operations = []
+                    observations = []
+                    materials = []
+
+                    if farm_activity_type_info:
+                        params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+                        decode_dates_filters(params, from_date, to_date)
+                        observations = make_get_request(
+                            url=obs_url,
+                            token=token,
+                            params=params,
+                        )
+
+                        operations = make_get_request(
+                            url=operation_url,
+                            token=token,
+                            params=params,
+                        )
+
+            else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params['activity_type']
 
                 operation_params = params.copy()
-                decode_dates_filters(operation_params, from_date, to_date)
                 operations = make_get_request(
                     url=operation_url,
                     token=token,
@@ -380,19 +386,13 @@ def process_farm_calendar_data(
     ]
 }
 ]
-            else:
-                if observation_type_name:
-                    observations = make_get_request(
-                        url=obs_url,
-                        token=token,
-                        params=params,
-                    )
+
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,
                 observations=observations,
                 farm_activities=operations,
                 materials=materials,
-        )
+                )
         else:
             dt = json.load(data.file)
             calendar_data = FarmCalendarData(
