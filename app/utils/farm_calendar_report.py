@@ -129,8 +129,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Details")
             row.cell("Start")
             row.cell("End")
-            row.cell("Responsible Agent")
+            row.cell("Agent")
             row.cell("Machinery IDs")
+            row.cell("Parcel")
+            row.cell("Farm")
             row.cell("Compost Pile")
             pdf.set_font("FreeSerif", "", 9)
             pdf.set_fill_color(255, 255, 240)
@@ -146,6 +148,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 )
                 row.cell(operation.responsibleAgent)
                 machinery_ids = ''
+                address, farm = '', ''
                 if operation.usesAgriculturalMachinery:
                     machinery_ids = ", ".join(
                         [
@@ -153,7 +156,19 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                             for machinery in operation.usesAgriculturalMachinery
                         ]
                     )
+                    agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+                        -1]
+                    agr_resp = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
+                        token=token,
+                        params={"format": "json"}
+                    )
+                    if agr_resp:
+                        parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
+                        address, farm = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
+                row.cell(address)
+                row.cell(farm)
                 operation = calendar_data.operations[0]
                 cp = operation.isOperatedOn.get("@id", "N/A").split(":")[
                     3] if operation.isOperatedOn else 'Empty Pile Value'
@@ -323,69 +338,7 @@ def process_farm_calendar_data(
                             token=token,
                             params=params
                         )
-                    materials = [{
-    "@type": "AddRawMaterialOperation",
-                        "@id": "urn:farmcalendar:AddRawMaterialOperation:c7737db3-740b-428a-92bf-d4af0c90e8bb",
 
-                        "activityType": {
-        "@type": "FarmCalendarActivityType",
-        "@id": "urn:farmcalendar:FarmCalendarActivityType:00000000-0000-0000-0000-000000000007"
-    },
-    "title": "Add Raw Material Operation",
-    "details": "",
-    "hasStartDatetime": "2025-06-03T11:51:06Z",
-    "hasEndDatetime": None,
-    "responsibleAgent": None,
-    "usesAgriculturalMachinery": [],
-    "hasCompostMaterial": [
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Dry leaves",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 21.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Green grass",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 8.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Dry grass",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 3.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Wood chips",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 14.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Red soil",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 7.0
-            }
-        }
-    ]
-}
-]
 
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,
