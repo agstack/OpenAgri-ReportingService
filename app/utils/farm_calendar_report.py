@@ -263,7 +263,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 def process_farm_calendar_data(
         token: dict[str, str],
         pdf_file_name: str,
-        observation_type_name: str = None,
+        calendar_activity_type: str = None,
         data=None,
         operation_id: str = None,
         from_date: datetime.date = None,
@@ -290,8 +290,8 @@ def process_farm_calendar_data(
             # No operation ID we retrieve all data from this type)
             if not operation_id:
                 # Check for generic response
-                if observation_type_name:
-                    params["name"] = observation_type_name
+                if calendar_activity_type:
+                    params["name"] = calendar_activity_type
                     farm_activity_type_info = make_get_request(
                         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
                         token=token,
@@ -329,7 +329,7 @@ def process_farm_calendar_data(
                 # Operations are not array it is only one element (ID used)
                 operations = [operations] if operations else []
                 if operations:
-                    if not observation_type_name:
+                    if not calendar_activity_type:
                         id = operations[0]['activityType']["@id"].split(":")[3]
                         if id:
                             farm_activity_type_info = make_get_request(
@@ -337,7 +337,7 @@ def process_farm_calendar_data(
                                 token=token,
                                 params=params
                             )
-                            observation_type_name = farm_activity_type_info['name']
+                            calendar_activity_type = farm_activity_type_info['name']
                     for measurement in operations[0]['hasMeasurement']:
                         observation = make_get_request(
                             url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
@@ -357,7 +357,7 @@ def process_farm_calendar_data(
                         )
 
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=observations,
                 farm_activities=operations,
                 materials=materials,
@@ -365,7 +365,7 @@ def process_farm_calendar_data(
         else:
             dt = json.load(data.file)
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=dt["observations"],
                 farm_activities=dt["operations"],
                 materials=dt["materials"]

@@ -103,7 +103,7 @@ Response is uuid of generated PDF file.
 
 ## Request Params 
 
-### observation_type_name
+### calendar_activity_type
 - **Type**: `str`
 - **Description**:  All Farm Calendar Observation Type values are possible as input (optional). If operation_id provided not used.
 
