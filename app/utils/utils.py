@@ -74,7 +74,9 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
         postcode = address_details.get('postcode')
         address = f"Country: {country} | City: {city} | Postcode: {postcode}"
 
-    farm_id = farm_parcel_info.get("farm").get("@id", "N/A").split(":")[-1]
+    farm_id = farm_parcel_info.get("farm").get("@id", None)
+    if farm_id:
+        farm_id = farm_id.split(":")[-1]
     if farm_id:
         farm_info = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["farm"]}{farm_id}/',

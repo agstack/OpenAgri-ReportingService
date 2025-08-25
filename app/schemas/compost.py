@@ -18,6 +18,7 @@ class CompostMaterial(BaseModel):
 class ActivityType(BaseModel):
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
+    category: Optional[str] = None
 
 
 class HasResult(BaseModel):
