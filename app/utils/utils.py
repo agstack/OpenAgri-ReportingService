@@ -49,9 +49,9 @@ def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date
     try:
         if from_date:
             from_date = from_date.strftime("%Y-%m-%d")
-            params['from_date'] = from_date
+            params['fromDate'] = from_date
         if to_date:
-            params['to_date'] = to_date.strftime("%Y-%m-%d")
+            params['toDate'] = to_date.strftime("%Y-%m-%d")
     except Exception as e:
         logger.info(f"Error in parsing date: {e}. Request will be sent without date filters.")
 
