@@ -92,6 +92,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 pdf.set_font("FreeSerif", "", 10)
                 pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
+
         cp_id = operation.isOperatedOn.get("@id", "N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
         start_date = operation.hasStartDatetime.strftime("%d/%m/%Y") if operation.hasStartDatetime else operation.phenomenonTime
         end_date = operation.hasEndDatetime.strftime("%d/%m/%Y") if operation.hasEndDatetime else "N/A"
@@ -115,6 +116,25 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
         pdf.cell(40, 8, "Compost Pile:")
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, str(cp_id), ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Initial Materials:")
+        pdf.ln(15)
+        if calendar_data.materials:
+            with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+                pdf.set_font("FreeSerif", "", 10)
+                row = table.row()
+                row.cell("Name")
+                row.cell("Unit")
+                row.cell("Numeric value")
+                pdf.set_font("FreeSerif", "", 9)
+                row = table.row()
+                x = calendar_data.materials[0].hasCompostMaterial[0] if calendar_data.materials[0].hasCompostMaterial else None
+                row.cell(x.typeName if x else 'N/A')
+                row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
+                row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
+
+
     pdf.set_fill_color(0, 255, 255)
     if len(calendar_data.operations) > 1:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
@@ -279,9 +299,6 @@ def process_farm_calendar_data(
                     )
 
                     del params["name"]
-                    operations = []
-                    observations = []
-                    materials = []
 
                     if farm_activity_type_info:
                         params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
@@ -338,7 +355,6 @@ def process_farm_calendar_data(
                             token=token,
                             params=params
                         )
-
 
             calendar_data = FarmCalendarData(
                 activity_type_info=observation_type_name,
