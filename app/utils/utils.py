@@ -65,14 +65,18 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
     location = farm_parcel_info.get("location")
     address = ''
     farm = ''
-    if location:
-        coordinates = f"{location.get('lat')}, {location.get('long')}"
-        l_info = geolocator.reverse(coordinates)
-        address_details = l_info.raw.get('address', {})
-        city = address_details.get('city')
-        country = address_details.get("country")
-        postcode = address_details.get('postcode')
-        address = f"Country: {country} | City: {city} | Postcode: {postcode}"
+    try:
+        if location:
+            coordinates = f"{location.get('lat')}, {location.get('long')}"
+            l_info = geolocator.reverse(coordinates)
+            address_details = l_info.raw.get('address', {})
+            city = address_details.get('city')
+            country = address_details.get("country")
+            postcode = address_details.get('postcode')
+            address = f"Country: {country} | City: {city} | Postcode: {postcode}"
+    except Exception as e:
+        logger.info("Error with geolocator", e
+        return address, farm
 
     farm_id = farm_parcel_info.get("farm").get("@id", None)
     if farm_id:
