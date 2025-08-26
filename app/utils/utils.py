@@ -75,7 +75,7 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
             postcode = address_details.get('postcode')
             address = f"Country: {country} | City: {city} | Postcode: {postcode}"
     except Exception as e:
-        logger.info("Error with geolocator", e
+        logger.info("Error with geolocator", e)
         return address, farm
 
     farm_id = farm_parcel_info.get("farm").get("@id", None)
