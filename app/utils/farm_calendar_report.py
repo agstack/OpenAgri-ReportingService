@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import os
@@ -5,9 +6,13 @@ from typing import Union
 from fastapi import HTTPException
 
 from core import settings
+from fpdf import FontFace
+from fpdf.enums import VAlign
 from schemas.compost import *
-from utils import EX, add_fonts
+from utils import EX, add_fonts, decode_dates_filters, get_parcel_info
 from utils.json_handler import make_get_request
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent="reportin_app")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,10 +22,11 @@ class FarmCalendarData:
     """Class to process and store connected farm calendar data"""
 
     def __init__(
-        self,
-        activity_type_info: str,
-        observations: Union[dict, str],
-        farm_activities: Union[dict, str],
+            self,
+            activity_type_info: str,
+            observations: Union[dict, str, list],
+            farm_activities: Union[dict, str, list],
+            materials: Union[dict, str, list],
     ):
         self.activity_type = activity_type_info
         try:
@@ -28,7 +34,7 @@ class FarmCalendarData:
                 CropObservation.model_validate(obs) for obs in observations
             ]
             self.operations = [Operation.model_validate(act) for act in farm_activities]
-
+            self.materials = [AddRawMaterialOperation.model_validate(mat) for mat in materials]
         except Exception as e:
             logger.error(f"Error parsing farm calendar data: {e}")
             raise HTTPException(
@@ -37,134 +43,231 @@ class FarmCalendarData:
             )
 
 
-def create_farm_calendar_pdf(calendar_data: FarmCalendarData) -> EX:
+def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, str]) -> EX:
     """Create PDF report from farm calendar data"""
     pdf = EX()
     add_fonts(pdf)
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-    pdf.set_title("Farm Calendar Report")
 
     EX.ln(pdf)
+
     pdf.set_font("FreeSerif", "B", 14)
-    pdf.cell(0, 10, "Farm Calendar Report", ln=True, align="C")
+    pdf.cell(0, 10, f"{calendar_data.activity_type} Report", ln=True, align="C")
+    pdf.set_font("FreeSerif", style="", size=9)
+    pdf.cell(0, 7, f"Farm Calendar Operation Report", ln=True, align="C")
     pdf.ln(5)
 
     pdf.set_font("FreeSerif", "B", 12)
-    pdf.cell(0, 10, "Activity Type Information", ln=True)
-    pdf.set_font("Arial", "", 10)
-    pdf.cell(0, 10, f"Type: {calendar_data.activity_type}", ln=True)
+    pdf.cell(0, 10, "Activity Type Information", ln=True, align="L")
+    pdf.set_fill_color(230, 230, 230)
 
-    pdf.set_font("FreeSerif", "B", 12)
-    pdf.cell(0, 10, "Operations and Observations", ln=True)
+    y_position = pdf.get_y()
+    line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
     pdf.ln(5)
 
-    for operation in calendar_data.operations:
+    if len(calendar_data.operations) == 1:
+        operation = calendar_data.operations[0]
+
+        agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+            -1] if operation.usesAgriculturalMachinery else None
+        if agr_mach_id:
+            agr_resp = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
+                token=token,
+                params={"format": "json"}
+            )
+            if agr_resp:
+                parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
+                address, farm = get_parcel_info(parcel_id, token, geolocator)
+
+                pdf.set_font("FreeSerif", "B", 10)
+                pdf.cell(40, 8, "Parcel Location:")
+                pdf.set_font("FreeSerif", "", 10)
+                pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+                pdf.set_font("FreeSerif", "B", 10)
+                pdf.cell(40, 8, "Farm information:",)
+                pdf.set_font("FreeSerif", "", 10)
+                pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+
+
+        cp_id = operation.isOperatedOn.get("@id", "N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
+        start_date = operation.hasStartDatetime.strftime("%d/%m/%Y") if operation.hasStartDatetime else operation.phenomenonTime
+        end_date = operation.hasEndDatetime.strftime("%d/%m/%Y") if operation.hasEndDatetime else "N/A"
+
         pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(0, 10, f"Operation: {operation.title}", ln=True)
+        pdf.cell(40, 8, "Details:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, str(operation.details), ln=True, fill=True)
 
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.multi_cell(0, 10, f"Details: {operation.details}", ln=True)
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Starting Date:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, str(start_date), ln=True, fill=True)
 
-        if operation.hasStartDatetime:
-            pdf.cell(
-                0,
-                10,
-                f"Start: {operation.hasStartDatetime}",
-                ln=True,
-            )
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Ending Date:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, str(end_date), ln=True, fill=True)
 
-        if operation.hasEndDatetime:
-            pdf.cell(
-                0,
-                10,
-                f"End: {operation.hasEndDatetime}",
-                ln=True,
-            )
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Compost Pile:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, str(cp_id), ln=True, fill=True)
 
-        (
-            pdf.cell(0, 10, f"Responsible: {operation.responsibleAgent}", ln=True)
-            if operation.responsibleAgent
-            else None
-        )
-        pdf.cell(0, 10, f"Type: {operation.activityType.get('@id', 'N/A')}", ln=True)
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Initial Materials:")
+        pdf.ln(15)
+        if calendar_data.materials:
+            with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+                pdf.set_font("FreeSerif", "", 10)
+                row = table.row()
+                row.cell("Name")
+                row.cell("Unit")
+                row.cell("Numeric value")
+                pdf.set_font("FreeSerif", "", 9)
+                row = table.row()
+                x = calendar_data.materials[0].hasCompostMaterial[0] if calendar_data.materials[0].hasCompostMaterial else None
+                row.cell(x.typeName if x else 'N/A')
+                row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
+                row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
 
-        if operation.usesAgriculturalMachinery:
-            machinery_ids = ", ".join(
-                [
-                    machinery.get("@id", "N/A").split(":")[3]
-                    for machinery in operation.usesAgriculturalMachinery
-                ]
-            )
-            pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
 
-        for x in calendar_data.observations:
+    pdf.set_fill_color(0, 255, 255)
+    if len(calendar_data.operations) > 1:
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
+
+            pdf.set_font("FreeSerif", "B", 12)
+            pdf.cell(0, 10, "Operations", ln=True)
+            pdf.ln(5)
+
+            row = table.row()
             pdf.set_font("FreeSerif", "B", 10)
-            pdf.cell(0, 10, "Observations:", ln=True)
-            pdf.set_font("FreeSerif", "", 10)
-            (
-                pdf.cell(0, 10, f"Value: {x.hasResult.hasValue}", ln=True)
-                if x.hasResult
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Value unit: {x.hasResult.unit}", ln=True)
-                if x.hasResult
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Property: {x.relatesToProperty}", ln=True)
-                if x.relatesToProperty
-                else None
-            )
-            (
-                pdf.cell(0, 10, f"Observed Property: {x.observedProperty}", ln=True)
-                if x.observedProperty
-                else None
-            )
-            pdf.cell(0, 10, f"Details: {x.details}", ln=True)
-
-            if x.hasStartDatetime:
-                pdf.cell(
-                    0,
-                    10,
-                    f"Start: {x.hasStartDatetime}",
-                    ln=True,
+            row.cell("Title")
+            row.cell("Details")
+            row.cell("Start")
+            row.cell("End")
+            row.cell("Agent")
+            row.cell("Machinery IDs")
+            row.cell("Parcel")
+            row.cell("Farm")
+            row.cell("Compost Pile")
+            pdf.set_font("FreeSerif", "", 9)
+            pdf.set_fill_color(255, 255, 240)
+            for operation in calendar_data.operations:
+                row = table.row()
+                row.cell(operation.title)
+                row.cell(operation.details)
+                row.cell(
+                    f"{operation.hasStartDatetime.strftime('%d/%m/%Y') if operation.hasStartDatetime else 'N/A'}",
                 )
-
-            if x.hasEndDatetime:
-                pdf.cell(
-                    0,
-                    10,
-                    f"Start: {x.hasEndDatetime}",
-                    ln=True,
+                row.cell(
+                    f"{operation.hasEndDatetime.strftime('%d/%m/%Y') if operation.hasEndDatetime else 'N/A'} ",
                 )
+                row.cell(operation.responsibleAgent)
+                machinery_ids = ''
+                address, farm = '', ''
+                if operation.usesAgriculturalMachinery:
+                    machinery_ids = ", ".join(
+                        [
+                            machinery.get("@id", "N/A").split(":")[3]
+                            for machinery in operation.usesAgriculturalMachinery
+                        ]
+                    )
+                    agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+                        -1]
+                    agr_resp = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
+                        token=token,
+                        params={"format": "json"}
+                    )
+                    if agr_resp:
+                        parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
+                        address, farm = get_parcel_info(parcel_id, token, geolocator)
+                row.cell(f"{machinery_ids}")
+                row.cell(address)
+                row.cell(farm)
+                operation = calendar_data.operations[0]
+                cp = operation.isOperatedOn.get("@id", "N/A").split(":")[
+                    3] if operation.isOperatedOn else 'Empty Pile Value'
+                row.cell(cp)
 
-            (
-                pdf.cell(0, 10, f"Responsible: {x.responsibleAgent}", ln=True)
-                if x.responsibleAgent
-                else None
-            )
+    if calendar_data.observations:
+        pdf.ln()
+        pdf.set_fill_color(0, 255, 255	)
 
-            if x.usesAgriculturalMachinery:
-                machinery_ids = ", ".join(
-                    [
-                        machinery.get("@id", "N/A").split(":")[3]
-                        for machinery in x.usesAgriculturalMachinery
-                    ]
+        pdf.set_font("FreeSerif", "B", 12)
+        pdf.cell(0, 10, "Observations", ln=True)
+        pdf.ln(5)
+
+        with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+            row = table.row()
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Value info")
+            row.cell("Observed Property")
+            row.cell("Details")
+            row.cell("Start")
+            row.cell("End")
+            row.cell("Responsible Agent")
+            pdf.set_font("FreeSerif", "", 9)
+            for x in calendar_data.observations:
+                row = table.row()
+                pdf.set_fill_color(255, 255, 240)
+                (
+                    row.cell(f"{x.hasResult.hasValue} ({x.hasResult.unit})")
+                    if x.hasResult
+                    else row.cell("N/A")
                 )
-                pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
+                (
+                    row.cell(f"{x.observedProperty}")
+                    if x.observedProperty
+                    else row.cell("N/A")
+                )
+                row.cell(f"{x.details}")
+                start_time = x.hasStartDatetime.strftime("%d/%m/%Y") if x.hasStartDatetime else x.phenomenonTime.strftime("%d/%m/%Y")
+                row.cell(f"{start_time}")
+                row.cell(f"{x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else x.hasEndDatetime}")
+                row.cell(f"R{x.responsibleAgent if x.responsibleAgent else 'N/A'}")
 
-        pdf.ln(10)
+
+    if calendar_data.materials:
+        pdf.ln()
+        pdf.set_fill_color(0, 255, 255)
+
+        pdf.set_font("FreeSerif", "B", 12)
+        pdf.cell(0, 10, "Raw materials added", ln=True)
+        pdf.ln(5)
+
+        with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+            row = table.row()
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Name")
+            row.cell("Unit")
+            row.cell("Numeric value")
+            pdf.set_font("FreeSerif", "", 9)
+            for material in calendar_data.materials:
+                for x in material.hasCompostMaterial:
+                    row = table.row()
+                    pdf.set_fill_color(255, 255, 240)
+                    row.cell(x.typeName)
+                    row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
+                    row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
+
+    pdf.ln(10)
 
     return pdf
 
 
 def process_farm_calendar_data(
-    observation_type_name: str,
-    token: dict[str, str],
-    pdf_file_name: str,
-    data=None,
+        token: dict[str, str],
+        pdf_file_name: str,
+        calendar_activity_type: str = None,
+        data=None,
+        operation_id: str = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ) -> None:
     """
     Process farm calendar data and generate PDF report
@@ -176,54 +279,99 @@ def process_farm_calendar_data(
                     status_code=400,
                     detail=f"Data file must be provided if gatekeeper is not used.",
                 )
+            params = {"format": "json", "activity_type": ""}
+            operation_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}'
+            obs_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}'
 
-            params = {"format": "json", "name": observation_type_name}
-            farm_activity_type_info = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-                token=token,
-                params=params,
-            )
+            observations = []
+            materials = []
+            operations = []
 
-            if not farm_activity_type_info:
-                raise HTTPException(status_code=400, detail="Activity Type API failed.")
+            # No operation ID we retrieve all data from this type)
+            if not operation_id:
+                # Check for generic response
+                if calendar_activity_type:
+                    params["name"] = calendar_activity_type
+                    farm_activity_type_info = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+                        token=token,
+                        params=params,
+                    )
 
-            del params["name"]
-            params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+                    del params["name"]
 
-            observations = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}',
-                token=token,
-                params=params,
-            )
+                    if farm_activity_type_info:
+                        params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+                        decode_dates_filters(params, from_date, to_date)
+                        observations = make_get_request(
+                            url=obs_url,
+                            token=token,
+                            params=params,
+                        )
 
-            if not observations:
-                raise HTTPException(status_code=400, detail="Observations are empty.")
+                        operations = make_get_request(
+                            url=operation_url,
+                            token=token,
+                            params=params,
+                        )
 
-            farm_activities = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activities"]}',
-                token=token,
-                params=params,
-            )
+            else:
+                operation_url = f"{operation_url}{operation_id}/"
+                del params['activity_type']
 
-            if not farm_activities:
-                raise HTTPException(
-                    status_code=400, detail="Farm Activities are empty."
+                operation_params = params.copy()
+                operations = make_get_request(
+                    url=operation_url,
+                    token=token,
+                    params=operation_params,
                 )
 
+                # Operations are not array it is only one element (ID used)
+                operations = [operations] if operations else []
+                if operations:
+                    if not calendar_activity_type:
+                        id = operations[0]['activityType']["@id"].split(":")[3]
+                        if id:
+                            farm_activity_type_info = make_get_request(
+                                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}{id}/',
+                                token=token,
+                                params=params
+                            )
+                            calendar_activity_type = farm_activity_type_info['name']
+                    for measurement in operations[0]['hasMeasurement']:
+                        observation = make_get_request(
+                            url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
+                            token=token,
+                            params=params,
+                        )
+                        observations.append(observation)
+
+                    if operations[0]['hasNestedOperation']:
+                        material_url = (
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]} \
+                                        {operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
+                        materials = make_get_request(
+                            url=material_url,
+                            token=token,
+                            params=params
+                        )
+
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=observations,
-                farm_activities=farm_activities,
-            )
+                farm_activities=operations,
+                materials=materials,
+                )
         else:
             dt = json.load(data.file)
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=dt["observations"],
-                farm_activities=dt["farm_activities"],
+                farm_activities=dt["operations"],
+                materials=dt["materials"]
             )
 
-        pdf = create_farm_calendar_pdf(calendar_data)
+        pdf = create_farm_calendar_pdf(calendar_data, token)
         pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
         os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
         pdf.output(f"{pdf_dir}.pdf")

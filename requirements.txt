@@ -11,6 +11,7 @@ python-multipart==0.0.9 # For uploading files (.csv, .xlss ...)
 SQLAlchemy==2.0.31
 pydantic==2.8.2
 starlette==0.37.2
+geopy==2.4.1
 
 fpdf2==2.7.9
 PyLD==2.0.4

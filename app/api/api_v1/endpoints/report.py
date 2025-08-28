@@ -1,3 +1,4 @@
+import datetime
 import os
 import uuid
 from typing import Optional
@@ -23,7 +24,7 @@ from fastapi.responses import FileResponse
 router = APIRouter()
 
 
-@router.get("/{report_id}", response_class=FileResponse)
+@router.get("/{report_id}/", response_class=FileResponse)
 def retrieve_generated_pdf(
     report_id: str,
     token=Depends(deps.get_current_user),
@@ -57,6 +58,8 @@ async def generate_irrigation_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ):
     """
     Generates Irrigation Report PDF file
@@ -81,6 +84,8 @@ async def generate_irrigation_report(
         data=data,
         token=token,
         pdf_file_name=uuid_of_pdf,
+    from_date=from_date,
+    to_date=to_date
     )
 
     return PDF(uuid=uuid_v4)
@@ -88,22 +93,20 @@ async def generate_irrigation_report(
 
 @router.post("/compost-report/", response_model=PDF)
 async def generate_generic_observation_report(
-    observation_type_name: str,
     background_tasks: BackgroundTasks,
+    calendar_activity_type: str = None,
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
+    operation_id: str = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None
 ):
     """
     Generates Observation Report PDF file
-    possible_names = ["Pesticides", "Irrigation", "Fertilization", "CropStressIndicator", "CropGrowthObservation"]
-
+    All Farm Calendar Observation Type values are possible as input
 
     """
-    if observation_type_name == "CropGrowthObservation":
-        observation_type_name = "Crop Growth Stage Observation"
 
-    if observation_type_name == "CropStressIndicator":
-        observation_type_name = "Crop Stress Indicator"
     uuid_v4 = str(uuid.uuid4())
     user_id = (
         decode_jwt_token(token)["user_id"]
@@ -114,10 +117,13 @@ async def generate_generic_observation_report(
 
     background_tasks.add_task(
         process_farm_calendar_data,
-        observation_type_name=observation_type_name,
+        calendar_activity_type=calendar_activity_type,
         token=token,
         data=data,
         pdf_file_name=uuid_of_pdf,
+        operation_id=operation_id,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     return PDF(uuid=uuid_v4)
@@ -132,6 +138,8 @@ async def generate_animal_report(
     parcel: Optional[UUID4] = None,
     status: Optional[int] = None,
     data: UploadFile = None,
+        from_date: datetime.date = None,
+        to_date: datetime.date = None
 ):
     """
     Generates Animal Report PDF file
@@ -167,6 +175,8 @@ async def generate_animal_report(
         token=token,
         params=params,
         pdf_file_name=uuid_of_pdf,
+    from_date=from_date,
+    to_date=to_date
     )
 
     return PDF(uuid=uuid_v4)

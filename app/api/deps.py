@@ -36,7 +36,7 @@ def get_current_user(
                 json={"token": token, "token_type": "access"},
             )
 
-            if response.status_code == 400:
+            if str(response.status_code)[0] != "2":
                 raise HTTPException(status_code=400, detail="Error, bad jwt token.")
             return token
         else:
