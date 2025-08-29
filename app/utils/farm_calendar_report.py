@@ -344,45 +344,44 @@ def process_farm_calendar_data(
                                 params=params
                             )
                             calendar_activity_type = farm_activity_type_info['name']
-                    if operations[0]['hasMeasurement']:
-                        obs_op_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}')
 
-                        print(obs_op_url)
-                        observations = make_get_request(
-                            url=obs_op_url,
-                            token=token,
-                            params=params,
-                        )
+                    obs_op_url = (
+                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}')
 
-                    if operations[0]['hasNestedOperation']:
-                        material_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
-                        materials_partials = make_get_request(
-                            url=material_url,
-                            token=token,
-                            params=params
-                        )
+                    observations = make_get_request(
+                        url=obs_op_url,
+                        token=token,
+                        params=params,
+                    )
 
-                        comp_irrigation_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}')
-                        irrigation_ops =  make_get_request(
-                            url=comp_irrigation_url,
-                            token=token,
-                            params=params
-                        )
 
-                        comp_turn_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["turning_operations"]}')
-                        compost_turning_ops = make_get_request(
-                            url=comp_turn_url,
-                            token=token,
-                            params=params
-                        )
-                        # In case endpoint does not return empty array (fails)
-                        compost_turning_ops = compost_turning_ops if compost_turning_ops else []
-                        irrigation_ops = irrigation_ops if irrigation_ops else []
-                        materials = materials_partials + compost_turning_ops + irrigation_ops
+                    material_url = (
+                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
+                    materials_partials = make_get_request(
+                        url=material_url,
+                        token=token,
+                        params=params
+                    )
+
+                    comp_irrigation_url = (
+                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}')
+                    irrigation_ops =  make_get_request(
+                        url=comp_irrigation_url,
+                        token=token,
+                        params=params
+                    )
+
+                    comp_turn_url = (
+                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["turning_operations"]}')
+                    compost_turning_ops = make_get_request(
+                        url=comp_turn_url,
+                        token=token,
+                        params=params
+                    )
+                    # In case endpoint does not return empty array (fails)
+                    compost_turning_ops = compost_turning_ops if compost_turning_ops else []
+                    irrigation_ops = irrigation_ops if irrigation_ops else []
+                    materials = materials_partials + compost_turning_ops + irrigation_ops
 
 
 
