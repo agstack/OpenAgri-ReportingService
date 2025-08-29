@@ -28,6 +28,7 @@ class Settings(BaseSettings):
         "activity_types": "/FarmCalendarActivityTypes/",
         "observations": "/Observations/",
         "operations": "/CompostOperations/",
+        "turning_operations": "/CompostTurningOperations/",
         "activities": "/FarmCalendarActivities/",
         "parcel": "/FarmParcels/",
         "animals": "/FarmAnimals/",

@@ -8,6 +8,9 @@ class QuantityValue(BaseModel):
     unit: str = ""
     numericValue: float = 0.0
 
+class QuantityValueIrrigation(BaseModel):
+    unit: str = ""
+    numericValue: float = 0.0
 
 class CompostMaterial(BaseModel):
     type: str = Field(alias="@type")
@@ -66,3 +69,4 @@ class Operation(BaseModel):
 class AddRawMaterialOperation(Operation):
     usesAgriculturalMachinery: List = []
     hasCompostMaterial: List[CompostMaterial] = []
+    hasAppliedAmount: Optional[QuantityValueIrrigation] = None

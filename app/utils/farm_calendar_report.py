@@ -237,7 +237,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
         pdf.set_fill_color(0, 255, 255)
 
         pdf.set_font("FreeSerif", "B", 12)
-        pdf.cell(0, 10, "Raw materials added", ln=True)
+        pdf.cell(0, 10, "Raw Material | Irrigation | Turning Operations", ln=True)
         pdf.ln(5)
 
         with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
@@ -254,6 +254,12 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                     row.cell(x.typeName)
                     row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
                     row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
+                if material.hasAppliedAmount:
+                    row = table.row()
+                    pdf.set_fill_color(255, 255, 240)
+                    row.cell("Irrigation Value")
+                    row.cell(material.hasAppliedAmount.unit if material.hasAppliedAmount.unit else 'N/A')
+                    row.cell(str(material.hasAppliedAmount.numericValue) if material.hasAppliedAmount.numericValue else 'N/A')
 
     pdf.ln(10)
 
@@ -338,23 +344,46 @@ def process_farm_calendar_data(
                                 params=params
                             )
                             calendar_activity_type = farm_activity_type_info['name']
-                    for measurement in operations[0]['hasMeasurement']:
-                        observation = make_get_request(
-                            url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
+                    if operations[0]['hasMeasurement']:
+                        obs_op_url = (
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}')
+
+                        print(obs_op_url)
+                        observations = make_get_request(
+                            url=obs_op_url,
                             token=token,
                             params=params,
                         )
-                        observations.append(observation)
 
                     if operations[0]['hasNestedOperation']:
                         material_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]} \
-                                        {operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
-                        materials = make_get_request(
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
+                        materials_partials = make_get_request(
                             url=material_url,
                             token=token,
                             params=params
                         )
+
+                        comp_irrigation_url = (
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}')
+                        irrigation_ops =  make_get_request(
+                            url=comp_irrigation_url,
+                            token=token,
+                            params=params
+                        )
+
+                        comp_turn_url = (
+                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["turning_operations"]}')
+                        compost_turning_ops = make_get_request(
+                            url=comp_turn_url,
+                            token=token,
+                            params=params
+                        )
+                        compost_turning_ops = compost_turning_ops if compost_turning_ops else []
+                        irrigation_ops = irrigation_ops if irrigation_ops else []
+                        materials = materials_partials + compost_turning_ops + irrigation_ops
+
+
 
             calendar_data = FarmCalendarData(
                 activity_type_info=calendar_activity_type,
