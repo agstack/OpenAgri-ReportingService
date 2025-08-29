@@ -379,6 +379,7 @@ def process_farm_calendar_data(
                             token=token,
                             params=params
                         )
+                        # In case endpoint does not return empty array (fails)
                         compost_turning_ops = compost_turning_ops if compost_turning_ops else []
                         irrigation_ops = irrigation_ops if irrigation_ops else []
                         materials = materials_partials + compost_turning_ops + irrigation_ops
