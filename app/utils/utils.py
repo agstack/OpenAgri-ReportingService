@@ -49,9 +49,9 @@ def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date
     try:
         if from_date:
             from_date = from_date.strftime("%Y-%m-%d")
-            params['from_date'] = from_date
+            params['fromDate'] = from_date
         if to_date:
-            params['to_date'] = to_date.strftime("%Y-%m-%d")
+            params['toDate'] = to_date.strftime("%Y-%m-%d")
     except Exception as e:
         logger.info(f"Error in parsing date: {e}. Request will be sent without date filters.")
 
@@ -65,16 +65,22 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
     location = farm_parcel_info.get("location")
     address = ''
     farm = ''
-    if location:
-        coordinates = f"{location.get('lat')}, {location.get('long')}"
-        l_info = geolocator.reverse(coordinates)
-        address_details = l_info.raw.get('address', {})
-        city = address_details.get('city')
-        country = address_details.get("country")
-        postcode = address_details.get('postcode')
-        address = f"Country: {country} | City: {city} | Postcode: {postcode}"
+    try:
+        if location:
+            coordinates = f"{location.get('lat')}, {location.get('long')}"
+            l_info = geolocator.reverse(coordinates)
+            address_details = l_info.raw.get('address', {})
+            city = address_details.get('city')
+            country = address_details.get("country")
+            postcode = address_details.get('postcode')
+            address = f"Country: {country} | City: {city} | Postcode: {postcode}"
+    except Exception as e:
+        logger.error("Error with geolocator", e)
+        return address, farm
 
-    farm_id = farm_parcel_info.get("farm").get("@id", "N/A").split(":")[-1]
+    farm_id = farm_parcel_info.get("farm").get("@id", None)
+    if farm_id:
+        farm_id = farm_id.split(":")[-1]
     if farm_id:
         farm_info = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["farm"]}{farm_id}/',

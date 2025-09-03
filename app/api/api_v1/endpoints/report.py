@@ -24,7 +24,7 @@ from fastapi.responses import FileResponse
 router = APIRouter()
 
 
-@router.get("/{report_id}", response_class=FileResponse)
+@router.get("/{report_id}/", response_class=FileResponse)
 def retrieve_generated_pdf(
     report_id: str,
     token=Depends(deps.get_current_user),
@@ -94,7 +94,7 @@ async def generate_irrigation_report(
 @router.post("/compost-report/", response_model=PDF)
 async def generate_generic_observation_report(
     background_tasks: BackgroundTasks,
-    observation_type_name: str = None,
+    calendar_activity_type: str = None,
     token=Depends(deps.get_current_user),
     data: UploadFile = None,
     operation_id: str = None,
@@ -117,7 +117,7 @@ async def generate_generic_observation_report(
 
     background_tasks.add_task(
         process_farm_calendar_data,
-        observation_type_name=observation_type_name,
+        calendar_activity_type=calendar_activity_type,
         token=token,
         data=data,
         pdf_file_name=uuid_of_pdf,

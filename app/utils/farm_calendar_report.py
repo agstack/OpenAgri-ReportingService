@@ -92,6 +92,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 pdf.set_font("FreeSerif", "", 10)
                 pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
+
         cp_id = operation.isOperatedOn.get("@id", "N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
         start_date = operation.hasStartDatetime.strftime("%d/%m/%Y") if operation.hasStartDatetime else operation.phenomenonTime
         end_date = operation.hasEndDatetime.strftime("%d/%m/%Y") if operation.hasEndDatetime else "N/A"
@@ -115,6 +116,25 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
         pdf.cell(40, 8, "Compost Pile:")
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, str(cp_id), ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Initial Materials:")
+        pdf.ln(15)
+        if calendar_data.materials:
+            with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
+                pdf.set_font("FreeSerif", "", 10)
+                row = table.row()
+                row.cell("Name")
+                row.cell("Unit")
+                row.cell("Numeric value")
+                pdf.set_font("FreeSerif", "", 9)
+                row = table.row()
+                x = calendar_data.materials[0].hasCompostMaterial[0] if calendar_data.materials[0].hasCompostMaterial else None
+                row.cell(x.typeName if x else 'N/A')
+                row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
+                row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
+
+
     pdf.set_fill_color(0, 255, 255)
     if len(calendar_data.operations) > 1:
         with pdf.table(text_align="CENTER", padding=0.5) as table:
@@ -129,8 +149,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Details")
             row.cell("Start")
             row.cell("End")
-            row.cell("Responsible Agent")
+            row.cell("Agent")
             row.cell("Machinery IDs")
+            row.cell("Parcel")
+            row.cell("Farm")
             row.cell("Compost Pile")
             pdf.set_font("FreeSerif", "", 9)
             pdf.set_fill_color(255, 255, 240)
@@ -146,6 +168,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 )
                 row.cell(operation.responsibleAgent)
                 machinery_ids = ''
+                address, farm = '', ''
                 if operation.usesAgriculturalMachinery:
                     machinery_ids = ", ".join(
                         [
@@ -153,7 +176,19 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                             for machinery in operation.usesAgriculturalMachinery
                         ]
                     )
+                    agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+                        -1]
+                    agr_resp = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
+                        token=token,
+                        params={"format": "json"}
+                    )
+                    if agr_resp:
+                        parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
+                        address, farm = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
+                row.cell(address)
+                row.cell(farm)
                 operation = calendar_data.operations[0]
                 cp = operation.isOperatedOn.get("@id", "N/A").split(":")[
                     3] if operation.isOperatedOn else 'Empty Pile Value'
@@ -228,7 +263,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 def process_farm_calendar_data(
         token: dict[str, str],
         pdf_file_name: str,
-        observation_type_name: str = None,
+        calendar_activity_type: str = None,
         data=None,
         operation_id: str = None,
         from_date: datetime.date = None,
@@ -245,43 +280,46 @@ def process_farm_calendar_data(
                     detail=f"Data file must be provided if gatekeeper is not used.",
                 )
             params = {"format": "json", "activity_type": ""}
-            # Retrieve Type ID (no operation ID we retrieve all data from this type)
-            if observation_type_name and not operation_id:
-                params["name"] = observation_type_name
-                farm_activity_type_info = make_get_request(
-                    url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-                    token=token,
-                    params=params,
-                )
-
-                del params["name"]
-                if not farm_activity_type_info:
-                    calendar_data = FarmCalendarData(
-                        activity_type_info=observation_type_name,
-                        observations=[],
-                        farm_activities=[],
-                    )
-
-                    pdf = create_farm_calendar_pdf(calendar_data)
-                    pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
-                    os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
-                    pdf.output(f"{pdf_dir}.pdf")
-                    return
-                params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
-
             operation_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}'
             obs_url = f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}'
-
 
             observations = []
             materials = []
             operations = []
-            if operation_id:
+
+            # No operation ID we retrieve all data from this type)
+            if not operation_id:
+                # Check for generic response
+                if calendar_activity_type:
+                    params["name"] = calendar_activity_type
+                    farm_activity_type_info = make_get_request(
+                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
+                        token=token,
+                        params=params,
+                    )
+
+                    del params["name"]
+
+                    if farm_activity_type_info:
+                        params["activity_type"] = farm_activity_type_info[0]["@id"].split(":")[3]
+                        decode_dates_filters(params, from_date, to_date)
+                        observations = make_get_request(
+                            url=obs_url,
+                            token=token,
+                            params=params,
+                        )
+
+                        operations = make_get_request(
+                            url=operation_url,
+                            token=token,
+                            params=params,
+                        )
+
+            else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params['activity_type']
 
                 operation_params = params.copy()
-                decode_dates_filters(operation_params, from_date, to_date)
                 operations = make_get_request(
                     url=operation_url,
                     token=token,
@@ -291,7 +329,7 @@ def process_farm_calendar_data(
                 # Operations are not array it is only one element (ID used)
                 operations = [operations] if operations else []
                 if operations:
-                    if not observation_type_name:
+                    if not calendar_activity_type:
                         id = operations[0]['activityType']["@id"].split(":")[3]
                         if id:
                             farm_activity_type_info = make_get_request(
@@ -299,7 +337,7 @@ def process_farm_calendar_data(
                                 token=token,
                                 params=params
                             )
-                            observation_type_name = farm_activity_type_info['name']
+                            calendar_activity_type = farm_activity_type_info['name']
                     for measurement in operations[0]['hasMeasurement']:
                         observation = make_get_request(
                             url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
@@ -317,86 +355,17 @@ def process_farm_calendar_data(
                             token=token,
                             params=params
                         )
-                    materials = [{
-    "@type": "AddRawMaterialOperation",
-                        "@id": "urn:farmcalendar:AddRawMaterialOperation:c7737db3-740b-428a-92bf-d4af0c90e8bb",
 
-                        "activityType": {
-        "@type": "FarmCalendarActivityType",
-        "@id": "urn:farmcalendar:FarmCalendarActivityType:00000000-0000-0000-0000-000000000007"
-    },
-    "title": "Add Raw Material Operation",
-    "details": "",
-    "hasStartDatetime": "2025-06-03T11:51:06Z",
-    "hasEndDatetime": None,
-    "responsibleAgent": None,
-    "usesAgriculturalMachinery": [],
-    "hasCompostMaterial": [
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Dry leaves",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 21.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Green grass",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 8.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Dry grass",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 3.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Wood chips",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 14.0
-            }
-        },
-        {
-            "@type": "CompostMaterial",
-            "typeName": "Red soil",
-            "quantityValue": {
-                "@type": "QuantityValue",
-                "unit": "kg",
-                "numericValue": 7.0
-            }
-        }
-    ]
-}
-]
-            else:
-                if observation_type_name:
-                    observations = make_get_request(
-                        url=obs_url,
-                        token=token,
-                        params=params,
-                    )
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=observations,
                 farm_activities=operations,
                 materials=materials,
-        )
+                )
         else:
             dt = json.load(data.file)
             calendar_data = FarmCalendarData(
-                activity_type_info=observation_type_name,
+                activity_type_info=calendar_activity_type,
                 observations=dt["observations"],
                 farm_activities=dt["operations"],
                 materials=dt["materials"]
