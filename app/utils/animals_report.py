@@ -91,21 +91,31 @@ def create_pdf_from_animals(animals: List[Animal]):
 def process_animal_data(
         token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None,
         from_date: datetime.date = None,
-        to_date: datetime.date = None
+        to_date: datetime.date = None,
+        farm_animal_id: str = None
 ) -> None:
     """
     Process animal data and generate PDF report
     """
-    if params:
-        decode_dates_filters(params, from_date, to_date)
+    if farm_animal_id:
         json_data = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}{farm_animal_id}/',
             token=token,
-            params=params,
+            params={"format": "json"},
         )
 
     else:
-        json_data = json.load(data.file)
+        if params:
+            params["format"]= "json"
+            decode_dates_filters(params, from_date, to_date)
+            json_data = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+                token=token,
+                params=params,
+            )
+
+        else:
+            json_data = json.load(data.file)
 
     animals = parse_animal_data(json_data)
 

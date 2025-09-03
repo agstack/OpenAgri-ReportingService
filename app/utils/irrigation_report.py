@@ -121,22 +121,30 @@ def create_pdf_from_operations(operations: List[IrrigationOperation]):
 
 
 def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str, from_date: datetime.date = None,
-                            to_date: datetime.date = None) -> None:
+                            to_date: datetime.date = None,irrigation_id: str = None) -> None:
     """
     Process irrigation data and generate PDF report
     """
 
-    if not data:
-        params = {"format": "json"}
-        decode_dates_filters(params, from_date, to_date)
+    if irrigation_id:
         json_data = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}{irrigation_id}/',
             token=token,
-            params=params,
+            params={"format": "json"}
         )
 
     else:
-        json_data = json.load(data.file)
+        if not data:
+            params = {"format": "json"}
+            decode_dates_filters(params, from_date, to_date)
+            json_data = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+                token=token,
+                params=params,
+            )
+
+        else:
+            json_data = json.load(data.file)
 
     operations = parse_irrigation_operations(json_data)
 
