@@ -9,7 +9,7 @@ from core import settings
 from fpdf import FontFace
 from fpdf.enums import VAlign
 from schemas.compost import *
-from utils import EX, add_fonts, decode_dates_filters, get_parcel_info
+from utils import EX, add_fonts, decode_dates_filters, get_parcel_info, get_farm_operation_data
 from utils.json_handler import make_get_request
 from geopy.geocoders import Nominatim
 geolocator = Nominatim(user_agent="reportin_app")
@@ -323,6 +323,11 @@ def process_farm_calendar_data(
                             params=params,
                         )
 
+                        del params['activity_type']
+                        for o in operations:
+                            id =  o["@id"].split(":")[3]
+                            get_farm_operation_data(id=id, materials=materials, params=params, observations=observations, token=token)
+
             else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params['activity_type']
@@ -353,41 +358,8 @@ def process_farm_calendar_data(
                     # Filter Observations by date when operation ID is used
                     params_copy = params.copy()
                     decode_dates_filters(params_copy, from_date, to_date)
-                    observations = make_get_request(
-                        url=obs_op_url,
-                        token=token,
-                        params=params_copy,
-                    )
-
-
-                    material_url = (
-                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
-                    materials_partials = make_get_request(
-                        url=material_url,
-                        token=token,
-                        params=params
-                    )
-
-                    comp_irrigation_url = (
-                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}')
-                    irrigation_ops =  make_get_request(
-                        url=comp_irrigation_url,
-                        token=token,
-                        params=params
-                    )
-
-                    comp_turn_url = (
-                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["turning_operations"]}')
-                    compost_turning_ops = make_get_request(
-                        url=comp_turn_url,
-                        token=token,
-                        params=params
-                    )
-                    # In case endpoint does not return empty array (fails)
-                    compost_turning_ops = compost_turning_ops if compost_turning_ops else []
-                    irrigation_ops = irrigation_ops if irrigation_ops else []
-                    materials = materials_partials + compost_turning_ops + irrigation_ops
-
+                    get_farm_operation_data(id=operation_id, materials=materials, params=params_copy, observations=observations,
+                                            token=token)
 
 
             calendar_data = FarmCalendarData(

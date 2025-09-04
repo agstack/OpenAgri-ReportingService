@@ -91,3 +91,35 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
         farm = f"Name: {farm_info.get('name', '')} | Municipality: {farm_info.get('address',{}).get('municipality', '')}"
     return address, farm
 
+
+def get_farm_operation_data(id: str, token: dict[str, str], params: dict, observations: list, materials: list):
+    """
+    Fetches observations and material-related data for a farm operation.
+
+    """
+    base_url = settings.REPORTING_FARMCALENDAR_BASE_URL
+    urls = settings.REPORTING_FARMCALENDAR_URLS
+
+    # Fetch and append observations
+    obs_url = f'{base_url}{urls["operations"]}{id}{urls["observations"]}'
+    observations_local = make_get_request(url=obs_url, token=token, params=params)
+    if observations_local:
+        observations.extend(observations_local)
+
+    # Fetch and append materials
+    material_url = f'{base_url}{urls["operations"]}{id}{urls["materials"]}'
+    materials_partials = make_get_request(url=material_url, token=token, params=params)
+    if materials_partials:
+        materials.extend(materials_partials)
+
+    # Fetch and append irrigation operations
+    irrigation_url = f'{base_url}{urls["operations"]}{id}{urls["irrigations"]}'
+    irrigation_ops = make_get_request(url=irrigation_url, token=token, params=params)
+    if irrigation_ops:
+        materials.extend(irrigation_ops)
+
+    # Fetch and append compost turning operations
+    turn_url = f'{base_url}{urls["operations"]}{id}{urls["turning_operations"]}'
+    compost_turning_ops = make_get_request(url=turn_url, token=token, params=params)
+    if compost_turning_ops:
+        materials.extend(compost_turning_ops)
