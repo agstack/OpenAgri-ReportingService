@@ -137,6 +137,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
     pdf.set_fill_color(0, 255, 255)
     if len(calendar_data.operations) > 1:
+        calendar_data.operations.sort(key=lambda x: x.hasStartDatetime)
         with pdf.table(text_align="CENTER", padding=0.5) as table:
 
             pdf.set_font("FreeSerif", "B", 12)
