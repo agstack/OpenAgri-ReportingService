@@ -352,8 +352,6 @@ def process_farm_calendar_data(
                             )
                             calendar_activity_type = farm_activity_type_info['name']
 
-                    obs_op_url = (
-                        f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}')
 
                     # Filter Observations by date when operation ID is used
                     params_copy = params.copy()
