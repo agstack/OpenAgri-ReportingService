@@ -349,10 +349,13 @@ def process_farm_calendar_data(
                     obs_op_url = (
                         f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]}{operation_id}{settings.REPORTING_FARMCALENDAR_URLS["observations"]}')
 
+                    # Filter Observations by date when operation ID is used
+                    params_copy = params.copy()
+                    decode_dates_filters(params_copy, from_date, to_date)
                     observations = make_get_request(
                         url=obs_op_url,
                         token=token,
-                        params=params,
+                        params=params_copy,
                     )
 
 
