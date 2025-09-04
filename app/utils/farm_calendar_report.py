@@ -195,6 +195,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 row.cell(cp)
 
     if calendar_data.observations:
+        calendar_data.observations.sort(key=lambda x: x.phenomenonTime)
         pdf.ln()
         pdf.set_fill_color(0, 255, 255	)
 
