@@ -268,9 +268,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                                         row.cell(tmp_val)
                                         row.cell(qv.typeName)
                                         row.cell(x.details)
-                                        print(i)
                                     else:
-                                        print(i, "generat")
                                         # Create new row
                                         row = table.row()
                                         start_time = x.hasStartDatetime.strftime(
