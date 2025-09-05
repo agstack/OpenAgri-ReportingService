@@ -33,6 +33,10 @@ class EX(FPDF):
             x=160,
         )
 
+    def footer(self):
+        self.set_y(-15)
+        self.cell(0, 10, 'Page %s' % self.page_no(), 0, 0, 'C')
+
 
 def decode_jwt_token(token: str) -> dict:
     """
