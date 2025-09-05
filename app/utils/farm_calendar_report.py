@@ -207,9 +207,9 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 row.cell(operation.responsibleAgent) if operation.responsibleAgent else row.cell('')
 
     merged_data = calendar_data.observations + calendar_data.materials
-    merged_data.sort(key=lambda item: getattr(item, 'hasStartDatetime') or getattr(item, 'phenomenonTime'))
 
     if merged_data:
+        merged_data.sort(key=lambda item: getattr(item, 'hasStartDatetime') or getattr(item, 'phenomenonTime'))
         pdf.ln()
         pdf.set_fill_color(0, 255, 255	)
 
