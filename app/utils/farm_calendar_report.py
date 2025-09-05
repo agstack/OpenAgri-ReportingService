@@ -229,7 +229,6 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Start - End")
             row.cell("Is Irrigated")
             row.cell("Is Turned")
-            row.cell("Is Observation")
             row.cell("Values info")
             row.cell("Property")
             row.cell("Details")
@@ -251,48 +250,61 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 value = ''
                 prop = ''
 
+                generate_inner_row =  False
                 if irrigated:
-                    if x.operatedOn:
-                        parcel_id = x.operatedOn.get("@id", "N/A:N/A").split(":")[-1]
-                        address, _ = get_parcel_info(parcel_id=parcel_id, token=token, geolocator=geolocator)
-                        prop = f"Parcel location: {address}"
                     value = f"{x.hasAppliedAmount.numericValue} ({x.hasAppliedAmount.unit})"
                 if raw:
                     if x.hasCompostMaterial:
-                        value = 'Compost Materials: ['
                         for i, qv in enumerate(x.hasCompostMaterial):
                             tmp_val = f"{qv.quantityValue.numericValue} ({qv.quantityValue.unit})"
-                            value += tmp_val
-                            if i < len(x.hasCompostMaterial) -1:
-                                value += ','
-                        value += "]"
+                            value = tmp_val
+                            prop = qv.typeName
+                            if len(x.hasCompostMaterial) > 1:
+                                if i < (len(x.hasCompostMaterial)):
+                                    if i == 0:
+                                        # Finish current row
+                                        row.cell()
+                                        row.cell()
+                                        row.cell(tmp_val)
+                                        row.cell(qv.typeName)
+                                        row.cell(x.details)
+                                        print(i)
+                                    else:
+                                        print(i, "generat")
+                                        # Create new row
+                                        row = table.row()
+                                        start_time = x.hasStartDatetime.strftime(
+                                            "%d/%m/%Y") if x.hasStartDatetime else x.phenomenonTime.strftime("%d/%m/%Y")
+                                        end_time = x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else ''
+                                        row.cell(f"{start_time} - {end_time}")
+                                        row.cell()
+                                        row.cell()
+                                        row.cell(tmp_val)
+                                        row.cell(qv.typeName)
+                                        row.cell(x.details)
+                                        generate_inner_row = True
 
-                if observed:
-                    prop = x.observedProperty
-                    value = f"{x.hasResult.hasValue} ({x.hasResult.unit})"
+                if not generate_inner_row:
+                    if observed:
+                        prop = x.observedProperty
+                        value = f"{x.hasResult.hasValue} ({x.hasResult.unit})"
 
-                ir = 'Yes' if irrigated else 'No'
-                tr = 'Yes' if turned else 'No'
-                ob = 'Yes' if observed else 'No'
-                if ir == "Yes":
-                    pdf.set_font("FreeSerif", "B", 9)
-                row.cell(ir)
-                pdf.set_font("FreeSerif", "", 9)
+                    ir = 'Yes' if irrigated else ''
+                    tr = 'Yes' if turned else ''
+                    if ir == "Yes":
+                        pdf.set_font("FreeSerif", "B", 9)
+                    row.cell(ir)
+                    pdf.set_font("FreeSerif", "", 9)
 
-                if tr == "Yes":
-                    pdf.set_font("FreeSerif", "B", 9)
-                row.cell(tr)
-                pdf.set_font("FreeSerif", "", 9)
+                    if tr == "Yes":
+                        pdf.set_font("FreeSerif", "B", 9)
+                    row.cell(tr)
+                    pdf.set_font("FreeSerif", "", 9)
 
-                if ob == "Yes":
-                    pdf.set_font("FreeSerif", "B", 9)
-                row.cell(ob)
 
-                pdf.set_font("FreeSerif", "", 9)
-
-                row.cell(value)
-                row.cell(prop)
-                row.cell(x.details)
+                    row.cell(value)
+                    row.cell(prop)
+                    row.cell(x.details)
 
     pdf.ln(10)
 
