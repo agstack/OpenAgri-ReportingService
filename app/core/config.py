@@ -62,7 +62,5 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRATION_TIME: int
     JWT_SIGNING_KEY: str
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding='utf-8')
-
 
 settings = Settings()
