@@ -29,7 +29,9 @@ def parse_irrigation_operations(data: dict) -> Optional[List[IrrigationOperation
         )
 
 
-def create_pdf_from_operations(operations: List[IrrigationOperation], token: dict[str, str] = None):
+def create_pdf_from_operations(
+    operations: List[IrrigationOperation], token: dict[str, str] = None
+):
     """
     Create PDF report from irrigation operations
     """
@@ -43,7 +45,13 @@ def create_pdf_from_operations(operations: List[IrrigationOperation], token: dic
     pdf.set_font("FreeSerif", "B", 14)
     pdf.cell(0, 10, f"Irrigation Operation Report", ln=True, align="C")
     pdf.set_font("FreeSerif", style="", size=9)
-    pdf.cell(0, 7, f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}", ln=True, align="C")
+    pdf.cell(
+        0,
+        7,
+        f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}",
+        ln=True,
+        align="C",
+    )
     pdf.ln(5)
 
     pdf.set_font("FreeSerif", "B", 12)
@@ -56,18 +64,19 @@ def create_pdf_from_operations(operations: List[IrrigationOperation], token: dic
 
     if len(operations) == 1:
         op = operations[0]
-        parcel_id = (
-            op.operatedOn.get("@id") if op.operatedOn else None
-        )
-        address = ''
-        farm  = ''
+        parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+        address = ""
+        farm = ""
         if parcel_id:
             parcel = parcel_id.split(":")[3] if op.operatedOn else None
             if parcel:
-                address, farm = get_parcel_info(parcel_id.split(":")[-1], token, geolocator)
-        start_time = op.hasStartDatetime.strftime(
-            "%d/%m/%Y") if op.hasStartDatetime else ''
-        end_time = op.hasEndDatetime.strftime('%d/%m/%Y') if op.hasEndDatetime else ''
+                address, farm = get_parcel_info(
+                    parcel_id.split(":")[-1], token, geolocator
+                )
+        start_time = (
+            op.hasStartDatetime.strftime("%d/%m/%Y") if op.hasStartDatetime else ""
+        )
+        end_time = op.hasEndDatetime.strftime("%d/%m/%Y") if op.hasEndDatetime else ""
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Star-End :")
         pdf.set_font("FreeSerif", "", 10)
@@ -79,17 +88,35 @@ def create_pdf_from_operations(operations: List[IrrigationOperation], token: dic
         pdf.multi_cell(0, 8, address, ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(40, 8, "Farm information:", )
+        pdf.cell(
+            40,
+            8,
+            "Farm information:",
+        )
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(40, 8, "Value info:", )
+        pdf.cell(
+            40,
+            8,
+            "Value info:",
+        )
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})", ln=True, fill=True)
+        pdf.multi_cell(
+            0,
+            8,
+            f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
+            ln=True,
+            fill=True,
+        )
 
         pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(40, 8, "Responsible agent:", )
+        pdf.cell(
+            40,
+            8,
+            "Responsible agent:",
+        )
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, op.responsibleAgent, ln=True, fill=True)
     if len(operations) > 1:
@@ -109,22 +136,28 @@ def create_pdf_from_operations(operations: List[IrrigationOperation], token: dic
             for op in operations:
                 # Operation Header
                 row = table.row()
-                start_time = op.hasStartDatetime.strftime(
-                    "%d/%m/%Y") if op.hasStartDatetime else ''
-                end_time = op.hasEndDatetime.strftime('%d/%m/%Y') if op.hasEndDatetime else ''
+                start_time = (
+                    op.hasStartDatetime.strftime("%d/%m/%Y")
+                    if op.hasStartDatetime
+                    else ""
+                )
+                end_time = (
+                    op.hasEndDatetime.strftime("%d/%m/%Y") if op.hasEndDatetime else ""
+                )
                 row.cell(f"{start_time} - {end_time}")
                 row.cell(op.details)
 
-                parcel_id = (
-                    op.operatedOn.get("@id") if op.operatedOn else None
-                )
-                address = ''
+                parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+                address = ""
                 if parcel_id:
                     parcel = parcel_id.split(":")[3] if op.operatedOn else None
                     if parcel:
-                        address, _ = get_parcel_info(parcel_id.split(":")[-1], token, geolocator)
+                        address, _ = get_parcel_info(
+                            parcel_id.split(":")[-1], token, geolocator
+                        )
                 row.cell(address)
-                row.cell(f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
+                row.cell(
+                    f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
                 )
 
                 row.cell(op.usesIrrigationSystem)
@@ -136,8 +169,14 @@ def create_pdf_from_operations(operations: List[IrrigationOperation], token: dic
     return pdf
 
 
-def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str, from_date: datetime.date = None,
-                            to_date: datetime.date = None,irrigation_id: str = None) -> None:
+def process_irrigation_data(
+    data,
+    token: dict[str, str],
+    pdf_file_name: str,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    irrigation_id: str = None,
+) -> None:
     """
     Process irrigation data and generate PDF report
     """
@@ -146,7 +185,7 @@ def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str, fro
         json_data = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}{irrigation_id}/',
             token=token,
-            params={"format": "json"}
+            params={"format": "json"},
         )
 
         json_data = [json_data] if json_data else None
