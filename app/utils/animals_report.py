@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import List, Union
 
@@ -12,6 +13,10 @@ from utils.farm_calendar_report import geolocator
 from utils.json_handler import make_get_request
 
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
     """
     Parse list of animal records from JSON data
@@ -20,7 +25,7 @@ def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
         res = [Animal.model_validate(item) for item in data]
         return res
     except Exception as e:
-        print(f"Error parsing animal data: {e}")
+        logger.error(f"Error parsing animal data: {e}")
         return None
 
 
