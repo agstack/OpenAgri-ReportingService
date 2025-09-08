@@ -57,10 +57,10 @@ def retrieve_generated_pdf(
 async def generate_irrigation_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
-        irrigation_id: str = None,
+    irrigation_id: str = None,
     data: UploadFile = None,
-        from_date: datetime.date = None,
-        to_date: datetime.date = None
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
 ):
     """
     Generates Irrigation Report PDF file
@@ -85,9 +85,9 @@ async def generate_irrigation_report(
         data=data,
         token=token,
         pdf_file_name=uuid_of_pdf,
-    from_date=from_date,
-    to_date=to_date,
-        irrigation_id=irrigation_id
+        from_date=from_date,
+        to_date=to_date,
+        irrigation_id=irrigation_id,
     )
 
     return PDF(uuid=uuid_v4)
@@ -101,7 +101,7 @@ async def generate_generic_observation_report(
     data: UploadFile = None,
     operation_id: str = None,
     from_date: datetime.date = None,
-    to_date: datetime.date = None
+    to_date: datetime.date = None,
 ):
     """
     Generates Observation Report PDF file
@@ -135,14 +135,14 @@ async def generate_generic_observation_report(
 async def generate_animal_report(
     background_tasks: BackgroundTasks,
     token=Depends(deps.get_current_user),
-        farm_animal_id: str = None,
-        animal_group: Optional[str] = None,
+    farm_animal_id: str = None,
+    animal_group: Optional[str] = None,
     name: Optional[str] = None,
     parcel: Optional[UUID4] = None,
     status: Optional[int] = None,
     data: UploadFile = None,
-        from_date: datetime.date = None,
-        to_date: datetime.date = None
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
 ):
     """
     Generates Animal Report PDF file
@@ -178,9 +178,9 @@ async def generate_animal_report(
         token=token,
         params=params,
         pdf_file_name=uuid_of_pdf,
-    from_date=from_date,
-    to_date=to_date,
-        farm_animal_id=farm_animal_id
+        from_date=from_date,
+        to_date=to_date,
+        farm_animal_id=farm_animal_id,
     )
 
     return PDF(uuid=uuid_v4)
