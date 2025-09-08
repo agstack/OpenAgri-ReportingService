@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 from password_validator import PasswordValidator
 from typing import Optional, Any
 
