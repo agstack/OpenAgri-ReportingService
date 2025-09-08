@@ -9,10 +9,10 @@ from core import settings
 from fpdf import FontFace
 from fpdf.enums import VAlign
 from schemas.compost import *
-from utils import EX, add_fonts, decode_dates_filters, get_parcel_info
+from utils import EX, add_fonts, decode_dates_filters, get_parcel_info, get_farm_operation_data
 from utils.json_handler import make_get_request
 from geopy.geocoders import Nominatim
-geolocator = Nominatim(user_agent="reportin_app")
+geolocator = Nominatim(user_agent="reporting_app")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -53,14 +53,13 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
     EX.ln(pdf)
 
     pdf.set_font("FreeSerif", "B", 14)
-    pdf.cell(0, 10, f"{calendar_data.activity_type} Report", ln=True, align="C")
+    pdf.cell(0, 10, f"Compost Operation Report", ln=True, align="C")
     pdf.set_font("FreeSerif", style="", size=9)
-    pdf.cell(0, 7, f"Farm Calendar Operation Report", ln=True, align="C")
+    pdf.cell(0, 7, f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}", ln=True, align="C")
     pdf.ln(5)
 
     pdf.set_font("FreeSerif", "B", 12)
-    pdf.cell(0, 10, "Activity Type Information", ln=True, align="L")
-    pdf.set_fill_color(230, 230, 230)
+    pdf.set_fill_color(240, 240, 240)
 
     y_position = pdf.get_y()
     line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
@@ -70,7 +69,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
     if len(calendar_data.operations) == 1:
         operation = calendar_data.operations[0]
 
-        agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+        agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A:N/A").split(":")[
             -1] if operation.usesAgriculturalMachinery else None
         if agr_mach_id:
             agr_resp = make_get_request(
@@ -79,8 +78,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 params={"format": "json"}
             )
             if agr_resp:
-                parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
-                address, farm = get_parcel_info(parcel_id, token, geolocator)
+                parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None)
+                address, farm = "", ""
+                if parcel_id:
+                    address, farm = get_parcel_info(parcel_id.split(":")[-1], token, geolocator)
 
                 pdf.set_font("FreeSerif", "B", 10)
                 pdf.cell(40, 8, "Parcel Location:")
@@ -93,7 +94,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
 
-        cp_id = operation.isOperatedOn.get("@id", "N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
+        cp_id = operation.isOperatedOn.get("@id", "N/A:N/A").split(":")[-1] if operation.isOperatedOn else 'N/A'
         start_date = operation.hasStartDatetime.strftime("%d/%m/%Y") if operation.hasStartDatetime else operation.phenomenonTime
         end_date = operation.hasEndDatetime.strftime("%d/%m/%Y") if operation.hasEndDatetime else "N/A"
 
@@ -118,6 +119,12 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
         pdf.multi_cell(0, 8, str(cp_id), ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Responsible Agent:")
+        pdf.set_font("FreeSerif", "", 10)
+        ag = operation.responsibleAgent if operation.responsibleAgent else ''
+        pdf.multi_cell(0, 8, ag, ln=True, fill=True, align="L")
+
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(40, 8, "Initial Materials:")
         pdf.ln(15)
         if calendar_data.materials:
@@ -136,7 +143,10 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
 
 
     pdf.set_fill_color(0, 255, 255)
+
+
     if len(calendar_data.operations) > 1:
+        calendar_data.operations.sort(key=lambda x: x.hasStartDatetime)
         with pdf.table(text_align="CENTER", padding=0.5) as table:
 
             pdf.set_font("FreeSerif", "B", 12)
@@ -154,6 +164,7 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
             row.cell("Parcel")
             row.cell("Farm")
             row.cell("Compost Pile")
+            row.cell("Responsible Agent")
             pdf.set_font("FreeSerif", "", 9)
             pdf.set_fill_color(255, 255, 240)
             for operation in calendar_data.operations:
@@ -172,11 +183,11 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                 if operation.usesAgriculturalMachinery:
                     machinery_ids = ", ".join(
                         [
-                            machinery.get("@id", "N/A").split(":")[3]
+                            machinery.get("@id").split(":")[3]
                             for machinery in operation.usesAgriculturalMachinery
                         ]
                     )
-                    agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A").split(":")[
+                    agr_mach_id = operation.usesAgriculturalMachinery[0].get("@id", "N/A:N/A").split(":")[
                         -1]
                     agr_resp = make_get_request(
                         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
@@ -184,76 +195,114 @@ def create_farm_calendar_pdf(calendar_data: FarmCalendarData, token: dict[str, s
                         params={"format": "json"}
                     )
                     if agr_resp:
-                        parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A").split(":")[-1]
+                        parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", "N/A:N/A").split(":")[-1]
                         address, farm = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
                 row.cell(address)
                 row.cell(farm)
                 operation = calendar_data.operations[0]
-                cp = operation.isOperatedOn.get("@id", "N/A").split(":")[
+                cp = operation.isOperatedOn.get("@id").split(":")[
                     3] if operation.isOperatedOn else 'Empty Pile Value'
                 row.cell(cp)
+                row.cell(operation.responsibleAgent) if operation.responsibleAgent else row.cell('')
 
-    if calendar_data.observations:
+    merged_data = calendar_data.observations + calendar_data.materials
+
+    if merged_data:
+        merged_data.sort(key=lambda item: getattr(item, 'hasStartDatetime') or getattr(item, 'phenomenonTime'))
         pdf.ln()
         pdf.set_fill_color(0, 255, 255	)
 
         pdf.set_font("FreeSerif", "B", 12)
-        pdf.cell(0, 10, "Observations", ln=True)
+        pdf.cell(0, 10, "Data Table", ln=True)
         pdf.ln(5)
+        types = {
+            'irrigated': "IrrigationOperation",
+            'turned': 'CompostTurningOperation',
+            'raw': 'AddRawMaterialOperation',
+            'observed': "Observation"
+        }
 
         with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
             row = table.row()
             pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Value info")
-            row.cell("Observed Property")
+            row.cell("Start - End")
+            row.cell("Is Irrigated")
+            row.cell("Is Turned")
+            row.cell("Values info")
+            row.cell("Property")
             row.cell("Details")
-            row.cell("Start")
-            row.cell("End")
-            row.cell("Responsible Agent")
             pdf.set_font("FreeSerif", "", 9)
-            for x in calendar_data.observations:
+            for x in merged_data:
                 row = table.row()
                 pdf.set_fill_color(255, 255, 240)
-                (
-                    row.cell(f"{x.hasResult.hasValue} ({x.hasResult.unit})")
-                    if x.hasResult
-                    else row.cell("N/A")
-                )
-                (
-                    row.cell(f"{x.observedProperty}")
-                    if x.observedProperty
-                    else row.cell("N/A")
-                )
-                row.cell(f"{x.details}")
-                start_time = x.hasStartDatetime.strftime("%d/%m/%Y") if x.hasStartDatetime else x.phenomenonTime.strftime("%d/%m/%Y")
-                row.cell(f"{start_time}")
-                row.cell(f"{x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else x.hasEndDatetime}")
-                row.cell(f"R{x.responsibleAgent if x.responsibleAgent else 'N/A'}")
+
+                start_time = x.hasStartDatetime.strftime(
+                    "%d/%m/%Y") if x.hasStartDatetime else x.phenomenonTime.strftime("%d/%m/%Y")
+                end_time = x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else ''
+                row.cell(f"{start_time} - {end_time}")
+
+                irrigated = types.get("irrigated") == x.type
+                raw = types.get("raw") == x.type
+                observed = types.get("observed") == x.type
+                turned = types.get("turned") == x.type
+
+                value = ''
+                prop = ''
+
+                generate_inner_row =  False
+                if irrigated:
+                    value = f"{x.hasAppliedAmount.numericValue} ({x.hasAppliedAmount.unit})"
+                if raw:
+                    if x.hasCompostMaterial:
+                        for i, qv in enumerate(x.hasCompostMaterial):
+                            tmp_val = f"{qv.quantityValue.numericValue} ({qv.quantityValue.unit})"
+                            value = tmp_val
+                            prop = qv.typeName
+                            if len(x.hasCompostMaterial) > 1:
+                                if i < (len(x.hasCompostMaterial)):
+                                    if i == 0:
+                                        # Finish current row
+                                        row.cell()
+                                        row.cell()
+                                        row.cell(tmp_val)
+                                        row.cell(qv.typeName)
+                                        row.cell(x.details)
+                                    else:
+                                        # Create new row
+                                        row = table.row()
+                                        start_time = x.hasStartDatetime.strftime(
+                                            "%d/%m/%Y") if x.hasStartDatetime else x.phenomenonTime.strftime("%d/%m/%Y")
+                                        end_time = x.hasEndDatetime.strftime('%d/%m/%Y') if x.hasEndDatetime else ''
+                                        row.cell(f"{start_time} - {end_time}")
+                                        row.cell()
+                                        row.cell()
+                                        row.cell(tmp_val)
+                                        row.cell(qv.typeName)
+                                        row.cell(x.details)
+                                        generate_inner_row = True
+
+                if not generate_inner_row:
+                    if observed:
+                        prop = x.observedProperty
+                        value = f"{x.hasResult.hasValue} ({x.hasResult.unit})"
+
+                    ir = 'Yes' if irrigated else ''
+                    tr = 'Yes' if turned else ''
+                    if ir == "Yes":
+                        pdf.set_font("FreeSerif", "B", 9)
+                    row.cell(ir)
+                    pdf.set_font("FreeSerif", "", 9)
+
+                    if tr == "Yes":
+                        pdf.set_font("FreeSerif", "B", 9)
+                    row.cell(tr)
+                    pdf.set_font("FreeSerif", "", 9)
 
 
-    if calendar_data.materials:
-        pdf.ln()
-        pdf.set_fill_color(0, 255, 255)
-
-        pdf.set_font("FreeSerif", "B", 12)
-        pdf.cell(0, 10, "Raw materials added", ln=True)
-        pdf.ln(5)
-
-        with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
-            row = table.row()
-            pdf.set_font("FreeSerif", "B", 10)
-            row.cell("Name")
-            row.cell("Unit")
-            row.cell("Numeric value")
-            pdf.set_font("FreeSerif", "", 9)
-            for material in calendar_data.materials:
-                for x in material.hasCompostMaterial:
-                    row = table.row()
-                    pdf.set_fill_color(255, 255, 240)
-                    row.cell(x.typeName)
-                    row.cell(x.quantityValue.unit if x.quantityValue else 'N/A')
-                    row.cell(str(x.quantityValue.numericValue) if x.quantityValue else 'N/A')
+                    row.cell(value)
+                    row.cell(prop)
+                    row.cell(x.details)
 
     pdf.ln(10)
 
@@ -315,6 +364,11 @@ def process_farm_calendar_data(
                             params=params,
                         )
 
+                        del params['activity_type']
+                        for o in operations:
+                            id =  o["@id"].split(":")[3]
+                            get_farm_operation_data(id=id, materials=materials, params=params, observations=observations, token=token)
+
             else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params['activity_type']
@@ -338,23 +392,14 @@ def process_farm_calendar_data(
                                 params=params
                             )
                             calendar_activity_type = farm_activity_type_info['name']
-                    for measurement in operations[0]['hasMeasurement']:
-                        observation = make_get_request(
-                            url=f"{obs_url}{measurement['@id'].split(':')[3]}/",
-                            token=token,
-                            params=params,
-                        )
-                        observations.append(observation)
 
-                    if operations[0]['hasNestedOperation']:
-                        material_url = (
-                            f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["operations"]} \
-                                        {operation_id}{settings.REPORTING_FARMCALENDAR_URLS["materials"]}')
-                        materials = make_get_request(
-                            url=material_url,
-                            token=token,
-                            params=params
-                        )
+
+                    # Filter Observations by date when operation ID is used
+                    params_copy = params.copy()
+                    decode_dates_filters(params_copy, from_date, to_date)
+                    get_farm_operation_data(id=operation_id, materials=materials, params=params_copy, observations=observations,
+                                            token=token)
+
 
             calendar_data = FarmCalendarData(
                 activity_type_info=calendar_activity_type,
