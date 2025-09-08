@@ -52,7 +52,7 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/42227cda7f1c3869abad5ac4cb7e8ab5/raw/e7cfc9b8642c0551bdfc14fc27362c8bb39515cb/dist.json)
+Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/c0d5998cda18b2d0d3a1da3a98e379aa/raw/0f159195275da4156a593d0a50e4e5b08563a02b/v23.json)
 # Documentation
 <h3>GET</h3>
 
@@ -78,6 +78,10 @@ Response is generated PDF file.
 ```
 
 ## Request Params
+
+### irrigation_id
+- **Type**: `uudi str`
+- **Description**:  ID of irrigation operation for which PDF is generated (optional)
 
 ### data
 - **Type**: `UploadFile`
@@ -141,6 +145,10 @@ When service is run without Gatekeeper data must be provided in .json file forma
 ```
 
 ## Request Params
+
+### farm_animal_id
+- **Type**: `uudi str`
+- **Description**:  ID of FarmAnimal record for which PDF is generated (optional)
 
 ### animal_group
 - **Type**: `Optional[str]`
