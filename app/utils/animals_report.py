@@ -68,11 +68,12 @@ def create_pdf_from_animals(
         parcel_id = an.hasAgriParcel.id if an.hasAgriParcel else None
         address = ""
         farm = ""
+        identifier = ""
         if parcel_id:
             parcel = parcel_id.split(":")[3]
             if parcel:
-                address, farm = get_parcel_info(
-                    parcel_id.split(":")[-1], token, geolocator
+                address, farm, identifier = get_parcel_info(
+                    parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
                 )
 
         pdf.set_font("FreeSerif", "B", 10)
@@ -86,6 +87,12 @@ def create_pdf_from_animals(
         pdf.cell(40, 8, "Parcel Location:")
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Identifier:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
+
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
@@ -127,7 +134,26 @@ def create_pdf_from_animals(
             "Castrated:",
         )
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, an.isCastrated, ln=True, fill=True)
+        pdf.multi_cell(0, 8, f"{an.isCastrated}", ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Invalidated:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{an.invalidatedAtTime.strftime('%d/%m/%Y') if an.invalidatedAtTime else 'No'}", ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Group Member:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{an.isMemberOfAnimalGroup.hasName if an.isMemberOfAnimalGroup else 'No'}", ln=True,
+                       fill=True)
 
     if len(animals) > 1:
         animals.sort(key=lambda x: x.dateCreated)
@@ -139,6 +165,7 @@ def create_pdf_from_animals(
             row.cell("Animal")
             row.cell("Description")
             row.cell("Parcel")
+            row.cell("Parcel Identifier")
             row.cell("Species")
             row.cell("Sex")
             row.cell("Birthdate")
@@ -153,15 +180,17 @@ def create_pdf_from_animals(
                 row.cell(animal.description)
 
                 address = ""
+                identifier = ""
                 parcel_id = animal.hasAgriParcel.id if animal.hasAgriParcel else None
                 if parcel_id:
                     parcel = parcel_id.split(":")[3]
                     if parcel:
-                        address, _ = get_parcel_info(
-                            parcel_id.split(":")[-1], token, geolocator
+                        address, _, identifier = get_parcel_info(
+                            parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
                         )
 
                 row.cell(address)
+                row.cell(identifier)
                 row.cell(animal.species)
                 row.cell(
                     f"{'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
