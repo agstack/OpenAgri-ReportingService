@@ -457,7 +457,7 @@ def process_farm_calendar_data(
             else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params["activity_type"]
-
+                logger.info("Delete act from params")
                 operation_params = params.copy()
                 operations = make_get_request(
                     url=operation_url,
