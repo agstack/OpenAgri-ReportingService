@@ -60,7 +60,7 @@ def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date
         logger.info(f"Error in parsing date: {e}. Request will be sent without date filters.")
 
 
-def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
+def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifier_flag: bool = False):
     farm_parcel_info = make_get_request(
         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["parcel"]}{parcel_id}/',
         token=token,
@@ -69,7 +69,9 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
     location = farm_parcel_info.get("location")
     address = ''
     farm = ''
+    identifier = ''
     try:
+        identifier = farm_parcel_info.get("identifier")
         if location:
             coordinates = f"{location.get('lat')}, {location.get('long')}"
             l_info = geolocator.reverse(coordinates)
@@ -80,6 +82,8 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
             address = f"Country: {country} | City: {city} | Postcode: {postcode}"
     except Exception as e:
         logger.error("Error with geolocator", e)
+        if identifier_flag:
+            return address, farm, identifier
         return address, farm
 
     farm_id = farm_parcel_info.get("farm").get("@id", None)
@@ -93,6 +97,8 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim):
         )
 
         farm = f"Name: {farm_info.get('name', '')} | Municipality: {farm_info.get('address',{}).get('municipality', '')}"
+    if identifier_flag:
+        return address, farm, identifier
     return address, farm
 
 
