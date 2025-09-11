@@ -111,14 +111,6 @@ def create_pdf_from_operations(
             fill=True,
         )
 
-        pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(
-            40,
-            8,
-            "Responsible agent:",
-        )
-        pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, op.responsibleAgent, ln=True, fill=True)
     if len(operations) > 1:
         operations.sort(key=lambda x: x.hasStartDatetime)
         pdf.set_fill_color(0, 255, 255)
@@ -130,7 +122,6 @@ def create_pdf_from_operations(
             row.cell("Parcel")
             row.cell("Value info")
             row.cell("Irrigation System")
-            row.cell("Responsible Agent")
             pdf.set_font("FreeSerif", "", 9)
             pdf.set_fill_color(255, 255, 240)
             for op in operations:
@@ -161,9 +152,6 @@ def create_pdf_from_operations(
                 )
 
                 row.cell(op.usesIrrigationSystem)
-                row.cell(
-                    f"Responsible Agent: {op.responsibleAgent if op.responsibleAgent else 'N/A'}",
-                )
                 pdf.ln(10)
 
     return pdf
