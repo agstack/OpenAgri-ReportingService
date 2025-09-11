@@ -14,8 +14,8 @@ class HasAgriParcel(BaseModel):
 class Animal(BaseModel):
     id: str = Field(alias="@id")
     nationalID: Optional[str] = None
-    name: str
-    description: str
+    name: Optional[str] = ""
+    description: Optional[str] = ""
     hasAgriParcel: Optional[HasAgriParcel] = None
     sex: int
     isCastrated: bool = False

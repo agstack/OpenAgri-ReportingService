@@ -17,8 +17,8 @@ class IrrigationOperation(BaseModel):
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
     activityType: dict
-    title: str
-    details: str
+    title: Optional[str] = ""
+    details: Optional[str] = ""
     hasStartDatetime: Optional[datetime] = None
     hasEndDatetime: Optional[datetime] = None
     responsibleAgent: Optional[str] = None
