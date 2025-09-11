@@ -177,6 +177,7 @@ def process_irrigation_data(
     from_date: datetime.date = None,
     to_date: datetime.date = None,
     irrigation_id: str = None,
+    parcel_id: str = None,
 ) -> None:
     """
     Process irrigation data and generate PDF report
@@ -194,6 +195,9 @@ def process_irrigation_data(
     else:
         if not data:
             params = {"format": "json"}
+            if parcel_id:
+                params['parcel'] = parcel_id
+
             decode_dates_filters(params, from_date, to_date)
             json_data = make_get_request(
                 url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
@@ -204,7 +208,10 @@ def process_irrigation_data(
         else:
             json_data = json.load(data.file)
 
-    operations = parse_irrigation_operations(json_data)
+    if json_data:
+        operations = parse_irrigation_operations(json_data)
+    else:
+        operations = []
 
     try:
         pdf = create_pdf_from_operations(operations, token)

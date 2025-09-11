@@ -94,6 +94,10 @@ Response is generated PDF file.
 - ### to_date
 - **Type**: `date`
 - **Description**:  AOptional date filter (until which data is filtered)
+
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter.
 - 
 ## Response
 
@@ -121,7 +125,12 @@ Response is uuid of generated PDF file.
 
 - ### to_date
 - **Type**: `date`
-- **Description**:  AOptional date filter (until which data is filtered). If operation_id provided not used.
+- **Description**:  Optional date filter (until which data is filtered). If operation_id provided not used.
+
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter (When operation id not used).
+
 
 ### data
 - **Type**: `UploadFile`
@@ -173,6 +182,10 @@ When service is run without Gatekeeper data must be provided in .json file forma
 - ### to_date
 - **Type**: `date`
 - **Description**:  AOptional date filter (until which data is filtered)
+
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter.
 
 ### data
 - **Type**: `UploadFile`

@@ -61,6 +61,7 @@ async def generate_irrigation_report(
     data: UploadFile = None,
     from_date: datetime.date = None,
     to_date: datetime.date = None,
+    parcel_id: str = None
 ):
     """
     Generates Irrigation Report PDF file
@@ -88,6 +89,7 @@ async def generate_irrigation_report(
         from_date=from_date,
         to_date=to_date,
         irrigation_id=irrigation_id,
+        parcel_id=parcel_id
     )
 
     return PDF(uuid=uuid_v4)
@@ -102,6 +104,7 @@ async def generate_generic_observation_report(
     operation_id: str = None,
     from_date: datetime.date = None,
     to_date: datetime.date = None,
+    parcel_id: str = None
 ):
     """
     Generates Observation Report PDF file
@@ -126,6 +129,7 @@ async def generate_generic_observation_report(
         operation_id=operation_id,
         from_date=from_date,
         to_date=to_date,
+        parcel_id=parcel_id
     )
 
     return PDF(uuid=uuid_v4)
@@ -143,6 +147,7 @@ async def generate_animal_report(
     data: UploadFile = None,
     from_date: datetime.date = None,
     to_date: datetime.date = None,
+    parcel_id: str = None
 ):
     """
     Generates Animal Report PDF file
@@ -171,6 +176,8 @@ async def generate_animal_report(
             params["parcel"] = str(parcel)
         if status is not None:
             params["status"] = status
+        if parcel_id:
+            params['parcel'] = parcel_id
 
     background_tasks.add_task(
         process_animal_data,

@@ -47,24 +47,24 @@ class CropObservation(BaseModel):
     isMeasuredIn: Optional[str] = None
     observedProperty: Optional[str] = None
 
-
 class Operation(BaseModel):
     """Model for farm operations"""
 
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    activityType: dict
+    activityType: Optional[dict] = {}
     title: str = ""
     details: str = ""
     hasStartDatetime: Optional[datetime] = None
     hasEndDatetime: Optional[datetime] = None
     responsibleAgent: Optional[str] = ""
     usesAgriculturalMachinery: List[dict] = []
-    isOperatedOn: dict = None
-    operatedOn: dict = None
+    isOperatedOn: Optional[dict] = None
+    operatedOn: Optional[dict] = None
     hasMeasurement: list[dict] = None
     hasNestedOperation: list[dict] = None
     usesIrrigationSystem: Optional[str] = None
+    hasAgriParcel: Optional[dict] = None
 
 
 class AddRawMaterialOperation(Operation):
