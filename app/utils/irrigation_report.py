@@ -67,11 +67,12 @@ def create_pdf_from_operations(
         parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
         address = ""
         farm = ""
+        identifier = ""
         if parcel_id:
             parcel = parcel_id.split(":")[3] if op.operatedOn else None
             if parcel:
-                address, farm = get_parcel_info(
-                    parcel_id.split(":")[-1], token, geolocator
+                address, farm, identifier = get_parcel_info(
+                    parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
                 )
         start_time = (
             op.hasStartDatetime.strftime("%d/%m/%Y") if op.hasStartDatetime else ""
@@ -86,6 +87,11 @@ def create_pdf_from_operations(
         pdf.cell(40, 8, "Parcel Location:")
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Identifier:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
@@ -120,6 +126,8 @@ def create_pdf_from_operations(
             row.cell("Start - End")
             row.cell("Details")
             row.cell("Parcel")
+            row.cell("Parcel Identifier")
+            row.cell("Farm")
             row.cell("Value info")
             row.cell("Irrigation System")
             pdf.set_font("FreeSerif", "", 9)
@@ -140,13 +148,18 @@ def create_pdf_from_operations(
 
                 parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
                 address = ""
+                farm = ""
+                identifier = ""
                 if parcel_id:
                     parcel = parcel_id.split(":")[3] if op.operatedOn else None
                     if parcel:
-                        address, _ = get_parcel_info(
-                            parcel_id.split(":")[-1], token, geolocator
+                        address, farm, identifier= get_parcel_info(
+                            parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
                         )
                 row.cell(address)
+                row.cell(identifier)
+                row.cell(farm)
+
                 row.cell(
                     f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
                 )
