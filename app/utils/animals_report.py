@@ -247,8 +247,10 @@ def process_animal_data(
                     token=token,
                     params={"format": "json"},
                 )
-
-    animals = parse_animal_data(json_data)
+    if json_data:
+        animals = parse_animal_data(json_data)
+    else:
+        animals = []
     try:
         anima_pdf = create_pdf_from_animals(animals, token)
     except Exception:

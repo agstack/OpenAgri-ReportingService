@@ -91,33 +91,39 @@ def create_farm_calendar_pdf(
             if operation.usesAgriculturalMachinery
             else None
         )
-        if agr_mach_id:
+
+        agr_resp = None
+        parcel_id = None
+        if operation.hasAgriParcel:
+            parcel_id = operation.hasAgriParcel.get("@id", None)
+
+        elif agr_mach_id:
             agr_resp = make_get_request(
-                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
-                token=token,
-                params={"format": "json"},
+                    url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
+                    token=token,
+                    params={"format": "json"})
+            parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None) if agr_mach_id else None
+
+
+        address, farm = "", ""
+        if parcel_id:
+            address, farm = get_parcel_info(
+                parcel_id.split(":")[-1], token, geolocator
             )
-            if agr_resp:
-                parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None)
-                address, farm = "", ""
-                if parcel_id:
-                    address, farm = get_parcel_info(
-                        parcel_id.split(":")[-1], token, geolocator
-                    )
 
-                pdf.set_font("FreeSerif", "B", 10)
-                pdf.cell(40, 8, "Parcel Location:")
-                pdf.set_font("FreeSerif", "", 10)
-                pdf.multi_cell(0, 8, address, ln=True, fill=True)
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Location:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, address, ln=True, fill=True)
 
-                pdf.set_font("FreeSerif", "B", 10)
-                pdf.cell(
-                    40,
-                    8,
-                    "Farm information:",
-                )
-                pdf.set_font("FreeSerif", "", 10)
-                pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm information:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
         cp_id = (
             operation.isOperatedOn.get("@id", "N/A:N/A").split(":")[-1]
@@ -385,6 +391,7 @@ def process_farm_calendar_data(
     operation_id: str = None,
     from_date: datetime.date = None,
     to_date: datetime.date = None,
+    parcel_id: str = None
 ) -> None:
     """
     Process farm calendar data and generate PDF report
@@ -428,6 +435,8 @@ def process_farm_calendar_data(
                             params=params,
                         )
 
+                        if parcel_id:
+                            params['parcel'] = parcel_id
                         operations = make_get_request(
                             url=operation_url,
                             token=token,
@@ -448,7 +457,7 @@ def process_farm_calendar_data(
             else:
                 operation_url = f"{operation_url}{operation_id}/"
                 del params["activity_type"]
-
+                logger.info("Delete act from params")
                 operation_params = params.copy()
                 operations = make_get_request(
                     url=operation_url,
