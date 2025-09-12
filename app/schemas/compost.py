@@ -60,7 +60,7 @@ class Operation(BaseModel):
     responsibleAgent: Optional[str] = ""
     usesAgriculturalMachinery: List[dict] = []
     isOperatedOn: Optional[dict] = None
-    operatedOn: Optional[dict] = None
+    operatedOn: Optional[dict] = {}
     hasMeasurement: list[dict] = None
     hasNestedOperation: list[dict] = None
     usesIrrigationSystem: Optional[str] = None

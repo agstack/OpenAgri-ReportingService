@@ -92,38 +92,38 @@ def create_farm_calendar_pdf(
             else None
         )
 
-        if agr_mach_id or operation.hasAgriParcel:
-            agr_resp = None
-            parcel_id = None
-            if not operation.hasAgriParcel:
-                agr_resp = make_get_request(
+        agr_resp = None
+        parcel_id = None
+        if operation.hasAgriParcel:
+            parcel_id = operation.hasAgriParcel.get("@id", None)
+
+        elif agr_mach_id:
+            agr_resp = make_get_request(
                     url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["machines"]}{agr_mach_id}/',
                     token=token,
                     params={"format": "json"})
-            else:
-                parcel_id = operation.hasAgriParcel.get("@id", None)
+            parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None) if agr_mach_id else None
 
 
-            parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None) if agr_resp else parcel_id
-            address, farm = "", ""
-            if parcel_id:
-                address, farm = get_parcel_info(
-                    parcel_id.split(":")[-1], token, geolocator
-                )
-
-            pdf.set_font("FreeSerif", "B", 10)
-            pdf.cell(40, 8, "Parcel Location:")
-            pdf.set_font("FreeSerif", "", 10)
-            pdf.multi_cell(0, 8, address, ln=True, fill=True)
-
-            pdf.set_font("FreeSerif", "B", 10)
-            pdf.cell(
-                40,
-                8,
-                "Farm information:",
+        address, farm = "", ""
+        if parcel_id:
+            address, farm = get_parcel_info(
+                parcel_id.split(":")[-1], token, geolocator
             )
-            pdf.set_font("FreeSerif", "", 10)
-            pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Location:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm information:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
 
         cp_id = (
             operation.isOperatedOn.get("@id", "N/A:N/A").split(":")[-1]
