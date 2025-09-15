@@ -240,7 +240,8 @@ def process_animal_data(
 
         else:
             if not settings.REPORTING_USING_GATEKEEPER:
-                json_data = json.load(data.file)
+                data = json.loads(data)
+                json_data = data.get("@graph")
             else:
                 json_data = make_get_request(
                     url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',

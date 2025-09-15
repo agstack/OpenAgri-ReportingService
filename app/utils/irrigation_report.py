@@ -164,7 +164,11 @@ def create_pdf_from_operations(
                     f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
                 )
 
-                row.cell(op.usesIrrigationSystem)
+                if isinstance(op.usesIrrigationSystem, dict):
+                    local_sys = op.usesIrrigationSystem.get("name")
+                else:
+                    local_sys = op.usesIrrigationSystem
+                row.cell(local_sys)
                 pdf.ln(10)
 
     return pdf
@@ -206,7 +210,9 @@ def process_irrigation_data(
             )
 
         else:
-            json_data = json.load(data.file)
+            json_data = json.loads(data)
+            if json_data:
+                json_data = json_data['@graph']
 
     if json_data:
         operations = parse_irrigation_operations(json_data)

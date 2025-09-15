@@ -80,7 +80,8 @@ async def generate_irrigation_report(
             status_code=400,
             detail=f"Data file must be provided if gatekeeper is not used.",
         )
-
+    if data:
+        data = data.file.read()
     background_tasks.add_task(
         process_irrigation_data,
         data=data,
@@ -119,7 +120,8 @@ async def generate_generic_observation_report(
         else token.id
     )
     uuid_of_pdf = f"{user_id}/{uuid_v4}"
-
+    if data:
+        data = data.file.read()
     background_tasks.add_task(
         process_farm_calendar_data,
         calendar_activity_type=calendar_activity_type,
@@ -178,7 +180,8 @@ async def generate_animal_report(
             params["status"] = status
         if parcel_id:
             params['parcel'] = parcel_id
-
+    if data:
+        data = data.file.read()
     background_tasks.add_task(
         process_animal_data,
         data=data,

@@ -35,7 +35,7 @@ class CropObservation(BaseModel):
 
     type: str = Field(alias="@type")
     id: str = Field(alias="@id")
-    activityType: dict
+    activityType: Optional[dict] = None
     title: Optional[str] = ""
     details: Optional[str] = ""
     hasStartDatetime: Optional[datetime] = None
