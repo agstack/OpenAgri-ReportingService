@@ -250,7 +250,7 @@ def create_farm_calendar_pdf(
                             .get("@id", "N/A:N/A")
                             .split(":")[-1]
                         )
-                        address, farm = get_parcel_info(parcel_id, token, geolocator)
+                        address, farm, _ = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
                 row.cell(address)
                 row.cell(farm)
@@ -270,7 +270,7 @@ def create_farm_calendar_pdf(
     if merged_data:
         merged_data.sort(
             key=lambda item: getattr(item, "hasStartDatetime")
-            or getattr(item, "phenomenonTime")
+            or getattr(item, "phenomenonTime", None)
         )
         pdf.ln()
         pdf.set_fill_color(0, 255, 255)
