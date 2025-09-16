@@ -61,15 +61,18 @@ def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date
 
 
 def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifier_flag: bool = False):
+    address = ''
+    farm = ''
+    identifier = ''
+    if not settings.REPORTING_USING_GATEKEEPER:
+        return address, farm, identifier
     farm_parcel_info = make_get_request(
         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["parcel"]}{parcel_id}/',
         token=token,
         params={"format": "json"}
     )
     location = farm_parcel_info.get("location")
-    address = ''
-    farm = ''
-    identifier = ''
+
     try:
         identifier = farm_parcel_info.get("identifier")
         if location:
