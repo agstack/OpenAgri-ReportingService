@@ -1,4 +1,5 @@
 import datetime
+import itertools
 import json
 import logging
 import os
@@ -496,13 +497,37 @@ def process_farm_calendar_data(
                 materials=materials,
             )
         else:
-            dt = json.load(data.file)
-            calendar_data = FarmCalendarData(
-                activity_type_info=calendar_activity_type,
-                observations=dt["observations"],
-                farm_activities=dt["operations"],
-                materials=dt["materials"],
-            )
+            dt = json.loads(data)
+            if dt:
+                farm_act = dt.get("@graph", [])
+                obs = [x.get("hasMeasurement") for x in farm_act]
+                materials = [x.get("hasNestedOperation") for x in farm_act]
+
+                obs =  list(itertools.chain.from_iterable(obs)) if obs else []
+                materials = list(itertools.chain.from_iterable(materials)) if obs else []
+
+                try:
+                    obs = [o['hasMember'] for o in obs]
+                    obs = list(itertools.chain.from_iterable(obs)) if obs else []
+                except Exception:
+                    # If this occurs it means we use new data type (not old)
+                    # if Except is not enter data used is using old format (old JSONLD example)
+                    # This way it is backward compatible (logger.info should stay, because it is not error)
+                    logger.info("Data is new format type, proceed as normal.")
+
+                calendar_data = FarmCalendarData(
+                    activity_type_info=calendar_activity_type,
+                    observations=obs,
+                    farm_activities=farm_act,
+                    materials=materials
+                )
+            else:
+                calendar_data = FarmCalendarData(
+                    activity_type_info=calendar_activity_type,
+                    observations=[],
+                    farm_activities=[],
+                    materials=[],
+                )
 
         pdf = create_farm_calendar_pdf(calendar_data, token)
         pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
