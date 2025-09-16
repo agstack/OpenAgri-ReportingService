@@ -30,7 +30,8 @@ def parse_irrigation_operations(data: dict) -> Optional[List[IrrigationOperation
 
 
 def create_pdf_from_operations(
-    operations: List[IrrigationOperation], token: dict[str, str] = None
+    operations: List[IrrigationOperation], token: dict[str, str] = None,
+    data_used: bool = False,
 ):
     """
     Create PDF report from irrigation operations
@@ -118,7 +119,8 @@ def create_pdf_from_operations(
         )
 
     if len(operations) > 1:
-        operations.sort(key=lambda x: x.hasStartDatetime)
+        if not data_used:
+            operations.sort(key=lambda x: x.hasStartDatetime)
         pdf.set_fill_color(0, 255, 255)
         with pdf.table(text_align="CENTER", padding=0.5) as table:
             row = table.row()
@@ -186,7 +188,7 @@ def process_irrigation_data(
     """
     Process irrigation data and generate PDF report
     """
-
+    data_used = False
     if irrigation_id:
         json_data = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}{irrigation_id}/',
@@ -210,6 +212,7 @@ def process_irrigation_data(
             )
 
         else:
+            data_used = True
             json_data = json.loads(data)
             if json_data:
                 json_data = json_data['@graph']
@@ -220,7 +223,7 @@ def process_irrigation_data(
         operations = []
 
     try:
-        pdf = create_pdf_from_operations(operations, token)
+        pdf = create_pdf_from_operations(operations, token, data_used)
     except Exception:
         raise HTTPException(
             status_code=400, detail="PDF generation of irrigation report failed."
