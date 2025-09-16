@@ -65,7 +65,10 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifi
     farm = ''
     identifier = ''
     if not settings.REPORTING_USING_GATEKEEPER:
-        return address, farm, identifier
+        if identifier_flag:
+            return address, farm, identifier
+        else:
+            return address, farm
     farm_parcel_info = make_get_request(
         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["parcel"]}{parcel_id}/',
         token=token,

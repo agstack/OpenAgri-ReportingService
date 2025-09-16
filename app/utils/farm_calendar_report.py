@@ -250,7 +250,7 @@ def create_farm_calendar_pdf(
                             .get("@id", "N/A:N/A")
                             .split(":")[-1]
                         )
-                        address, farm, _ = get_parcel_info(parcel_id, token, geolocator)
+                        address, farm = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
                 row.cell(address)
                 row.cell(farm)
