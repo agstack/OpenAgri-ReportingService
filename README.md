@@ -6,6 +6,14 @@
 The reporting service generates .pdf reports based on information present in datasets.\
 These datasets are required to conform to the OCSM (OpenAgri Common Semantic Model) as well as be JSON-LD compliant.
 
+# Roadmap
+
+High-level next steps for the Reporting Service:
+
+- [ ] Implement PDF reports for irrigation fertilization
+- [ ] Integrate with additional 3rd party Open Street Maps API for satelite image 
+- [ ] Update PDF reports design and tables to be more adaptive for different use cases
+ 
 # Requirements
 <ul>
     <li>git</li>
@@ -214,8 +222,15 @@ This will run the tests and return success values for each api tested in the ter
 
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
-# Contribution
-Please contact the maintainer of this repository.
+## Contributing
+
+We welcome first-time contributions!
+
+See our [Contributing Guide](CONTRIBUTE.md)
+
+You can also open an issue to discuss ideas.
+
+Reporting Service is part of OpenAgri project, building tools for agriculture & climate data. Your contribution helps farmers and researchers.
 
 # License
 This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/OpenAgri-ReportingService/blob/main/LICENSE) file for more details.
