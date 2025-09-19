@@ -11,7 +11,7 @@ These datasets are required to conform to the OCSM (OpenAgri Common Semantic Mod
 High-level next steps for the Reporting Service:
 
 - [ ] Implement PDF reports for irrigation fertilization
-- [ ] Integrate with additional 3rd party Open Street Maps API for satelite image 
+- [ ] Integrate with additional 3rd party Open Street Maps API for satelite images
 - [ ] Update PDF reports design and tables to be more adaptive for different use cases
  
 # Requirements
