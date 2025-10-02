@@ -1,13 +1,20 @@
 import json
+import logging
 import os
 from typing import List, Union
 
 from fastapi import HTTPException
+from fpdf.fonts import FontFace
 
 from core import settings
-from utils import EX, add_fonts, decode_jwt_token
+from utils import EX, add_fonts, decode_jwt_token, decode_dates_filters, get_parcel_info
 from schemas.animals import *
+from utils.farm_calendar_report import geolocator
 from utils.json_handler import make_get_request
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
@@ -15,95 +22,238 @@ def parse_animal_data(data: Union[List[dict], str]) -> Optional[List[Animal]]:
     Parse list of animal records from JSON data
     """
     try:
-        return [Animal.model_validate(item) for item in data]
+        res = [Animal.model_validate(item) for item in data]
+        return res
     except Exception as e:
-        print(f"Error parsing animal data: {e}")
+        logger.error(f"Error parsing animal data: {e}")
         return None
 
 
-def create_pdf_from_animals(animals: List[Animal]):
+def create_pdf_from_animals(
+    animals: List[Animal],
+    token: dict[str, str],
+):
     """
     Create PDF report from animal records
     """
     pdf = EX()
-    pdf.add_page()
     add_fonts(pdf)
     pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
 
-    pdf.set_title("Animal Report")
-    pdf.ln()
+    EX.ln(pdf)
 
-    pdf.set_font("FreeSerif", "B", 10)
-    pdf.cell(40, 10, "Animal Report")
-    pdf.ln(10)
+    pdf.set_font("FreeSerif", "B", 14)
+    pdf.cell(0, 10, f"Animal Data Report", ln=True, align="C")
+    pdf.set_font("FreeSerif", style="", size=9)
+    pdf.cell(
+        0,
+        7,
+        f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}",
+        ln=True,
+        align="C",
+    )
+    pdf.ln(5)
 
-    for animal in animals:
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(
-            0, 10, f"Animal: {animal.name} (ID: {animal.id.split(':')[3]})", ln=True
+    pdf.set_font("FreeSerif", "B", 12)
+    pdf.set_fill_color(240, 240, 240)
+
+    y_position = pdf.get_y()
+    line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
+    pdf.ln(5)
+
+    if len(animals) == 1:
+        an = animals[0]
+        parcel_id = an.hasAgriParcel.id if an.hasAgriParcel else None
+        address = ""
+        farm = ""
+        identifier = ""
+        if parcel_id:
+            parcel = parcel_id.split(":")[3]
+            if parcel:
+                address, farm, identifier = get_parcel_info(
+                    parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                )
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Created:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(
+            0, 8, f"{an.dateCreated.strftime('%d/%m/%Y')}", ln=True, fill=True
         )
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.cell(0, 10, f"National ID: {animal.nationalID}", ln=True)
-        pdf.cell(0, 10, f"Description: {animal.description}", ln=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Location:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Identifier:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
+
+
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
+            40,
+            8,
+            "Farm information:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Animal:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(
             0,
-            10,
-            f"Agricultural Parcel: {animal.hasAgriParcel.id.split(':')[3] if animal.hasAgriParcel else ''}",
+            8,
+            f"Name: {an.name}, Sex: {an.sex}, Birthdate {an.birthdate.strftime('%d/%m/%Y')}",
             ln=True,
+            fill=True,
         )
-        pdf.cell(0, 10, f"Species: {animal.species} | Breed: {animal.breed}", ln=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
-            0,
-            10,
-            f"Sex: {'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
-            ln=True,
+            40,
+            8,
+            "Species:",
         )
-        pdf.cell(0, 10, f"Birthdate: {animal.birthdate}", ln=True)
-        pdf.cell(0, 10, f"Status: {animal.status}", ln=True)
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, an.species, ln=True, fill=True)
 
-        if animal.invalidatedAtTime:
-            pdf.cell(0, 10, f"Invalidated At: {animal.invalidatedAtTime}", ln=True)
-
-        if animal.isMemberOfAnimalGroup:
-            pdf.cell(
-                0, 10, f"Animal group: {animal.isMemberOfAnimalGroup.hasName}", ln=True
-            )
-
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
-            0,
-            10,
-            f"Created: {animal.dateCreated if animal.dateCreated else 'N/A'} | Modified: {animal.dateModified if animal.dateModified else 'N/A'}",
-            ln=True,
+            40,
+            8,
+            "Castrated:",
         )
-        pdf.ln(10)
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{an.isCastrated}", ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Invalidated:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{an.invalidatedAtTime.strftime('%d/%m/%Y') if an.invalidatedAtTime else 'No'}", ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Group Member:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{an.isMemberOfAnimalGroup.hasName if an.isMemberOfAnimalGroup else 'No'}", ln=True,
+                       fill=True)
+
+    if len(animals) > 1:
+        animals.sort(key=lambda x: x.dateCreated)
+        pdf.set_fill_color(0, 255, 255)
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
+            row = table.row()
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Date")
+            row.cell("Animal")
+            row.cell("Description")
+            row.cell("Parcel")
+            row.cell("Parcel Identifier")
+            row.cell("Species")
+            row.cell("Sex")
+            row.cell("Birthdate")
+            row.cell("Invalidated")
+            row.cell("Group Member")
+            pdf.set_fill_color(255, 255, 240)
+            pdf.set_font("FreeSerif", "", 9)
+            for animal in animals:
+                row = table.row()
+                row.cell(animal.dateCreated.strftime("%d/%m/%Y"))
+                row.cell(animal.name)
+                row.cell(animal.description)
+
+                address = ""
+                identifier = ""
+                parcel_id = animal.hasAgriParcel.id if animal.hasAgriParcel else None
+                if parcel_id:
+                    parcel = parcel_id.split(":")[3]
+                    if parcel:
+                        address, _, identifier = get_parcel_info(
+                            parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                        )
+
+                row.cell(address)
+                row.cell(identifier)
+                row.cell(animal.species)
+                row.cell(
+                    f"{'Male' if animal.sex == 0 else 'Female'} | Castrated: {animal.isCastrated}",
+                )
+                row.cell(animal.birthdate.strftime("%d/%m/%Y"))
+                row.cell(
+                    f"{animal.invalidatedAtTime if animal.invalidatedAtTime else 'N/A'}"
+                )
+                row.cell(
+                    f"{animal.isMemberOfAnimalGroup.hasName if animal.isMemberOfAnimalGroup else 'N/A'}"
+                )
+                pdf.ln(10)
 
     return pdf
 
 
 def process_animal_data(
-    token: dict[str, str], pdf_file_name: str, params: dict | None = None, data=None
+    token: dict[str, str],
+    pdf_file_name: str,
+    params: dict | None = None,
+    data=None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    farm_animal_id: str = None,
 ) -> None:
     """
     Process animal data and generate PDF report
     """
-    if params:
+    if farm_animal_id:
         json_data = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}{farm_animal_id}/',
             token=token,
-            params=params,
+            params={"format": "json"},
         )
 
-        if not json_data:
-            raise HTTPException(status_code=400, detail="No animal data found.")
+        json_data = [json_data] if json_data else None
 
     else:
-        json_data = json.load(data.file)
+        if params:
+            params["format"] = "json"
+            decode_dates_filters(params, from_date, to_date)
+            json_data = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+                token=token,
+                params=params,
+            )
 
-    animals = parse_animal_data(json_data)
-    if not animals:
-        return
+        else:
+            if not settings.REPORTING_USING_GATEKEEPER:
+                data = json.loads(data)
+                json_data = data.get("@graph")
+            else:
+                json_data = make_get_request(
+                    url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["animals"]}',
+                    token=token,
+                    params={"format": "json"},
+                )
+    if json_data:
+        animals = parse_animal_data(json_data)
+    else:
+        animals = []
     try:
-        anima_pdf = create_pdf_from_animals(animals)
+        anima_pdf = create_pdf_from_animals(animals, token)
     except Exception:
         raise HTTPException(
             status_code=400, detail="PDF generation of animal report failed."

@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class AnimalGroup(BaseModel):
-    hasName: str
+    hasName: Optional[str] = None
 
 
 class HasAgriParcel(BaseModel):
@@ -13,16 +13,16 @@ class HasAgriParcel(BaseModel):
 
 class Animal(BaseModel):
     id: str = Field(alias="@id")
-    nationalID: str
-    name: str
-    description: str
+    nationalID: Optional[str] = None
+    name: Optional[str] = ""
+    description: Optional[str] = ""
     hasAgriParcel: Optional[HasAgriParcel] = None
     sex: int
     isCastrated: bool = False
     species: str
-    breed: str
+    breed: Optional[str] = None
     birthdate: datetime
-    isMemberOfAnimalGroup: Optional[AnimalGroup]
+    isMemberOfAnimalGroup: Optional[AnimalGroup] = None
     status: int
     invalidatedAtTime: Optional[datetime] = None
     dateCreated: Optional[datetime] = None

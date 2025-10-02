@@ -6,6 +6,14 @@
 The reporting service generates .pdf reports based on information present in datasets.\
 These datasets are required to conform to the OCSM (OpenAgri Common Semantic Model) as well as be JSON-LD compliant.
 
+# Roadmap
+
+High-level next steps for the Reporting Service:
+
+- [ ] Implement PDF reports for irrigation fertilization
+- [ ] Integrate with additional 3rd party Open Street Maps API for satelite images
+- [ ] Update PDF reports design and tables to be more adaptive for different use cases
+ 
 # Requirements
 <ul>
     <li>git</li>
@@ -52,7 +60,7 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/b1bcdd77ac82aeb115a6c94fb3dadbdc/raw/32df1d94947b67dcc70f730a629d7c91161e532f/api.json)
+Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/c29adf44808a683149426912383c75eb/raw/7b57a845ab37954424c0ef2108962fd248c6966f/api_v4.json)
 # Documentation
 <h3>GET</h3>
 
@@ -79,12 +87,26 @@ Response is generated PDF file.
 
 ## Request Params
 
+### irrigation_id
+- **Type**: `uudi str`
+- **Description**:  ID of irrigation operation for which PDF is generated (optional)
+
 ### data
 - **Type**: `UploadFile`
 - **Description**: API processes the data directly to generate the report if data passed. This parameter is not required and when it is, must be provided as an `UploadFile`.
 
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered)
 
+- ### to_date
+- **Type**: `date`
+- **Description**:  AOptional date filter (until which data is filtered)
 
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter.
+- 
 ## Response
 
 Response is uuid of generated PDF file.
@@ -97,14 +119,26 @@ Response is uuid of generated PDF file.
 
 ## Request Params 
 
-### observation_type_name
+### calendar_activity_type
 - **Type**: `str`
-- **Description**: The name of the observation type for the report. The value of this parameter must be one of the following options:
-  - "Pesticides"
-  - "Irrigation"
-  - "Fertilization"
-  - "CropStressIndicator"
-  - "CropGrowthObservation"
+- **Description**:  All Farm Calendar Observation Type values are possible as input (optional). If operation_id provided not used.
+
+### operation_id
+- **Type**: `uudi str`
+- **Description**:  ID of operation for which PDF is generated (optional)
+
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered). If operation_id provided not used.
+
+- ### to_date
+- **Type**: `date`
+- **Description**:  Optional date filter (until which data is filtered). If operation_id provided not used.
+
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter (When operation id not used).
+
 
 ### data
 - **Type**: `UploadFile`
@@ -129,6 +163,10 @@ When service is run without Gatekeeper data must be provided in .json file forma
 
 ## Request Params
 
+### farm_animal_id
+- **Type**: `uudi str`
+- **Description**:  ID of FarmAnimal record for which PDF is generated (optional)
+
 ### animal_group
 - **Type**: `Optional[str]`
 - **Description**: The group or category the animal belongs to. This is an optional string field, and it can be left as `None` if not applicable.
@@ -144,6 +182,18 @@ When service is run without Gatekeeper data must be provided in .json file forma
 ### status
 - **Type**: `Optional[int]`
 - **Description**: The status code associated with the animal or the transaction. It is an optional integer field. If not specified, it defaults to `None`.
+
+- ### from_date
+- **Type**: `date`
+- **Description**:  Optional date filter (from which data is filtered)
+
+- ### to_date
+- **Type**: `date`
+- **Description**:  AOptional date filter (until which data is filtered)
+
+- ### parcel_id
+- **Type**: `str`
+- **Description**:  Optional parcel filter.
 
 ### data
 - **Type**: `UploadFile`
@@ -172,8 +222,15 @@ This will run the tests and return success values for each api tested in the ter
 
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
-# Contribution
-Please contact the maintainer of this repository.
+## Contributing
+
+We welcome first-time contributions!
+
+See our [Contributing Guide](CONTRIBUTE.md)
+
+You can also open an issue to discuss ideas.
+
+Reporting Service is part of OpenAgri project, building tools for agriculture & climate data. Your contribution helps farmers and researchers.
 
 # License
 This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/OpenAgri-ReportingService/blob/main/LICENSE) file for more details.

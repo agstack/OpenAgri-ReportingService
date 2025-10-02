@@ -27,9 +27,14 @@ class Settings(BaseSettings):
         "irrigations": "/IrrigationOperations/",
         "activity_types": "/FarmCalendarActivityTypes/",
         "observations": "/Observations/",
+        "operations": "/CompostOperations/",
+        "turning_operations": "/CompostTurningOperations/",
         "activities": "/FarmCalendarActivities/",
         "parcel": "/FarmParcels/",
         "animals": "/FarmAnimals/",
+        "materials": "/AddRawMaterialOperations/",
+        "machines": "/AgriculturalMachines/",
+        "farm": "/Farm/"
     }
 
     PDF_DIRECTORY: str = "user_reports/"

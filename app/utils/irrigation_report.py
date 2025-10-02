@@ -1,13 +1,14 @@
 import json
 import logging
 import os
-from typing import Union, Optional
 
 from fastapi import HTTPException
+from fpdf.fonts import FontFace
 
 from core import settings
-from utils import EX, add_fonts
+from utils import EX, add_fonts, decode_dates_filters, get_parcel_info
 from schemas.irrigation import *
+from utils.farm_calendar_report import geolocator
 from utils.json_handler import make_get_request
 
 logging.basicConfig(level=logging.INFO)
@@ -28,115 +29,201 @@ def parse_irrigation_operations(data: dict) -> Optional[List[IrrigationOperation
         )
 
 
-def create_pdf_from_operations(operations: List[IrrigationOperation]):
+def create_pdf_from_operations(
+    operations: List[IrrigationOperation], token: dict[str, str] = None,
+    data_used: bool = False,
+):
     """
     Create PDF report from irrigation operations
     """
     pdf = EX()
-    pdf.add_page()
     add_fonts(pdf)
     pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
 
-    pdf.set_title("Irrigation Operations Report")
     EX.ln(pdf)
 
-    pdf.set_font("FreeSerif", "B", 10)
-    pdf.cell(40, 10, "Irrigation Operations Report")
-    pdf.ln(10)
+    pdf.set_font("FreeSerif", "B", 14)
+    pdf.cell(0, 10, f"Irrigation Operation Report", ln=True, align="C")
+    pdf.set_font("FreeSerif", style="", size=9)
+    pdf.cell(
+        0,
+        7,
+        f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}",
+        ln=True,
+        align="C",
+    )
+    pdf.ln(5)
 
-    for op in operations:
-        # Operation Header
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(0, 10, f"Operation: {op.title}", ln=True)
+    pdf.set_font("FreeSerif", "B", 12)
+    pdf.set_fill_color(240, 240, 240)
 
-        # Activity Type
-        activity_type = op.activityType.get(
-            "@id", "N/A"
-        )  # You can adjust this to extract the specific part you need
-        pdf.set_font("FreeSerif", "B", 9)
-        pdf.cell(0, 10, f"Activity Type: {activity_type}", ln=True)
+    y_position = pdf.get_y()
+    line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
+    pdf.ln(5)
 
-        # Details
-        pdf.set_font("FreeSerif", "", 9)
-        pdf.multi_cell(0, 10, f"Details: {op.details}")
-        pdf.ln(5)
-
-        # Parcel ID extraction
-        parcel_id = (
-            op.operatedOn.get("@id", "N/A").split(":")[3] if op.operatedOn else "N/A"
+    if len(operations) == 1:
+        op = operations[0]
+        parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+        address = ""
+        farm = ""
+        identifier = ""
+        if parcel_id:
+            parcel = parcel_id.split(":")[3] if op.operatedOn else None
+            if parcel:
+                address, farm, identifier = get_parcel_info(
+                    parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                )
+        start_time = (
+            op.hasStartDatetime.strftime("%d/%m/%Y") if op.hasStartDatetime else ""
         )
-        pdf.cell(0, 10, f"Operated on Parcel: {parcel_id}", ln=True)
+        end_time = op.hasEndDatetime.strftime("%d/%m/%Y") if op.hasEndDatetime else ""
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Star-End :")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, f"{start_time}-{end_time}", ln=True, fill=True)
 
-        # Date and Time
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Location:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Identifier:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
+            40,
+            8,
+            "Farm information:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Value info:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(
             0,
-            10,
-            f"Start: {op.hasStartDatetime if op.hasStartDatetime else 'N/A'}",
+            8,
+            f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
             ln=True,
-        )
-        pdf.cell(
-            0, 10, f"End: {op.hasEndDatetime if op.hasEndDatetime else 'N/A'}", ln=True
+            fill=True,
         )
 
-        # Applied Amount
-        pdf.cell(
-            0,
-            10,
-            f"Applied Amount: {op.hasAppliedAmount.numericValue} {op.hasAppliedAmount.unit}",
-            ln=True,
-        )
+    if len(operations) > 1:
+        if not data_used:
+            operations.sort(key=lambda x: x.hasStartDatetime)
+        pdf.set_fill_color(0, 255, 255)
+        with pdf.table(text_align="CENTER", padding=0.5) as table:
+            row = table.row()
+            pdf.set_font("FreeSerif", "B", 10)
+            row.cell("Start - End")
+            row.cell("Details")
+            row.cell("Parcel")
+            row.cell("Parcel Identifier")
+            row.cell("Farm")
+            row.cell("Value info")
+            row.cell("Irrigation System")
+            pdf.set_font("FreeSerif", "", 9)
+            pdf.set_fill_color(255, 255, 240)
+            for op in operations:
+                # Operation Header
+                row = table.row()
+                start_time = (
+                    op.hasStartDatetime.strftime("%d/%m/%Y")
+                    if op.hasStartDatetime
+                    else ""
+                )
+                end_time = (
+                    op.hasEndDatetime.strftime("%d/%m/%Y") if op.hasEndDatetime else ""
+                )
+                row.cell(f"{start_time} - {end_time}")
+                row.cell(op.details)
 
-        # Irrigation System
-        pdf.cell(0, 10, f"Irrigation System: {op.usesIrrigationSystem}", ln=True)
+                parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+                address = ""
+                farm = ""
+                identifier = ""
+                if parcel_id:
+                    parcel = parcel_id.split(":")[3] if op.operatedOn else None
+                    if parcel:
+                        address, farm, identifier= get_parcel_info(
+                            parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                        )
+                row.cell(address)
+                row.cell(identifier)
+                row.cell(farm)
 
-        # Responsible Agent
-        pdf.cell(
-            0,
-            10,
-            f"Responsible Agent: {op.responsibleAgent if op.responsibleAgent else 'N/A'}",
-            ln=True,
-        )
+                row.cell(
+                    f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
+                )
 
-        # Machinery IDs (if any)
-        if op.usesAgriculturalMachinery:
-            machinery_ids = ", ".join(
-                [
-                    machinery.get("@id", "N/A").split(":")[3]
-                    for machinery in op.usesAgriculturalMachinery
-                ]
-            )
-            pdf.cell(0, 10, f"Machinery IDs: {machinery_ids}", ln=True)
-
-        pdf.ln(10)
+                if isinstance(op.usesIrrigationSystem, dict):
+                    local_sys = op.usesIrrigationSystem.get("name")
+                else:
+                    local_sys = op.usesIrrigationSystem
+                row.cell(local_sys)
+                pdf.ln(10)
 
     return pdf
 
 
-def process_irrigation_data(data, token: dict[str, str], pdf_file_name: str) -> None:
+def process_irrigation_data(
+    data,
+    token: dict[str, str],
+    pdf_file_name: str,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    irrigation_id: str = None,
+    parcel_id: str = None,
+) -> None:
     """
     Process irrigation data and generate PDF report
     """
-
-    if not data:
-        params = {"format": "json"}
+    data_used = False
+    if irrigation_id:
         json_data = make_get_request(
-            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}{irrigation_id}/',
             token=token,
-            params=params,
+            params={"format": "json"},
         )
 
-        if not json_data:
-            raise HTTPException(status_code=400, detail="No Irrigation data found.")
+        json_data = [json_data] if json_data else None
+
     else:
-        json_data = json.load(data.file)
+        if not data:
+            params = {"format": "json"}
+            if parcel_id:
+                params['parcel'] = parcel_id
 
-    operations = parse_irrigation_operations(json_data)
+            decode_dates_filters(params, from_date, to_date)
+            json_data = make_get_request(
+                url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["irrigations"]}',
+                token=token,
+                params=params,
+            )
 
-    if not operations:
-        return
+        else:
+            data_used = True
+            json_data = json.loads(data)
+            if json_data:
+                json_data = json_data['@graph']
+
+    if json_data:
+        operations = parse_irrigation_operations(json_data)
+    else:
+        operations = []
 
     try:
-        pdf = create_pdf_from_operations(operations)
+        pdf = create_pdf_from_operations(operations, token, data_used)
     except Exception:
         raise HTTPException(
             status_code=400, detail="PDF generation of irrigation report failed."
