@@ -93,7 +93,6 @@ def create_pdf_from_animals(
         pdf.set_font("FreeSerif", "", 10)
         pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
 
-
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
             40,
@@ -101,7 +100,8 @@ def create_pdf_from_animals(
             "Farm information:",
         )
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+        farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+        pdf.multi_cell(0, 8, farm_local, ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
