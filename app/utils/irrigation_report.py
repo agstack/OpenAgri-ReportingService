@@ -72,7 +72,7 @@ def create_pdf_from_operations(
         from_date_local = from_date.strftime("%Y-%m-%d")
 
     if to_date:
-        to_date_local = from_date.strftime("%Y-%m-%d")
+        to_date_local = to_date.strftime("%Y-%m-%d")
     else:
         to_date_local = ''
 
