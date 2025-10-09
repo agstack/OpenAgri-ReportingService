@@ -4,12 +4,14 @@ import os
 
 import jwt
 from fpdf import FPDF
+from pydantic import BaseModel
 
 from core import settings
 from utils.json_handler import make_get_request
 from geopy.geocoders import Nominatim
 
 logger = logging.Logger("utils")
+
 
 def add_fonts(pdf):
     fonts_folder_path = os.path.join(
@@ -35,7 +37,7 @@ class EX(FPDF):
 
     def footer(self):
         self.set_y(-15)
-        self.cell(0, 10, 'Page %s' % self.page_no(), 0, 0, 'C')
+        self.cell(0, 10, "Page %s" % self.page_no(), 0, 0, "C")
 
 
 def decode_jwt_token(token: str) -> dict:
@@ -49,21 +51,39 @@ def decode_jwt_token(token: str) -> dict:
     decoded = jwt.decode(token, options={"verify_signature": False})
     return decoded
 
-def decode_dates_filters(params: dict, from_date: datetime.date =  None, to_date: datetime.date = None):
+
+def decode_dates_filters(
+    params: dict, from_date: datetime.date = None, to_date: datetime.date = None
+):
     try:
         if from_date:
             from_date = from_date.strftime("%Y-%m-%d")
-            params['fromDate'] = from_date
+            params["fromDate"] = from_date
         if to_date:
-            params['toDate'] = to_date.strftime("%Y-%m-%d")
+            params["toDate"] = to_date.strftime("%Y-%m-%d")
     except Exception as e:
-        logger.info(f"Error in parsing date: {e}. Request will be sent without date filters.")
+        logger.info(
+            f"Error in parsing date: {e}. Request will be sent without date filters."
+        )
 
 
-def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifier_flag: bool = False):
-    address = ''
-    farm = ''
-    identifier = ''
+class FarmInfo(BaseModel):
+    description: str
+    administrator: str
+    vatID: str
+    name: str
+    municipality: str
+    contactPerson: str
+
+
+def get_parcel_info(
+    parcel_id: str, token: dict, geolocator: Nominatim, identifier_flag: bool = False
+):
+    address = ""
+    farm = FarmInfo(
+        description="", administrator="", vatID="", name="", municipality="", contactPerson=""
+    )
+    identifier = ""
     if not settings.REPORTING_USING_GATEKEEPER:
         if identifier_flag:
             return address, farm, identifier
@@ -72,7 +92,7 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifi
     farm_parcel_info = make_get_request(
         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["parcel"]}{parcel_id}/',
         token=token,
-        params={"format": "json"}
+        params={"format": "json"},
     )
     location = farm_parcel_info.get("location")
 
@@ -81,10 +101,10 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifi
         if location:
             coordinates = f"{location.get('lat')}, {location.get('long')}"
             l_info = geolocator.reverse(coordinates)
-            address_details = l_info.raw.get('address', {})
-            city = address_details.get('city')
+            address_details = l_info.raw.get("address", {})
+            city = address_details.get("city", "")
             country = address_details.get("country")
-            postcode = address_details.get('postcode')
+            postcode = address_details.get("postcode")
             address = f"Country: {country} | City: {city} | Postcode: {postcode}"
     except Exception as e:
         logger.error("Error with geolocator", e)
@@ -99,16 +119,27 @@ def get_parcel_info(parcel_id: str, token: dict, geolocator: Nominatim, identifi
         farm_info = make_get_request(
             url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["farm"]}{farm_id}/',
             token=token,
-            params={"format": "json"}
+            params={"format": "json"},
         )
 
-        farm = f"Name: {farm_info.get('name', '')} | Municipality: {farm_info.get('address',{}).get('municipality', '')}"
+        contact = farm_info.get("contactPerson", {})
+        farm = FarmInfo(
+            description=farm_info.get("description", ""),
+            administrator=farm_info.get("administrator", ""),
+            vatID=farm_info.get("vatID", ""),
+            name=farm_info.get("name", ""),
+            municipality=farm_info.get("address", {}).get("municipality", ""),
+            contactPerson=f"{contact.get('firstname','')} {contact.get('lastname','')}"
+        )
+
     if identifier_flag:
         return address, farm, identifier
     return address, farm
 
 
-def get_farm_operation_data(id: str, token: dict[str, str], params: dict, observations: list, materials: list):
+def get_farm_operation_data(
+    id: str, token: dict[str, str], params: dict, observations: list, materials: list
+):
     """
     Fetches observations and material-related data for a farm operation.
 

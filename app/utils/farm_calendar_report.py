@@ -20,7 +20,7 @@ from utils import (
 from utils.json_handler import make_get_request
 from geopy.geocoders import Nominatim
 
-geolocator = Nominatim(user_agent="reporting_app")
+geolocator = Nominatim(user_agent="reporting_app", timeout=2)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -105,7 +105,6 @@ def create_farm_calendar_pdf(
                     params={"format": "json"})
             parcel_id = agr_resp.get("hasAgriParcel", {}).get("@id", None) if agr_mach_id else None
 
-
         address, farm = "", ""
         if parcel_id:
             address, farm = get_parcel_info(
@@ -124,7 +123,8 @@ def create_farm_calendar_pdf(
             "Farm information:",
         )
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+        farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+        pdf.multi_cell(0, 8, farm_local, ln=True, fill=True)
 
         cp_id = (
             operation.isOperatedOn.get("@id", "N/A:N/A").split(":")[-1]
@@ -253,7 +253,8 @@ def create_farm_calendar_pdf(
                         address, farm = get_parcel_info(parcel_id, token, geolocator)
                 row.cell(f"{machinery_ids}")
                 row.cell(address)
-                row.cell(farm)
+                farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+                row.cell(farm_local)
                 operation = calendar_data.operations[0]
                 cp = (
                     operation.isOperatedOn.get("@id").split(":")[3]

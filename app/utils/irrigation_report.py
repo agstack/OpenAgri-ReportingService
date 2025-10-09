@@ -31,7 +31,9 @@ def parse_irrigation_operations(data: dict) -> Optional[List[IrrigationOperation
 
 def create_pdf_from_operations(
     operations: List[IrrigationOperation], token: dict[str, str] = None,
-    data_used: bool = False,
+    data_used: bool = False, parcel_id: str = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
 ):
     """
     Create PDF report from irrigation operations
@@ -43,13 +45,14 @@ def create_pdf_from_operations(
 
     EX.ln(pdf)
 
+    today = datetime.now().strftime('%d/%m/%Y')
     pdf.set_font("FreeSerif", "B", 14)
     pdf.cell(0, 10, f"Irrigation Operation Report", ln=True, align="C")
     pdf.set_font("FreeSerif", style="", size=9)
     pdf.cell(
         0,
         7,
-        f"Data Generated - {datetime.now().strftime('%d/%m/%Y')}",
+        f"Data Generated - {today}",
         ln=True,
         align="C",
     )
@@ -63,18 +66,93 @@ def create_pdf_from_operations(
     pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
     pdf.ln(5)
 
+    address, farm, parcel_defined = None, None, None
+    from_date_local, to_date_local = today, None
+    if from_date:
+        from_date_local = from_date.strftime("%Y-%m-%d")
+
+    if to_date:
+        to_date_local = from_date.strftime("%Y-%m-%d")
+    else:
+        to_date_local = ''
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(40, 8, "Reporting Period")
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, f"{from_date_local} / {to_date_local}", ln=True, fill=True)
+
+    if parcel_id:
+        address, farm, identifier = get_parcel_info(
+            parcel_id, token, geolocator, identifier_flag=True
+        )
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Location:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(40, 8, "Parcel Identifier:")
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm Location:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+        pdf.multi_cell(0, 8, farm_local, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Administrator:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.administrator, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Contact Person:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.contactPerson, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm vat:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.vatID, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm Description:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.description, fill=True)
+        parcel_defined = True
+
     if len(operations) == 1:
         op = operations[0]
-        parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
-        address = ""
-        farm = ""
-        identifier = ""
-        if parcel_id:
-            parcel = parcel_id.split(":")[3] if op.operatedOn else None
-            if parcel:
-                address, farm, identifier = get_parcel_info(
-                    parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
-                )
+        if not parcel_defined:
+            parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+            identifier = ""
+            if parcel_id:
+                parcel = parcel_id.split(":")[3] if op.operatedOn else None
+                if parcel:
+                    address, farm, identifier = get_parcel_info(
+                        parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                    )
         start_time = (
             op.hasStartDatetime.strftime("%d/%m/%Y") if op.hasStartDatetime else ""
         )
@@ -98,10 +176,47 @@ def create_pdf_from_operations(
         pdf.cell(
             40,
             8,
-            "Farm information:",
+            "Farm Location:",
         )
         pdf.set_font("FreeSerif", "", 10)
-        pdf.multi_cell(0, 8, farm, ln=True, fill=True)
+        farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+        pdf.multi_cell(0, 8, farm_local, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Administrator:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.administrator, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Contact Person:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.contactPerson, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm vat:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.vatID, ln=True, fill=True)
+
+        pdf.set_font("FreeSerif", "B", 10)
+        pdf.cell(
+            40,
+            8,
+            "Farm Description:",
+        )
+        pdf.set_font("FreeSerif", "", 10)
+        pdf.multi_cell(0, 8, farm.description, ln=True, fill=True)
 
         pdf.set_font("FreeSerif", "B", 10)
         pdf.cell(
@@ -114,7 +229,6 @@ def create_pdf_from_operations(
             0,
             8,
             f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
-            ln=True,
             fill=True,
         )
 
@@ -122,15 +236,16 @@ def create_pdf_from_operations(
         if not data_used:
             operations.sort(key=lambda x: x.hasStartDatetime)
         pdf.set_fill_color(0, 255, 255)
-        with pdf.table(text_align="CENTER", padding=0.5) as table:
+        with pdf.table(text_align="CENTER") as table:
             row = table.row()
             pdf.set_font("FreeSerif", "B", 10)
             row.cell("Start - End")
-            row.cell("Details")
-            row.cell("Parcel")
-            row.cell("Parcel Identifier")
-            row.cell("Farm")
-            row.cell("Value info")
+            if not parcel_defined:
+                row.cell("Parcel")
+                row.cell("Parcel Identifier")
+                row.cell("Farm")
+            row.cell("Dose")
+            row.cell("Unit")
             row.cell("Irrigation System")
             pdf.set_font("FreeSerif", "", 9)
             pdf.set_fill_color(255, 255, 240)
@@ -146,24 +261,28 @@ def create_pdf_from_operations(
                     op.hasEndDatetime.strftime("%d/%m/%Y") if op.hasEndDatetime else ""
                 )
                 row.cell(f"{start_time} - {end_time}")
-                row.cell(op.details)
 
-                parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
-                address = ""
-                farm = ""
-                identifier = ""
-                if parcel_id:
-                    parcel = parcel_id.split(":")[3] if op.operatedOn else None
-                    if parcel:
-                        address, farm, identifier= get_parcel_info(
-                            parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
-                        )
-                row.cell(address)
-                row.cell(identifier)
-                row.cell(farm)
+                if not parcel_defined:
+                    parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
+                    address = ""
+                    farm = ""
+                    identifier = ""
+                    if parcel_id:
+                        parcel = parcel_id.split(":")[3] if op.operatedOn else None
+                        if parcel:
+                            address, farm, identifier= get_parcel_info(
+                                parcel_id.split(":")[-1], token, geolocator, identifier_flag=True
+                            )
+                    row.cell(address)
+                    row.cell(identifier)
+                    farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+                    row.cell(farm_local)
 
                 row.cell(
-                    f"{op.hasAppliedAmount.numericValue} ({op.hasAppliedAmount.unit})",
+                    f"{op.hasAppliedAmount.numericValue}",
+                )
+                row.cell(
+                    f"{op.hasAppliedAmount.unit}",
                 )
 
                 if isinstance(op.usesIrrigationSystem, dict):
@@ -171,7 +290,7 @@ def create_pdf_from_operations(
                 else:
                     local_sys = op.usesIrrigationSystem
                 row.cell(local_sys)
-                pdf.ln(10)
+                pdf.ln(2)
 
     return pdf
 
@@ -223,7 +342,8 @@ def process_irrigation_data(
         operations = []
 
     try:
-        pdf = create_pdf_from_operations(operations, token, data_used)
+        pdf = create_pdf_from_operations(operations, token, data_used, parcel_id=parcel_id, from_date=from_date,
+    to_date=to_date)
     except Exception:
         raise HTTPException(
             status_code=400, detail="PDF generation of irrigation report failed."
