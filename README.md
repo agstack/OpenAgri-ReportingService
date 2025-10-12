@@ -222,6 +222,11 @@ This will run the tests and return success values for each api tested in the ter
 
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
+## Working examples
+You can find working examples for animal, irrigation as well as compost reports generation in the following pages:
+
+[Script](scripts/report_client.py)
+
 ## Contributing
 
 We welcome first-time contributions!

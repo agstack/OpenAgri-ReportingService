@@ -1,0 +1,40 @@
+{
+  "@graph": [
+    {
+      "@id": "urn:ngsi-ld:FarmAnimal:bessie-001",
+      "name": "Bessie",
+      "description": "Holstein cow, record created upon purchase.",
+      "species": "Bos taurus",
+      "sex": 1,
+      "birthdate": "2022-04-12",
+      "isCastrated": false,
+      "status": 1,
+      "hasAgriParcel": {
+        "@id": "urn:ngsi-ld:AgriParcel:parcel-uuid-001"
+      },
+      "isMemberOfAnimalGroup": {
+        "hasName": "Main Herd"
+      },
+      "dateCreated": "2025-10-09T10:00:00Z",
+      "invalidatedAtTime": null
+    },
+    {
+      "@id": "urn:ngsi-ld:FarmAnimal:clover-002",
+      "name": "Clover",
+      "description": "Jersey cow, born on farm.",
+      "species": "Bos taurus",
+      "sex": 1,
+      "birthdate": "2023-01-15",
+      "isCastrated": false,
+      "status": 1,
+      "hasAgriParcel": {
+        "@id": "urn:ngsi-ld:AgriParcel:parcel-uuid-002"
+      },
+      "isMemberOfAnimalGroup": {
+        "hasName": "Main Herd"
+      },
+      "dateCreated": "2025-10-09T11:00:00Z",
+      "invalidatedAtTime": null
+    }
+  ]
+}

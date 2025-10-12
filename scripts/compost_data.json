@@ -1,0 +1,64 @@
+{
+  "@graph": [
+    {
+      "@id": "urn:ngsi-ld:CompostTurningOperation:op-b42-20251010",
+      "@type": "CompostTurningOperation",
+      "title": "Monthly Compost Check",
+      "details": "Regular check and turning of compost pile B-42.",
+      "hasStartDatetime": "2025-10-10T08:00:00Z",
+      "hasEndDatetime": "2025-10-10T09:00:00Z",
+      "responsibleAgent": "John Doe",
+      "isOperatedOn": {
+        "@id": "urn:ngsi-ld:CompostPile:cp-b42"
+      },
+      "hasAgriParcel": {
+        "@id": "urn:ngsi-ld:AgriParcel:parcel-for-compost-b42"
+      },
+      "usesAgriculturalMachinery": [
+        {
+          "@id": "urn:ngsi-ld:AgriculturalMachinery:tractor-01"
+        }
+      ],
+      "hasMeasurement": [
+        {
+          "hasMember": [
+            {
+              "@id": "urn:ngsi-ld:CropObservation:obs-temp-001",
+              "@type": "CropObservation",
+              "type": "observed",
+              "phenomenonTime": "2025-10-10T08:15:00Z",
+              "observedProperty": "temperature",
+              "hasResult": {
+                "@id": "urn:ngsi-ld:Property:result-temp-001",
+                "@type": "Property",
+                "hasValue": "62",
+                "unit": "CEL"
+              },
+              "details": "Core temperature reading."
+            }
+          ]
+        }
+      ],
+      "hasNestedOperation": [
+        {
+          "@id": "urn:ngsi-ld:AddRawMaterialOperation:raw-mat-001",
+          "@type": "AddRawMaterialOperation",
+          "type": "raw",
+          "hasStartDatetime": "2025-10-10T08:30:00Z",
+          "details": "Added fresh green waste.",
+          "hasCompostMaterial": [
+            {
+              "@type": "CompostMaterial",
+              "typeName": "Grass Clippings",
+              "quantityValue": {
+                "@type": "QuantitativeValue",
+                "numericValue": "150",
+                "unit": "KGM"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
