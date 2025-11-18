@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def make_get_request(
     url: str,
     params: Optional[Dict[str, Union[str, int, float]]] = None,

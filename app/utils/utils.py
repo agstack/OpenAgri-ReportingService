@@ -37,7 +37,14 @@ class EX(FPDF):
 
     def footer(self):
         self.set_y(-15)
-        self.cell(0, 10, "Page %s" % self.page_no(), 0, 0, "C")
+        self.set_font("FreeSerif", "", 7)
+        acknowledgement_text = """
+            \tOpenAgri has received funding from the EU's Horizon Europe research and  innovation programme under Grant Agreement no. 101134083. This output reflects
+            only the author's view and the European Commission cannot be held responsible for any use that may be made of the information contained therein.
+        """
+        self.image('assets/eu.png', x=self.x, y=self.y, w=20)
+        self.set_x(self.get_x()+10)
+        self.multi_cell(200, 2, acknowledgement_text, border=0, align="J")
 
 
 def decode_jwt_token(token: str) -> dict:
@@ -76,43 +83,45 @@ class FarmInfo(BaseModel):
     contactPerson: str
 
 
+class ParcelInfo(BaseModel):
+    address: str
+    area: float
+
+
 def get_parcel_info(
     parcel_id: str, token: dict, geolocator: Nominatim, identifier_flag: bool = False
 ):
-    address = ""
     farm = FarmInfo(
-        description="", administrator="", vatID="", name="", municipality="", contactPerson=""
+        description="",
+        administrator="",
+        vatID="",
+        name="",
+        municipality="",
+        contactPerson="",
     )
+    parcel_info = ParcelInfo(address="", area=0.0)
     identifier = ""
     if not settings.REPORTING_USING_GATEKEEPER:
         if identifier_flag:
-            return address, farm, identifier
+            return parcel_info, farm, identifier
         else:
-            return address, farm
+            return parcel_info, farm
     farm_parcel_info = make_get_request(
         url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["parcel"]}{parcel_id}/',
         token=token,
         params={"format": "json"},
     )
-    location = farm_parcel_info.get("location")
 
-    try:
-        identifier = farm_parcel_info.get("identifier")
-        if location:
-            coordinates = f"{location.get('lat')}, {location.get('long')}"
-            l_info = geolocator.reverse(coordinates)
-            address_details = l_info.raw.get("address", {})
-            city = address_details.get("city", "")
-            country = address_details.get("country")
-            postcode = address_details.get("postcode")
-            address = f"Country: {country} | City: {city} | Postcode: {postcode}"
-    except Exception as e:
-        logger.error("Error with geolocator", e)
+    if not farm_parcel_info:
         if identifier_flag:
-            return address, farm, identifier
-        return address, farm
+            return parcel_info, farm, identifier
+        else:
+            return parcel_info, farm
 
+    location = farm_parcel_info.get("location")
+    parcel_info.area = farm_parcel_info.get("area", 0.0)
     farm_id = farm_parcel_info.get("farm").get("@id", None)
+
     if farm_id:
         farm_id = farm_id.split(":")[-1]
     if farm_id:
@@ -129,12 +138,29 @@ def get_parcel_info(
             vatID=farm_info.get("vatID", ""),
             name=farm_info.get("name", ""),
             municipality=farm_info.get("address", {}).get("municipality", ""),
-            contactPerson=f"{contact.get('firstname','')} {contact.get('lastname','')}"
+            contactPerson=f"{contact.get('firstname', '')} {contact.get('lastname', '')}",
         )
 
+    try:
+        identifier = farm_parcel_info.get("identifier")
+        if location:
+            coordinates = f"{location.get('lat')}, {location.get('long')}"
+            l_info = geolocator.reverse(coordinates)
+            address_details = l_info.raw.get("address", {})
+            city = address_details.get("city", "")
+            country = address_details.get("country")
+            postcode = address_details.get("postcode")
+            address = f"Country: {country} | City: {city} | Postcode: {postcode}"
+            parcel_info.address = address
+    except Exception as e:
+        logger.error("Error with geolocator", e)
+        if identifier_flag:
+            return parcel_info, farm, identifier
+        return parcel_info, farm
+
     if identifier_flag:
-        return address, farm, identifier
-    return address, farm
+        return parcel_info, farm, identifier
+    return parcel_info, farm
 
 
 def get_farm_operation_data(
@@ -170,3 +196,16 @@ def get_farm_operation_data(
     compost_turning_ops = make_get_request(url=turn_url, token=token, params=params)
     if compost_turning_ops:
         materials.extend(compost_turning_ops)
+
+
+def get_pesticide(id: str, token: dict[str, str]):
+    """
+    Fetches pesticide for Crop Operation
+
+    """
+    base_url = settings.REPORTING_FARMCALENDAR_BASE_URL
+    urls = settings.REPORTING_FARMCALENDAR_URLS
+
+    pest_url = f'{base_url}{urls["pest"]}{id}/'
+    pest = make_get_request(url=pest_url, token=token, params={"format": "json"})
+    return pest
