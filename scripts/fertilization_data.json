@@ -1,0 +1,32 @@
+{
+  "@graph": [
+    {
+      "@id": "urn:ngsi-ld:IrrigationOperation:op-001",
+      "@type": "IrrigationOperation",
+      "operatedOn": {
+        "@id": "urn:ngsi-ld:AgriParcel:parcel-north-42"
+      },
+      "hasStartDatetime": "2025-10-11T09:00:00Z",
+      "hasEndDatetime": "2025-10-11T12:30:00Z",
+      "hasAppliedAmount": {
+        "numericValue": 150,
+        "unit": "Cubic Meter"
+      },
+      "usesFertilizer": {}
+    },
+    {
+      "@id": "urn:ngsi-ld:IrrigationOperation:op-002",
+      "@type": "IrrigationOperation",
+      "operatedOn": {
+        "@id": "urn:ngsi-ld:AgriParcel:parcel-south-15"
+      },
+      "hasStartDatetime": "2025-10-10T14:00:00Z",
+      "hasEndDatetime": "2025-10-10T16:00:00Z",
+      "hasAppliedAmount": {
+        "numericValue": 75,
+        "unit": "Cubic Meter"
+      },
+      "usesFertilizer": {}
+    }
+  ]
+}

@@ -87,6 +87,8 @@ class FarmInfo(BaseModel):
 class ParcelInfo(BaseModel):
     address: str
     area: float
+    lat: float | None = 0
+    long: float | None = 0
 
 
 def get_parcel_info(
@@ -100,7 +102,7 @@ def get_parcel_info(
         municipality="",
         contactPerson="",
     )
-    parcel_info = ParcelInfo(address="", area=0.0)
+    parcel_info = ParcelInfo(address="", area=0.0, lat=0.0, long=0.0)
     identifier = ""
     if not settings.REPORTING_USING_GATEKEEPER:
         if identifier_flag:
@@ -145,7 +147,11 @@ def get_parcel_info(
     try:
         identifier = farm_parcel_info.get("identifier")
         if location:
-            coordinates = f"{location.get('lat')}, {location.get('long')}"
+            lat = location.get('lat')
+            long = location.get('long')
+            coordinates = f"{lat}, {long}"
+            parcel_info.lat = lat
+            parcel_info.long = long
             l_info = geolocator.reverse(coordinates)
             address_details = l_info.raw.get("address", {})
             city = address_details.get("city", "")
@@ -210,3 +216,69 @@ def get_pesticide(id: str, token: dict[str, str]):
     pest_url = f'{base_url}{urls["pest"]}{id}/'
     pest = make_get_request(url=pest_url, token=token, params={"format": "json"})
     return pest
+
+
+def display_pdf_parcel_details(pdf: FPDF, parcel_id: str, geolocator: Nominatim, token: str | dict) -> ParcelInfo:
+    parcel_data, farm, identifier = get_parcel_info(
+        parcel_id, token, geolocator, identifier_flag=True
+    )
+    address = parcel_data.address
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(40, 8, "Parcel Location:")
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, address, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(40, 8, "Parcel Identifier:")
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, identifier, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(
+        40,
+        8,
+        "Farm Location:",
+    )
+    pdf.set_font("FreeSerif", "", 10)
+    farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+    pdf.multi_cell(0, 8, farm_local, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(
+        40,
+        8,
+        "Administrator:",
+    )
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, farm.administrator, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(
+        40,
+        8,
+        "Contact Person:",
+    )
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, farm.contactPerson, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(
+        40,
+        8,
+        "Farm vat:",
+    )
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, farm.vatID, ln=True, fill=True)
+
+    pdf.set_font("FreeSerif", "B", 10)
+    pdf.cell(
+        40,
+        8,
+        "Farm Description:",
+    )
+    pdf.set_font("FreeSerif", "", 10)
+    pdf.multi_cell(0, 8, farm.description, fill=True)
+    return parcel_data
+
+

@@ -3,7 +3,7 @@ from typing import List
 
 import pandas as pd
 import matplotlib
-
+from core.config import settings
 from utils import get_pesticide
 
 matplotlib.use("Agg")
@@ -14,8 +14,10 @@ from schemas import IrrigationOperation, CropProtectionOperation
 
 
 def get_pest_from_obj(pt: CropProtectionOperation, token: dict | str):
-    pest_id = pt.usesPesticide.get("@id", None) if pt.usesPesticide else None
     pest_name = ""
+    if not settings.REPORTING_USING_GATEKEEPER:
+        return pest_name
+    pest_id = pt.usesPesticide.get("@id", None) if pt.usesPesticide else None
     if pest_id:
         pest_id = pest_id.split(":")[3]
         pest = get_pesticide(pest_id, token)

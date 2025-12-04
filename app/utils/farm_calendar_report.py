@@ -16,7 +16,7 @@ from utils import (
     decode_dates_filters,
     get_parcel_info,
     get_farm_operation_data,
-    FarmInfo,
+    FarmInfo, display_pdf_parcel_details,
 )
 from utils.json_handler import make_get_request
 from geopy.geocoders import Nominatim
@@ -55,7 +55,7 @@ class FarmCalendarData:
 
 
 def create_farm_calendar_pdf(
-    calendar_data: FarmCalendarData, token: dict[str, str]
+    calendar_data: FarmCalendarData, token: dict[str, str], parcel_id: str | None = None
 ) -> EX:
     """Create PDF report from farm calendar data"""
     pdf = EX()
@@ -84,6 +84,11 @@ def create_farm_calendar_pdf(
     line_end_x = pdf.w - pdf.l_margin - pdf.r_margin
     pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
     pdf.ln(5)
+
+    parcel_defined = False
+    if parcel_id and len(calendar_data.operations) > 1:
+        display_pdf_parcel_details(pdf, parcel_id, geolocator, token)
+        parcel_defined = True
 
     if len(calendar_data.operations) == 1:
         operation = calendar_data.operations[0]
@@ -175,8 +180,9 @@ def create_farm_calendar_pdf(
         ag = operation.responsibleAgent if operation.responsibleAgent else ""
         pdf.multi_cell(0, 8, ag, ln=True, fill=True, align="L")
 
-        pdf.set_font("FreeSerif", "B", 10)
-        pdf.cell(40, 8, "Initial Materials:")
+        pdf.set_font("FreeSerif", "B", 12)
+        pdf.set_x(15)
+        pdf.cell(40, 8, "Initial Materials")
         pdf.ln(15)
         if calendar_data.materials:
             with pdf.table(text_align="CENTER", padding=0.5, v_align=VAlign.M) as table:
@@ -204,10 +210,11 @@ def create_farm_calendar_pdf(
 
     if len(calendar_data.operations) > 1:
         calendar_data.operations.sort(key=lambda x: x.hasStartDatetime)
+        pdf.set_font("FreeSerif", "B", 12)
+        pdf.set_x(15)
+        pdf.cell(0, 10, "Operations", ln=True, align='L')
+        pdf.ln(5)
         with pdf.table(text_align="CENTER", padding=0.5) as table:
-            pdf.set_font("FreeSerif", "B", 12)
-            pdf.cell(0, 10, "Operations", ln=True)
-            pdf.ln(5)
 
             row = table.row()
             pdf.set_font("FreeSerif", "B", 10)
@@ -217,8 +224,9 @@ def create_farm_calendar_pdf(
             row.cell("End")
             row.cell("Agent")
             row.cell("Machinery IDs")
-            row.cell("Parcel")
-            row.cell("Farm")
+            if not parcel_defined:
+                row.cell("Parcel")
+                row.cell("Farm")
             row.cell("Compost Pile")
             row.cell("Responsible Agent")
             pdf.set_font("FreeSerif", "", 9)
@@ -275,9 +283,10 @@ def create_farm_calendar_pdf(
                         address = parcel_data.address
 
                 row.cell(f"{machinery_ids}")
-                row.cell(address)
-                farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
-                row.cell(farm_local)
+                if not parcel_defined:
+                    row.cell(address)
+                    farm_local = f"Name: {farm.name} | Municipality: {farm.municipality}"
+                    row.cell(farm_local)
                 operation = calendar_data.operations[0]
                 cp = (
                     operation.isOperatedOn.get("@id").split(":")[3]
@@ -300,6 +309,7 @@ def create_farm_calendar_pdf(
         pdf.set_fill_color(0, 255, 255)
 
         pdf.set_font("FreeSerif", "B", 12)
+        pdf.set_x(15)
         pdf.cell(0, 10, "Data Table", ln=True)
         pdf.ln(5)
         types = {
@@ -440,26 +450,27 @@ def process_farm_calendar_data(
             if not operation_id:
                 # Check for generic response
                 if calendar_activity_type:
-                    params["name"] = calendar_activity_type
-                    farm_activity_type_info = make_get_request(
-                        url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
-                        token=token,
-                        params=params,
-                    )
-
-                    del params["name"]
-
-                    if farm_activity_type_info:
-                        params["activity_type"] = farm_activity_type_info[0][
-                            "@id"
-                        ].split(":")[3]
-                        decode_dates_filters(params, from_date, to_date)
-                        observations = make_get_request(
-                            url=obs_url,
+                    if calendar_activity_type.strip() != "Compost Operation":
+                        params["name"] = calendar_activity_type
+                        farm_activity_type_info = make_get_request(
+                            url=f'{settings.REPORTING_FARMCALENDAR_BASE_URL}{settings.REPORTING_FARMCALENDAR_URLS["activity_types"]}',
                             token=token,
                             params=params,
                         )
 
+                        del params["name"]
+                        if farm_activity_type_info:
+
+                            params["activity_type"] = farm_activity_type_info[0][
+                                "@id"
+                            ].split(":")[3]
+                            decode_dates_filters(params, from_date, to_date)
+                            observations = make_get_request(
+                                url=obs_url,
+                                token=token,
+                                params=params,
+                            )
+                    else:
                         if parcel_id:
                             params["parcel"] = parcel_id
                         operations = make_get_request(
@@ -467,17 +478,16 @@ def process_farm_calendar_data(
                             token=token,
                             params=params,
                         )
-
-                        del params["activity_type"]
-                        for o in operations:
-                            id = o["@id"].split(":")[3]
-                            get_farm_operation_data(
-                                id=id,
-                                materials=materials,
-                                params=params,
-                                observations=observations,
-                                token=token,
-                            )
+                        if operations:
+                            for o in operations:
+                                id = o["@id"].split(":")[3]
+                                get_farm_operation_data(
+                                    id=id,
+                                    materials=materials,
+                                    params=params,
+                                    observations=observations,
+                                    token=token,
+                                )
 
             else:
                 operation_url = f"{operation_url}{operation_id}/"
@@ -555,7 +565,7 @@ def process_farm_calendar_data(
                     materials=[],
                 )
 
-        pdf = create_farm_calendar_pdf(calendar_data, token)
+        pdf = create_farm_calendar_pdf(calendar_data, token, parcel_id)
         pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
         os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
         pdf.output(f"{pdf_dir}.pdf")

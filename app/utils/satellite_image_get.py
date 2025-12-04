@@ -8,6 +8,9 @@ EOX_WMS_URL = "https://tiles.maps.eox.at/wms"
 EOX_LAYER = "s2cloudless"
 
 
+class SatelliteImageException(Exception):
+    pass
+
 def fetch_wms_image(
         lat: float,
         lon: float,
@@ -58,11 +61,4 @@ def fetch_wms_image(
         return response.content
 
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=502, detail=f"Error fetching image from WMS: {e}")
-
-
-image_bytes = fetch_wms_image(45.243248, 19.837172 )
-image_file = io.BytesIO(image_bytes)
-# Write the stuff
-with open("../output.png", "wb") as f:
-    f.write(image_file.getbuffer())
+        raise SatelliteImageException(f"Error fetching image from WMS: {e}")

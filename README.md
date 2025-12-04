@@ -277,13 +277,13 @@ Response is uuid of generated PDF file.
 Response is uuid of generated PDF file.
 
 <h2>Pytest</h2>
-Pytest can be run on the same machine the service has been deployed to by moving into the tests dir and running:
+Pytest can be run on the same machine the service has been deployed to by moving into the app dir and running:
 
 ```
-pytest tests_.py 
+pytest
 ```
 
-This will run the tests and return success values for each api tested in the terminal.
+This will run all tests and return success values for each api tested in the terminal.
 
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
