@@ -18,7 +18,7 @@ from schemas import PDF
 from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
-from utils.irrigation_report import process_irrigation_data
+from utils.irrig_fert_pest_report import process_irrigation_fertilization_data
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -83,13 +83,13 @@ async def generate_irrigation_report(
     if data:
         data = data.file.read()
     background_tasks.add_task(
-        process_irrigation_data,
+        process_irrigation_fertilization_data,
         data=data,
         token=token,
         pdf_file_name=uuid_of_pdf,
         from_date=from_date,
         to_date=to_date,
-        irrigation_id=irrigation_id,
+        operation_id=irrigation_id,
         parcel_id=parcel_id
     )
 
@@ -191,6 +191,99 @@ async def generate_animal_report(
         from_date=from_date,
         to_date=to_date,
         farm_animal_id=farm_animal_id,
+    )
+
+    return PDF(uuid=uuid_v4)
+
+
+
+@router.post("/fertilization-report/", response_model=PDF)
+async def generate_fertilization_report(
+    background_tasks: BackgroundTasks,
+    token=Depends(deps.get_current_user),
+    fertilization_id: str = None,
+    data: UploadFile = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    parcel_id: str = None
+):
+    """
+    Generates Fertilization Report PDF file
+
+    """
+    uuid_v4 = str(uuid.uuid4())
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
+
+    if not data and not settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Data file must be provided if gatekeeper is not used.",
+        )
+    if data:
+        data = data.file.read()
+    background_tasks.add_task(
+        process_irrigation_fertilization_data,
+        data=data,
+        token=token,
+        pdf_file_name=uuid_of_pdf,
+        from_date=from_date,
+        to_date=to_date,
+        operation_id=fertilization_id,
+        parcel_id=parcel_id,
+        irrigation_flag=False,
+        fertilization_flag=True
+    )
+
+    return PDF(uuid=uuid_v4)
+
+
+@router.post("/pesticides-report/", response_model=PDF)
+async def generate_pesticides_report(
+    background_tasks: BackgroundTasks,
+    token=Depends(deps.get_current_user),
+    pesticide_id: str = None,
+    data: UploadFile = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    parcel_id: str = None
+):
+    """
+    Generates Pesticides Report PDF file
+
+    """
+    uuid_v4 = str(uuid.uuid4())
+    user_id = (
+        decode_jwt_token(token)["user_id"]
+        if settings.REPORTING_USING_GATEKEEPER
+        else token.id
+    )
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
+
+    if not data and not settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Data file must be provided if gatekeeper is not used.",
+        )
+
+    if data:
+        data = data.file.read()
+
+    background_tasks.add_task(
+        process_irrigation_fertilization_data,
+        data=data,
+        token=token,
+        pdf_file_name=uuid_of_pdf,
+        from_date=from_date,
+        to_date=to_date,
+        operation_id=pesticide_id,
+        parcel_id=parcel_id,
+        irrigation_flag=False,
+        pesticides_flag= True
     )
 
     return PDF(uuid=uuid_v4)

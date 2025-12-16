@@ -14,7 +14,10 @@ RETRY_DELAY_SECONDS = 3
 
 # python report_client.py --type animal --token "your-long-auth-token-here" --file "path/to/animal_data.json"
 # python report_client.py --type irrigation --token "your-long-auth-token-here" --file "data/irrigation_payload.json"
+# python report_client.py --type pesticides --token "your-long-auth-token-here" --file "path/to/pesticides_data.json"
+# python report_client.py --type fertilization --token "your-long-auth-token-here" --file "path/to/fertilization_data.json"
 # python report_client.py --type compost --token "your-long-auth-token-here" --file "compost.json" --url "http://localhost:5000"
+
 
 # --- End Configuration ---
 
@@ -23,7 +26,7 @@ def generate_report(report_type: str, base_url: str, token: str, json_file: str)
     Calls the appropriate report endpoint and returns the report UUID.
 
     Args:
-        report_type: The type of report ('animal', 'irrigation', 'compost').
+        report_type: The type of report ('animal', 'irrigation', 'pesticides', 'fertilization', 'compost').
         base_url: The base URL of the reporting service.
         token: The authentication bearer token.
         json_file: The path to the JSON data file to upload.
@@ -121,7 +124,7 @@ def main():
     parser.add_argument(
         "--type",
         required=True,
-        choices=['animal', 'irrigation', 'compost'],
+        choices=['animal', 'irrigation', 'compost', 'pesticides', 'fertilization'],
         help="The type of report to generate."
     )
     parser.add_argument(

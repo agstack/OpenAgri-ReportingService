@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     REPORTING_FARMCALENDAR_BASE_URL: str = "api/proxy/farmcalendar/api/v1"
     REPORTING_FARMCALENDAR_URLS: dict = {
         "irrigations": "/IrrigationOperations/",
+        "fertilization": "/FertilizationOperations/",
+        "pesticides": "/CropProtectionOperations/",
+        "pest": "/Pesticides/",
         "activity_types": "/FarmCalendarActivityTypes/",
         "observations": "/Observations/",
         "operations": "/CompostOperations/",
