@@ -274,6 +274,7 @@ def process_animal_data(
         raise HTTPException(
             status_code=400, detail="PDF generation of animal report failed."
         )
+
     pdf_dir = f"{settings.PDF_DIRECTORY}{pdf_file_name}"
     os.makedirs(os.path.dirname(f"{pdf_dir}.pdf"), exist_ok=True)
     anima_pdf.output(f"{pdf_dir}.pdf")
