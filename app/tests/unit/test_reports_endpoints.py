@@ -91,3 +91,55 @@ class TestReportAPI(TestCase):
         response =  self.client.get(f"{TestReportAPI.BASE_URL}/123/", headers={"X-Token": "OK"},
                           params={"token": TestReportAPI.CORRECT_TOKEN})
         assert response.status_code == 200
+
+
+
+    def test_generate_irrigation_report_success(self):
+        from api.api_v1.endpoints import report
+
+        mock_bg_task = self.patch(report, "process_irrigation_fertilization_data")
+        params = {
+            "token": TestReportAPI.CORRECT_TOKEN,
+            "irrigation_id": "test_irrigation_id",
+            "from_date": "2023-01-01",
+            "to_date": "2023-01-31",
+            "parcel_id": "test_parcel_id"
+        }
+
+        response = self.client.post(
+            f"{TestReportAPI.BASE_URL}/irrigation-report/",
+            headers={"X-Token": "OK"},
+            params=params
+        )
+
+        assert response.status_code == 200
+        response_json = response.json()
+        assert "uuid" in response_json
+        assert len(response_json["uuid"]) == 36
+
+        mock_bg_task.assert_called_once()
+
+        args, kwargs = mock_bg_task.call_args
+        assert "123/" in kwargs['pdf_file_name']
+
+    def test_generate_irrigation_report_with_file_upload(self):
+        from api.api_v1.endpoints import report
+        mock_bg_task = self.patch(report, "process_irrigation_fertilization_data")
+
+        file_content = b'{"some": "json_data"}'
+        files = {
+            'data': ('test_data.json', file_content, 'application/json')
+        }
+
+        response = self.client.post(
+            f"{TestReportAPI.BASE_URL}/irrigation-report/",
+            headers={"X-Token": "OK"},
+            params={"token": TestReportAPI.CORRECT_TOKEN},
+            files=files
+        )
+
+        assert response.status_code == 200
+        mock_bg_task.assert_called_once()
+
+        _, kwargs = mock_bg_task.call_args
+        assert kwargs['data'] == file_content
