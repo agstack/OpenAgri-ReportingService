@@ -1,4 +1,4 @@
-from pydantic import AnyHttpUrl, field_validator
+from pydantic import field_validator, ConfigDict, Field
 from pydantic_settings import BaseSettings
 from password_validator import PasswordValidator
 from typing import Optional, Any
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
         "animals": "/FarmAnimals/",
         "materials": "/AddRawMaterialOperations/",
         "machines": "/AgriculturalMachines/",
-        "farm": "/Farm/"
+        "farm": "/Farm/",
     }
 
     PDF_DIRECTORY: str = "user_reports/"
@@ -59,11 +59,29 @@ class Settings(BaseSettings):
         return url
 
     PASSWORD_SCHEMA_OBJ: PasswordValidator = PasswordValidator()
-    PASSWORD_SCHEMA_OBJ.min(8).max(
-        100
-    ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
+    PASSWORD_SCHEMA_OBJ: PasswordValidator = Field(
+        default_factory=lambda: PasswordValidator()
+        .min(8)
+        .max(100)
+        .has()
+        .uppercase()
+        .has()
+        .lowercase()
+        .has()
+        .digits()
+        .has()
+        .no()
+        .spaces(),
+        exclude=True,
+    )
     JWT_ACCESS_TOKEN_EXPIRATION_TIME: int
     JWT_SIGNING_KEY: str
+
+    # https://docs.pydantic.dev/latest/concepts/config/
+    model_config = ConfigDict(
+        # allows PasswordValidator to be used as a field in the Settings class
+        arbitrary_types_allowed=True,
+    )
 
 
 settings = Settings()
