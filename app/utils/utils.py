@@ -134,18 +134,18 @@ def get_parcel_info(
             params={"format": "json"},
         )
 
-        contact = farm_info.get("contactPerson", {})
+        contact = farm_info.get("contactPerson") or {}
         farm = FarmInfo(
-            description=farm_info.get("description", ""),
-            administrator=farm_info.get("administrator", ""),
-            vatID=farm_info.get("vatID", ""),
-            name=farm_info.get("name", ""),
-            municipality=farm_info.get("address", {}).get("municipality", ""),
+            description=farm_info.get("description") or "",
+            administrator=farm_info.get("administrator") or "",
+            vatID=farm_info.get("vatID") or "",
+            name=farm_info.get("name") or "",
+            municipality=(farm_info.get("address") or {}).get("municipality") or "",
             contactPerson=f"{contact.get('firstname', '')} {contact.get('lastname', '')}",
         )
 
     try:
-        identifier = farm_parcel_info.get("identifier")
+        identifier = farm_parcel_info.get("identifier") or ""
         if location:
             lat = location.get('lat')
             long = location.get('long')
@@ -154,9 +154,9 @@ def get_parcel_info(
             parcel_info.long = long
             l_info = geolocator.reverse(coordinates)
             address_details = l_info.raw.get("address", {})
-            city = address_details.get("city", "")
-            country = address_details.get("country")
-            postcode = address_details.get("postcode")
+            city = address_details.get("city") or ""
+            country = address_details.get("country") or ""
+            postcode = address_details.get("postcode") or ""
             address = f"Country: {country} | City: {city} | Postcode: {postcode}"
             parcel_info.address = address
     except Exception as e:
