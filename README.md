@@ -60,7 +60,7 @@ docker compose up
 
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
-Full list of APIs available you can check [here](https://editor-next.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/7f5771b23a44e508b82e47d5fafd9f9c/raw/0ab48e33303efb114d7467a3ec1d8833fd62ff22/v5.json)
+Full list of APIs available you can check [here](https://editor.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/7f5771b23a44e508b82e47d5fafd9f9c/raw/)
 # Documentation
 <h3>GET</h3>
 
@@ -122,6 +122,7 @@ Response is uuid of generated PDF file.
 ### calendar_activity_type
 - **Type**: `str`
 - **Description**:  All Farm Calendar Observation Type values are possible as input (optional). If operation_id provided not used.
+  (**Compost Operation** _calendar_activity_type_ is used to get all Compost Operations)
 
 ### operation_id
 - **Type**: `uudi str`

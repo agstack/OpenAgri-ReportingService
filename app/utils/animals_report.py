@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from fpdf.fonts import FontFace
 
 from core import settings
-from utils import EX, add_fonts, decode_jwt_token, decode_dates_filters, get_parcel_info
+from utils import EX, add_fonts, decode_jwt_token, decode_dates_filters, get_parcel_info, FarmInfo
 from schemas.animals import *
 from utils.farm_calendar_report import geolocator
 from utils.json_handler import make_get_request
@@ -67,7 +67,7 @@ def create_pdf_from_animals(
         an = animals[0]
         parcel_id = an.hasAgriParcel.id if an.hasAgriParcel else None
         address = ""
-        farm = ""
+        farm = FarmInfo(description="", administrator="", vatID="", name="", municipality="", contactPerson="")
         identifier = ""
         if parcel_id:
             parcel = parcel_id.split(":")[3]

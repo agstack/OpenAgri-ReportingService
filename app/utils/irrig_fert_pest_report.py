@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from core import settings
 from schemas import IrrigationOperation, FertilizationOperation, CropProtectionOperation
 from utils.satellite_image_get import fetch_wms_image, SatelliteImageException
-from utils import EX, add_fonts, decode_dates_filters, get_parcel_info, display_pdf_parcel_details
+from utils import EX, add_fonts, decode_dates_filters, get_parcel_info, display_pdf_parcel_details, FarmInfo
 from utils.farm_calendar_report import geolocator
 from utils.generate_aggregation_data import (
     generate_total_volume_graph,
@@ -99,7 +99,10 @@ def create_pdf_from_operations(
     pdf.line(pdf.l_margin, y_position, line_end_x, y_position)
     pdf.ln(5)
 
-    address, farm, parcel_defined = None, None, None
+    address = ""
+    identifier = ""
+    farm = FarmInfo(description="", administrator="", vatID="", name="", municipality="", contactPerson="")
+    parcel_defined = None
     from_date_local, to_date_local = today, None
     if from_date:
         from_date_local = from_date.strftime("%Y-%m-%d")
@@ -271,7 +274,7 @@ def create_pdf_from_operations(
                 if not parcel_defined:
                     parcel_id = op.operatedOn.get("@id") if op.operatedOn else None
                     address = ""
-                    farm = ""
+                    farm = FarmInfo(description="", administrator="", vatID="", name="", municipality="", contactPerson="")
                     identifier = ""
                     if parcel_id:
                         parcel = parcel_id.split(":")[3] if op.operatedOn else None
