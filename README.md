@@ -122,6 +122,7 @@ Response is uuid of generated PDF file.
 ### calendar_activity_type
 - **Type**: `str`
 - **Description**:  All Farm Calendar Observation Type values are possible as input (optional). If operation_id provided not used.
+  (**Compost Operation** _calendar_activity_type_ is used to get all Compost Operations)
 
 ### operation_id
 - **Type**: `uudi str`
