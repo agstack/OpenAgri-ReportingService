@@ -112,11 +112,12 @@ def create_farm_calendar_pdf(
             )
             parcel_id = (
                 agr_resp.get("hasAgriParcel", {}).get("@id", None)
-                if agr_mach_id
+                if agr_resp and agr_mach_id
                 else None
             )
 
-        address, farm = "", ""
+        address = ""
+        farm = FarmInfo(description="", administrator="", vatID="", name="", municipality="", contactPerson="")
         if parcel_id:
             parcel_data, farm = get_parcel_info(
                 parcel_id.split(":")[-1], token, geolocator
