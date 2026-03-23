@@ -482,6 +482,7 @@ def process_farm_calendar_data(
                         if operations:
                             for o in operations:
                                 id = o["@id"].split(":")[3]
+                                decode_dates_filters(params, from_date, to_date)
                                 get_farm_operation_data(
                                     id=id,
                                     materials=materials,
