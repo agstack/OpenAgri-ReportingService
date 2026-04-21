@@ -253,6 +253,7 @@ def retrieve_standalone_observation_pdf(report_id: str):
     """
     file_path = f"{settings.PDF_DIRECTORY}standalone/{report_id}.pdf"
 
+
     if not os.path.exists(file_path):
         raise HTTPException(
             status_code=202,
