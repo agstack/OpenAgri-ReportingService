@@ -278,6 +278,105 @@ Response is uuid of generated PDF file.
 
 Response is uuid of generated PDF file.
 
+<h3>POST</h3>
+
+```
+/api/v1/openagri-report/standalone-observation-report/
+```
+
+This endpoint is intended for environments where **no Farm Calendar service is available**.
+Unlike the other endpoints, **no authentication is required** (no Bearer token), no Farm
+Calendar lookups are performed, and parcel/farm information must be supplied manually
+as multipart form fields. The observation payload must be a **pure JSON-LD observation
+array** (top-level `[ ... ]`), not the `{"@graph": [...]}` envelope used by the other
+endpoints.
+
+The generated PDF is stored under a shared `standalone/` folder (not scoped per user),
+and is retrieved via a dedicated unauthenticated GET endpoint (see below).
+
+## Request Params
+
+### data
+- **Type**: `UploadFile` (required)
+- **Description**: A JSON file whose top-level structure is an array of JSON-LD
+  observation objects (e.g. `[ {"@type": "Observation", ...}, ... ]`). Each item is
+  validated against the `CropObservation` schema.
+
+### title
+- **Type**: `str`
+- **Description**: Report title shown on the PDF (default: `"Observation Report"`).
+
+### from_date
+- **Type**: `date`
+- **Description**: Optional reporting period start; only used in the header.
+
+### to_date
+- **Type**: `date`
+- **Description**: Optional reporting period end; only used in the header.
+
+### parcel_address
+- **Type**: `str`
+- **Description**: Free-text parcel address shown in the Farm Details section.
+
+### parcel_identifier
+- **Type**: `str`
+- **Description**: Parcel identifier shown in the Farm Details section.
+
+### parcel_area
+- **Type**: `float`
+- **Description**: Parcel area in m². Optional.
+
+### parcel_lat
+- **Type**: `float`
+- **Description**: Parcel latitude. When both `parcel_lat` and `parcel_lng` are
+  provided, a Sentinel-2 satellite tile is embedded in the report (network permitting).
+
+### parcel_lng
+- **Type**: `float`
+- **Description**: Parcel longitude. See `parcel_lat`.
+
+### farm_name / farm_municipality / farm_administrator / farm_vat_id / farm_contact_person / farm_description
+- **Type**: `str`
+- **Description**: Manual farm fields displayed in the Farm Details section.
+
+## Response
+
+Response is uuid of generated PDF file.
+
+<h3>GET</h3>
+
+```
+/api/v1/openagri-report/standalone-observation-report/{report_id}/
+```
+
+Retrieve a previously generated standalone-observation PDF. **No authentication
+required.** Returns the PDF with status 200 when ready, or 202 while generation is
+still in progress.
+
+### report_id
+- **Type**: `uuid str`
+- **Description**: UUID returned by the standalone-observation POST.
+
+<h3> Example usage </h3>
+
+```shell
+# No --token needed for the standalone-observation endpoint:
+python3 scripts/report_client.py --type standalone-observation \
+    --file scripts/standalone_observation_data.json \
+    --title "Compost B-42 Observations" \
+    --from-date 2025-10-10 --to-date 2025-10-12 \
+    --parcel-address "Country: GR | City: Athens | Postcode: 10000" \
+    --parcel-identifier "PARCEL-B42" \
+    --parcel-area 12500 \
+    --parcel-lat 37.9838 --parcel-lng 23.7275 \
+    --farm-name "Demo Farm" \
+    --farm-municipality "Athens" \
+    --farm-administrator "John Doe" \
+    --farm-vat-id "EL123456789" \
+    --farm-contact-person "Jane Roe" \
+    --farm-description "Demonstration compost farm."
+```
+
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the app dir and running:
 
@@ -290,7 +389,7 @@ This will run all tests and return success values for each api tested in the ter
 <h3>These tests will NOT result in generated .pdf files.</h3>
 
 ## Working examples
-You can find working examples for animal, irrigation as well as compost reports generation in the following pages:
+You can find working examples for animal, irrigation, compost, pesticides, fertilization and standalone-observation reports generation in the following pages:
 
 [Script](scripts/report_client.py)
 

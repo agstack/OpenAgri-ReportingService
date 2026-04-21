@@ -1,0 +1,50 @@
+[
+  {
+    "@id": "urn:ngsi-ld:CropObservation:obs-temp-001",
+    "@type": "Observation",
+    "phenomenonTime": "2025-10-10T08:15:00Z",
+    "hasStartDatetime": "2025-10-10T08:15:00Z",
+    "hasEndDatetime": "2025-10-10T08:30:00Z",
+    "observedProperty": "temperature",
+    "responsibleAgent": "John Doe",
+    "details": "Core temperature reading on compost pile B-42.",
+    "hasResult": {
+      "@id": "urn:ngsi-ld:Property:result-temp-001",
+      "@type": "Property",
+      "hasValue": "62",
+      "unit": "CEL"
+    }
+  },
+  {
+    "@id": "urn:ngsi-ld:CropObservation:obs-moist-001",
+    "@type": "Observation",
+    "phenomenonTime": "2025-10-11T09:00:00Z",
+    "hasStartDatetime": "2025-10-11T09:00:00Z",
+    "hasEndDatetime": "2025-10-11T09:10:00Z",
+    "observedProperty": "moisture",
+    "responsibleAgent": "Jane Roe",
+    "details": "Moisture sensor reading at 30 cm depth.",
+    "hasResult": {
+      "@id": "urn:ngsi-ld:Property:result-moist-001",
+      "@type": "Property",
+      "hasValue": "55",
+      "unit": "P1"
+    }
+  },
+  {
+    "@id": "urn:ngsi-ld:CropObservation:obs-ph-001",
+    "@type": "Observation",
+    "phenomenonTime": "2025-10-12T10:00:00Z",
+    "hasStartDatetime": "2025-10-12T10:00:00Z",
+    "hasEndDatetime": "2025-10-12T10:05:00Z",
+    "observedProperty": "pH",
+    "responsibleAgent": "John Doe",
+    "details": "pH probe reading.",
+    "hasResult": {
+      "@id": "urn:ngsi-ld:Property:result-ph-001",
+      "@type": "Property",
+      "hasValue": "7.2",
+      "unit": "pH"
+    }
+  }
+]
