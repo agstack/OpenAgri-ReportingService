@@ -1,0 +1,6 @@
+[tool.pydantic_settings_export]
+project_dir = "."
+default_settings = ["app.core.config:Settings"]
+
+[[tool.pydantic_settings_export.generators.markdown]]
+paths = ["CONFIGURATION.md"]
