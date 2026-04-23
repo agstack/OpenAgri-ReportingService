@@ -10,6 +10,7 @@ MAX_RETRIES = 10
 # Seconds to wait between check attempts
 RETRY_DELAY_SECONDS = 3
 
+
 # USAGE EXAMPLES:
 
 # python report_client.py --type animal --token "your-long-auth-token-here" --file "path/to/animal_data.json"

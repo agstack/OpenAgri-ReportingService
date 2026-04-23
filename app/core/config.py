@@ -33,11 +33,17 @@ class Settings(BaseSettings):
         "operations": "/CompostOperations/",
         "turning_operations": "/CompostTurningOperations/",
         "activities": "/FarmCalendarActivities/",
+        "crops": "/FarmCrops/",
         "parcel": "/FarmParcels/",
         "animals": "/FarmAnimals/",
         "materials": "/AddRawMaterialOperations/",
         "machines": "/AgriculturalMachines/",
         "farm": "/Farm/"
+    }
+
+    REPORTING_FORECASTING_BASE_URL: str = ""
+    REPORTING_FORECASTING_URLS: dict = {
+        "pest_risk": "/PestRisk/",
     }
 
     PDF_DIRECTORY: str = "user_reports/"

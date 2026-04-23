@@ -14,10 +14,11 @@ from pydantic import UUID4
 
 from api import deps
 from core import settings
-from schemas import PDF
+from schemas import PDF, QualityCertification
 from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
+from utils.field_notebook_report import process_field_notebook_data
 from utils.irrig_fert_pest_report import process_irrigation_fertilization_data
 from fastapi.responses import FileResponse
 
@@ -284,6 +285,69 @@ async def generate_pesticides_report(
         parcel_id=parcel_id,
         irrigation_flag=False,
         pesticides_flag= True
+    )
+
+    return PDF(uuid=uuid_v4)
+
+
+@router.post("/field-notebook/", response_model=PDF)
+async def generate_field_notebook(
+    background_tasks: BackgroundTasks,
+    token=Depends(deps.get_current_user),
+    parcel_id: str = None,
+    from_date: datetime.date = None,
+    to_date: datetime.date = None,
+    # Activity section filters — all included by default
+    include_irrigation: bool = True,
+    include_fertilization: bool = True,
+    include_pesticides: bool = True,
+    include_observations: bool = True,
+    # Quality certification — optional request body
+    certification: Optional[QualityCertification] = None,
+):
+    """
+    Generates a unified Field Notebook PDF for a farm parcel.
+
+    Combines all agronomic activities in chronological order, aligned with
+    European Field Notebook (farm diary) requirements:
+
+    1. Farm & parcel information (name, VAT, contact, address, satellite map)
+    2. Forecasting models – last 15 days pest risk summary (TODO when implemented on FC && PDM)
+    3. Pest treatment activities (all CropProtectionOperations, chronological)
+    4. Fertilization activities (all FertilizationOperations, chronological)
+    5. Irrigation activities (all IrrigationOperations, chronological)
+    6. Crop data & observations (all recorded observations + quality certification section)
+
+    Requires Gatekeeper mode. Data is fetched from Farm Calendar via the proxy.
+    Returns a UUID that can be polled via GET /{report_id}/.
+    """
+    if not settings.REPORTING_USING_GATEKEEPER:
+        raise HTTPException(
+            status_code=400,
+            detail="Field Notebook report requires Gatekeeper mode.",
+        )
+
+    uuid_v4 = str(uuid.uuid4())
+    user_id = decode_jwt_token(token)["user_id"]
+    uuid_of_pdf = f"{user_id}/{uuid_v4}"
+
+    background_tasks.add_task(
+        process_field_notebook_data,
+        token=token,
+        pdf_file_name=uuid_of_pdf,
+        parcel_id=parcel_id,
+        from_date=from_date,
+        to_date=to_date,
+        include_irrigation=include_irrigation,
+        include_fertilization=include_fertilization,
+        include_pesticides=include_pesticides,
+        include_observations=include_observations,
+        cert_type=certification.cert_type if certification else None,
+        cert_number=certification.cert_number if certification else None,
+        cert_issuing_body=certification.cert_issuing_body if certification else None,
+        cert_issue_date=certification.cert_issue_date if certification else None,
+        cert_expiry_date=certification.cert_expiry_date if certification else None,
+        cert_notes=certification.cert_notes if certification else None,
     )
 
     return PDF(uuid=uuid_v4)

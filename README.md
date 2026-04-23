@@ -278,6 +278,54 @@ Response is uuid of generated PDF file.
 
 Response is uuid of generated PDF file.
 
+<h3>POST</h3>
+
+```
+/api/v1/openagri-report/field-notebook/
+```
+
+Generates a unified Field Notebook PDF aligned with European Field Notebook (farm diary) requirements. The report combines farm/parcel information, a forecasting pest-risk summary, and all agronomic activities (pest treatment, fertilization, irrigation) plus crop data and observations, in chronological order.
+
+**Requires Gatekeeper mode.** Data is fetched from Farm Calendar via the proxy; requests without Gatekeeper enabled return HTTP 400.
+
+## Request Params
+
+### parcel_id
+- **Type**: `str`
+- **Description**: Optional parcel filter.
+
+### from_date
+- **Type**: `date`
+- **Description**: Optional date filter (from which data is filtered).
+
+### to_date
+- **Type**: `date`
+- **Description**: Optional date filter (until which data is filtered).
+
+### include_irrigation
+- **Type**: `bool`
+- **Description**: Include the Irrigation Activities section. Defaults to `true`.
+
+### include_fertilization
+- **Type**: `bool`
+- **Description**: Include the Fertilization Activities section. Defaults to `true`.
+
+### include_pesticides
+- **Type**: `bool`
+- **Description**: Include the Pest Treatment Activities section. Defaults to `true`.
+
+### include_observations
+- **Type**: `bool`
+- **Description**: Include the Crop Data & Observations section. Defaults to `true`.
+
+### certification
+- **Type**: `QualityCertification` (optional request body)
+- **Description**: Optional quality certification details rendered in the observations section. Fields (all optional): `cert_type`, `cert_number`, `cert_issuing_body`, `cert_issue_date`, `cert_expiry_date`, `cert_notes`.
+
+## Response
+
+Response is uuid of generated PDF file, pollable via `GET /{report_id}/`.
+
 <h2>Pytest</h2>
 Pytest can be run on the same machine the service has been deployed to by moving into the app dir and running:
 
