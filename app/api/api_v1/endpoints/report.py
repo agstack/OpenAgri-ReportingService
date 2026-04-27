@@ -6,6 +6,8 @@ from typing import Optional
 from fastapi import (
     APIRouter,
     Depends,
+    File,
+    Form,
     HTTPException,
     UploadFile,
     BackgroundTasks,
@@ -14,12 +16,13 @@ from pydantic import UUID4
 
 from api import deps
 from core import settings
-from schemas import PDF, QualityCertification
+from schemas import PDF, ManualFarmInfo, ManualParcelInfo, QualityCertification
 from utils import decode_jwt_token
 from utils.animals_report import process_animal_data
 from utils.farm_calendar_report import process_farm_calendar_data
 from utils.field_notebook_report import process_field_notebook_data
 from utils.irrig_fert_pest_report import process_irrigation_fertilization_data
+from utils.standalone_observation_report import process_standalone_observation_data
 from fastapi.responses import FileResponse
 
 router = APIRouter()
@@ -238,6 +241,88 @@ async def generate_fertilization_report(
         parcel_id=parcel_id,
         irrigation_flag=False,
         fertilization_flag=True
+    )
+
+    return PDF(uuid=uuid_v4)
+
+
+@router.get("/standalone-observation-report/{report_id}/", response_class=FileResponse)
+def retrieve_standalone_observation_pdf(report_id: str):
+    """
+    Retrieve a standalone-observation PDF. No authentication required —
+    matches the no-auth POST endpoint.
+    """
+    file_path = f"{settings.PDF_DIRECTORY}standalone/{report_id}.pdf"
+
+
+    if not os.path.exists(file_path):
+        raise HTTPException(
+            status_code=202,
+            detail=f"PDF uuid {report_id} is being generated. Please be patient and try again in couple of seconds.",
+        )
+
+    return FileResponse(
+        path=file_path, media_type="application/pdf", filename=f"{report_id}"
+    )
+
+
+@router.post("/standalone-observation-report/", response_model=PDF)
+async def generate_standalone_observation_report(
+    background_tasks: BackgroundTasks,
+    data: UploadFile = File(..., description="JSON file containing a pure JSON-LD observation array"),
+    title: str = Form("Observation Report"),
+    from_date: Optional[datetime.date] = Form(None),
+    to_date: Optional[datetime.date] = Form(None),
+    parcel_address: str = Form(""),
+    parcel_identifier: str = Form(""),
+    parcel_area: float = Form(0.0),
+    parcel_lat: Optional[float] = Form(None),
+    parcel_lng: Optional[float] = Form(None),
+    farm_name: str = Form(""),
+    farm_municipality: str = Form(""),
+    farm_administrator: str = Form(""),
+    farm_vat_id: str = Form(""),
+    farm_contact_person: str = Form(""),
+    farm_description: str = Form(""),
+):
+    """
+    Generates an Observation Report PDF from a pure JSON-LD observation array.
+
+    Unlike the other endpoints, no Farm Calendar lookups happen here and no
+    authentication is required. Parcel and farm information must be supplied
+    manually as form fields, and the observation data must be uploaded as a
+    top-level JSON array (e.g. `[ {"@type": "Observation", ...}, ... ]`).
+    """
+    uuid_v4 = str(uuid.uuid4())
+    uuid_of_pdf = f"standalone/{uuid_v4}"
+
+    parcel = ManualParcelInfo(
+        address=parcel_address,
+        identifier=parcel_identifier,
+        area=parcel_area,
+        lat=parcel_lat,
+        lng=parcel_lng,
+    )
+    farm = ManualFarmInfo(
+        name=farm_name,
+        municipality=farm_municipality,
+        administrator=farm_administrator,
+        vatID=farm_vat_id,
+        contactPerson=farm_contact_person,
+        description=farm_description,
+    )
+
+    file_bytes = data.file.read()
+
+    background_tasks.add_task(
+        process_standalone_observation_data,
+        data=file_bytes,
+        pdf_file_name=uuid_of_pdf,
+        parcel=parcel,
+        farm=farm,
+        title=title,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     return PDF(uuid=uuid_v4)

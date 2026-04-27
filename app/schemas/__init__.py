@@ -4,3 +4,4 @@ from .user import *
 from .irrigation import *
 from .compost import *
 from .animals import *
+from .standalone_observation import *

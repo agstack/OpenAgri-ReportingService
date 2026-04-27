@@ -26,7 +26,7 @@ class ActivityType(BaseModel):
 
 class HasResult(BaseModel):
     type: str = Field(alias="@type")
-    id: str = Field(alias="@id")
+    id: Optional[str] = Field(alias="@id", default=None)
     unit: Optional[str] = None
     hasValue: Optional[str] = None
 
@@ -34,7 +34,7 @@ class CropObservation(BaseModel):
     """Model for observations"""
 
     type: str = Field(alias="@type")
-    id: str = Field(alias="@id")
+    id: Optional[str] = Field(alias="@id", default=None)
     activityType: Optional[dict] = None
     title: Optional[str] = ""
     details: Optional[str] = ""
