@@ -3,7 +3,7 @@ alembic==1.13.1 # DB migrations
 requests==2.32.3
 psycopg2==2.9.9 # PSQL driver
 password-validator==1.0 # Enforceable rules for passwords
-pydantic-settings==2.2.1 # Pydantic settings options [donated to the python-org, not part of the main package anymore]
+pydantic-settings==2.8.1 # Pydantic settings options [donated to the python-org, not part of the main package anymore]
 passlib==1.7.4 # For password managment
 PyJWT==2.8.0 # Instead of jose (has a CVE)
 argon2_cffi==23.1.0 # Backend for Argon encryption
@@ -25,4 +25,4 @@ httpx==0.27.2
 black==24.10.0 # Python formatter
 ruff==0.8.1
 pre-commit==4.0.1
-
+pydantic-settings-export==1.0.3

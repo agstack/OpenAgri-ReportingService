@@ -58,6 +58,8 @@ docker compose build
 docker compose up
 ```
 
+See [CONFIGURATION.md](./CONFIGURATION.md) for available environment settings.
+
 The application will be served on http://127.0.0.1:8009 (I.E. typing localhost/docs in your browser will load the swagger documentation)
 
 Full list of APIs available you can check [here](https://editor.swagger.io/?url=https://gist.githubusercontent.com/JoleVLF/7f5771b23a44e508b82e47d5fafd9f9c/raw/)
