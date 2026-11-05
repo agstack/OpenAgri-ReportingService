@@ -452,5 +452,5 @@ You can also open an issue to discuss ideas.
 Reporting Service is part of OpenAgri project, building tools for agriculture & climate data. Your contribution helps farmers and researchers.
 
 # License
-This project code is licensed under the EUPL 1.2 license, see the [LICENSE](https://github.com/agstack/OpenAgri-ReportingService/blob/main/LICENSE) file for more details.
+This project code is licensed under the Apache 2.0 license, see the [LICENSE](https://github.com/agstack/OpenAgri-ReportingService/blob/main/LICENSE) file for more details.
 Please note that each service may have different licenses, which can be found their specific source code repository.
